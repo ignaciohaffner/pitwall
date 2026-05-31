@@ -9,7 +9,7 @@ use crate::services::state_service::StateService;
 const URL: &str = "livetiming.formula1.com/signalr";
 const HUB: &str = "Streaming";
 
-const TOPICS: [&str; 17] = [
+const TOPICS: [&str; 18] = [
     "Heartbeat",
     "CarData.z",
     "Position.z",
@@ -27,6 +27,7 @@ const TOPICS: [&str; 17] = [
     "TimingData",
     "TeamRadio",
     "ChampionshipPrediction",
+    "TopThree",
 ];
 
 pub async fn ingest_f1(

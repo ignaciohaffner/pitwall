@@ -54,8 +54,8 @@ export default function DriverDetailModal({ driver, timingDriver, position, onCl
 			<div className="flex-1 divide-y divide-zinc-800/60 overflow-y-auto">
 				<div className="flex items-center gap-4 px-4 py-3">
 					<DriverDRS
-						on={carData ? hasDRS(carData[45]) : false}
-						possible={carData ? possibleDRS(carData[45]) : false}
+						on={carData ? hasDRS(carData[45] ?? 0) : false}
+						possible={carData ? possibleDRS(carData[45] ?? 0) : false}
 						inPit={timingDriver.InPit}
 						pitOut={timingDriver.PitOut}
 					/>

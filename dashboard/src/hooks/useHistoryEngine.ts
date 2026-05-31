@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 
 import { useDataStore } from "@/stores/useDataStore";
+import type { DataStore } from "@/stores/useDataStore";
 import { useHistoryStore, parseTimeMs } from "@/stores/useHistoryStore";
 
 export const useHistoryEngine = () => {
@@ -11,7 +12,7 @@ export const useHistoryEngine = () => {
 	const prevLapRef = useRef<number>(0);
 
 	useEffect(() => {
-		const unsubscribe = useDataStore.subscribe((state) => {
+		const processState = (state: DataStore) => {
 			// Bootstrap from server-side LapHistory on first load
 			if (!bootstrappedRef.current && state.state?.LapHistory) {
 				const history = state.state.LapHistory;
@@ -67,7 +68,12 @@ export const useHistoryEngine = () => {
 				}
 				prevLapRef.current = currentLap;
 			}
-		});
+		};
+
+		// Run immediately in case the initial SSE state arrived before this effect ran
+		processState(useDataStore.getState());
+
+		const unsubscribe = useDataStore.subscribe(processState);
 
 		return unsubscribe;
 	}, []);

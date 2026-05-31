@@ -1,3 +1,5 @@
+import clsx from "clsx";
+
 import { useSettingsStore } from "@/stores/useSettingsStore";
 
 import type { CarDataChannels } from "@/types/state.type";
@@ -16,7 +18,7 @@ export default function DriverCarMetrics({ carData }: Props) {
 	const speedUnit = useSettingsStore((state) => state.speedUnit);
 
 	return (
-		<div className="flex items-center gap-2 place-self-start">
+		<div className="flex items-center gap-3 place-self-start">
 			<p className="flex h-8 w-8 items-center justify-center font-mono text-lg">{carData[3]}</p>
 
 			<div>
@@ -26,12 +28,10 @@ export default function DriverCarMetrics({ carData }: Props) {
 				<p className="text-sm leading-none text-zinc-600">{speedUnit === "metric" ? "km/h" : "mp/h"}</p>
 			</div>
 
-			<div className="flex flex-col">
-				<div className="flex flex-col gap-1">
-					<DriverPedals className="bg-red-500" value={carData[5]} maxValue={1} />
-					<DriverPedals className="bg-emerald-500" value={carData[4]} maxValue={100} />
-					<DriverPedals className="bg-blue-500" value={carData[0]} maxValue={15000} />
-				</div>
+			<div className="flex flex-col gap-1">
+				<DriverPedals className="bg-red-500" value={carData[5]} maxValue={100} />
+				<DriverPedals className="bg-emerald-500" value={carData[4]} maxValue={100} />
+				<DriverPedals className="bg-blue-500" value={carData[0]} maxValue={15000} />
 			</div>
 		</div>
 	);

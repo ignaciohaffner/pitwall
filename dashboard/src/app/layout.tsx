@@ -19,7 +19,7 @@ type Props = Readonly<{
 
 export default function RootLayout({ children }: Props) {
 	return (
-		<html lang="en" className={`${GeistSans.variable} ${GeistMono.variable} font-sans text-white`}>
+		<html lang="en" suppressHydrationWarning className={`${GeistSans.variable} ${GeistMono.variable} font-sans text-white`}>
 			<head>
 				<EnvScript />
 

@@ -99,8 +99,8 @@ const TrackMapDriver = ({ position, driver, timingDriver }: TrackMapDriverProps)
 			>
 				<DriverTag className="min-w-full!" short={driver.Tla} teamColor={driver.TeamColour} position={position} />
 				<DriverDRS
-					on={carData ? hasDRS(carData[45]) : false}
-					possible={carData ? possibleDRS(carData[45]) : false}
+					on={carData ? hasDRS(carData[45] ?? 0) : false}
+					possible={carData ? possibleDRS(carData[45] ?? 0) : false}
 					inPit={timingDriver.InPit}
 					pitOut={timingDriver.PitOut}
 				/>

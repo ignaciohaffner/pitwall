@@ -43,7 +43,7 @@ export function WeatherMap() {
 				type: "raster",
 				source: {
 					type: "raster",
-					tiles: [`${rainviewer.host}/${frame.path}/256/{z}/{x}/{y}/8/1_0.webp`],
+					tiles: [`/api/rainviewer${frame.path}/256/{z}/{x}/{y}/8/1_0.webp`],
 					tileSize: 256,
 				},
 				paint: {

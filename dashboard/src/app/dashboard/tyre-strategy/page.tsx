@@ -62,7 +62,7 @@ export default function TyreStrategy() {
 
 							{/* Bar area */}
 							<div className="relative h-6 flex-1 rounded-sm bg-zinc-900">
-								{renderStints(d.Stints, totalLaps, currentLap)}
+								{renderStints(d.Stints ?? [], totalLaps, currentLap)}
 							</div>
 						</div>
 					);

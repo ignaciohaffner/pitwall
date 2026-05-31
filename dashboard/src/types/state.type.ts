@@ -358,14 +358,14 @@ export type CarsData = {
 export type CarDataChannels = {
 	/** 0 - RPM */
 	"0": number;
-	/** 2 - Speed number km/h */
+	/** 2 - Speed km/h */
 	"2": number;
-	/** 3 - gear number */
+	/** 3 - Gear */
 	"3": number;
-	/** 4 - Throttle int 0-100 */
+	/** 4 - Throttle 0-100 */
 	"4": number;
-	/** 5 - Brake number boolean */
+	/** 5 - Brake 0-100 (was boolean 0/1 pre-2026) */
 	"5": number;
-	/** 45 - DRS */
-	"45": number;
+	/** 45 - DRS (pre-2026 only, absent in 2026+ streams) */
+	"45"?: number;
 };

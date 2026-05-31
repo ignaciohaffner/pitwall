@@ -4,7 +4,7 @@ import type { CarsData, Positions, State } from "@/types/state.type";
 
 // main store
 
-type DataStore = {
+export type DataStore = {
 	state: State | null;
 	carsData: CarsData | null;
 	positions: Positions | null;

@@ -150,7 +150,8 @@ export default function LapTimes() {
 	);
 }
 
-function isLight(hex: string): boolean {
+function isLight(hex: string | undefined): boolean {
+	if (!hex || hex.length < 6) return false;
 	const r = parseInt(hex.slice(0, 2), 16);
 	const g = parseInt(hex.slice(2, 4), 16);
 	const b = parseInt(hex.slice(4, 6), 16);

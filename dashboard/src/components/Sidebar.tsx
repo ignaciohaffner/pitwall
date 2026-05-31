@@ -36,6 +36,10 @@ const liveTimingItems = [
 		name: "Lap Times",
 	},
 	{
+		href: "/dashboard/speed-traps",
+		name: "Speed Traps",
+	},
+	{
 		href: "/dashboard/weather",
 		name: "Weather",
 	},

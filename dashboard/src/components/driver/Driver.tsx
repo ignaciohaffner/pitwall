@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import clsx from "clsx";
+import Link from "next/link";
 import { motion } from "motion/react";
 
 import type { Driver, TimingDataDriver } from "@/types/state.type";
@@ -17,7 +17,7 @@ import DriverMiniSectors from "./DriverMiniSectors";
 import DriverLapTime from "./DriverLapTime";
 import DriverInfo from "./DriverInfo";
 import DriverCarMetrics from "./DriverCarMetrics";
-import DriverDetailModal from "./DriverDetailModal";
+import DriverBattery from "./DriverBattery";
 
 type Props = {
 	position: number;
@@ -42,9 +42,7 @@ const inDangerZone = (position: number, sessionPart: number) => {
 };
 
 export default function Driver({ driver, timingDriver, position }: Props) {
-	const [showDetail, setShowDetail] = useState(false);
-
-	const sessionPart = useDataStore((state) => state.state?.TimingData?.SessionPart);
+const sessionPart = useDataStore((state) => state.state?.TimingData?.SessionPart);
 	const timingStatsDriver = useDataStore((state) => state.state?.TimingStats?.Lines[driver.RacingNumber]);
 	const appTimingDriver = useDataStore((state) => state.state?.TimingAppData?.Lines[driver.RacingNumber]);
 	const carData = useDataStore((state) => (state?.carsData ? state.carsData[driver.RacingNumber].Channels : undefined));
@@ -71,14 +69,14 @@ export default function Driver({ driver, timingDriver, position }: Props) {
 						className="grid items-center gap-2"
 						style={{
 							gridTemplateColumns: carMetrics
-								? "5.5rem 3.5rem 5.5rem 4rem 5rem 5.5rem auto 10.5rem"
-								: "5.5rem 3.5rem 5.5rem 4rem 5rem 5.5rem auto",
+								? "5.5rem 3.5rem 5.5rem 4rem 5rem 5.5rem auto 6rem 10.5rem"
+								: "5.5rem 3.5rem 5.5rem 4rem 5rem 5.5rem auto 6rem",
 						}}
 					>
 						<DriverTag className="min-w-full!" short={driver.Tla} teamColor={driver.TeamColour} position={position} />
 						<DriverDRS
-							on={carData ? hasDRS(carData[45]) : false}
-							possible={carData ? possibleDRS(carData[45]) : false}
+							on={carData ? hasDRS(carData[45] ?? 0) : false}
+							possible={carData ? possibleDRS(carData[45] ?? 0) : false}
 							inPit={timingDriver.InPit}
 							pitOut={timingDriver.PitOut}
 						/>
@@ -87,12 +85,13 @@ export default function Driver({ driver, timingDriver, position }: Props) {
 						<DriverGap timingDriver={timingDriver} sessionPart={sessionPart} />
 						<DriverLapTime last={timingDriver.LastLapTime} best={timingDriver.BestLapTime} hasFastest={hasFastest} />
 						<DriverMiniSectors sectors={timingDriver.Sectors} bestSectors={timingStatsDriver?.BestSectors} />
+						<DriverBattery carData={carData} />
 
 						{carMetrics && carData && <DriverCarMetrics carData={carData} />}
 					</div>
 
-					<button
-						onClick={() => setShowDetail(true)}
+					<Link
+						href={`/dashboard/driver/${driver.RacingNumber}`}
 						className="ml-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-zinc-600 hover:bg-zinc-800 hover:text-zinc-200 active:bg-zinc-700"
 						aria-label={`View details for ${driver.FullName}`}
 					>
@@ -109,18 +108,10 @@ export default function Driver({ driver, timingDriver, position }: Props) {
 						>
 							<path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
 						</svg>
-					</button>
+					</Link>
 				</div>
 			</motion.div>
 
-			{showDetail && (
-				<DriverDetailModal
-					driver={driver}
-					timingDriver={timingDriver}
-					position={position}
-					onClose={() => setShowDetail(false)}
-				/>
-			)}
 		</>
 	);
 }

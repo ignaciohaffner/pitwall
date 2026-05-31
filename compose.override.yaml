@@ -1,0 +1,8 @@
+services:
+  api:
+    ports:
+      - "4001:80"
+
+  realtime:
+    environment:
+      - F1_DEV_URL=ws://simulator:3001/ws
