@@ -6,32 +6,43 @@ import { useDataStore } from "@/stores/useDataStore";
 
 import { getTrackStatusMessage } from "@/lib/getTrackStatusMessage";
 
+const STATUS_TEXT_COLOR: Record<string, string> = {
+	"Track Clear": "text-emerald-400",
+	"Yellow Flag": "text-amber-400",
+	Flag: "text-amber-400",
+	"Safety Car": "text-amber-400",
+	"Red Flag": "text-red-400",
+	"VSC Deployed": "text-amber-400",
+	"VSC Ending": "text-amber-300",
+};
+
 export default function TrackInfo() {
 	const lapCount = useDataStore((state) => state.state?.LapCount);
 	const track = useDataStore((state) => state.state?.TrackStatus);
 
-	const currentTrackStatus = getTrackStatusMessage(track?.Status ? parseInt(track?.Status) : undefined);
+	const status = getTrackStatusMessage(track?.Status ? parseInt(track.Status) : undefined);
+	const statusColor = status ? (STATUS_TEXT_COLOR[status.message] ?? "text-zinc-300") : "text-zinc-700";
 
 	return (
-		<div className="flex flex-row items-center gap-4 md:justify-self-end">
-			{!!lapCount && (
-				<p className="text-3xl font-extrabold whitespace-nowrap">
-					{lapCount?.CurrentLap} / {lapCount?.TotalLaps}
-				</p>
+		<span className="flex items-center gap-[2ch] font-mono text-sm">
+			{lapCount && (
+				<span>
+					<span className="text-zinc-600">LAP</span>{" "}
+					<span className="font-bold tabular-nums text-white">{lapCount.CurrentLap}</span>
+					<span className="text-zinc-700">/</span>
+					<span className="tabular-nums text-zinc-400">{lapCount.TotalLaps}</span>
+				</span>
 			)}
 
-			{!!currentTrackStatus ? (
-				<div
-					className={clsx("flex h-8 items-center truncate rounded-md px-2", currentTrackStatus.color)}
-					style={{
-						boxShadow: `0 0 60px 10px ${currentTrackStatus.hex}`,
-					}}
-				>
-					<p className="text-lg font-medium">{currentTrackStatus.message}</p>
-				</div>
+			<span className="text-zinc-700">│</span>
+
+			{status ? (
+				<span className={clsx("font-bold uppercase tracking-wide", statusColor)}>
+					■ {status.message}
+				</span>
 			) : (
-				<div className="relative h-8 w-28 animate-pulse overflow-hidden rounded-lg bg-zinc-800" />
+				<span className="text-zinc-700">■ ---</span>
 			)}
-		</div>
+		</span>
 	);
 }

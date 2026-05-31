@@ -9,21 +9,14 @@ type Props = {
 
 export default function DriverTag({ position, teamColor, short, className }: Props) {
 	return (
-		<div
-			id="walkthrough-driver-position"
-			className={clsx(
-				"flex w-fit items-center justify-between gap-0.5 rounded-lg bg-zinc-500 px-1 py-1 font-black",
-				className,
+		<span className={clsx("flex items-baseline gap-0 overflow-hidden", className)}>
+			<span style={{ color: teamColor ? `#${teamColor}` : "#444" }} className="mr-[0.5ch] shrink-0">▌</span>
+			{position !== undefined && (
+				<span className="w-[2ch] shrink-0 text-right tabular-nums text-zinc-600">{position}</span>
 			)}
-			style={{ backgroundColor: `#${teamColor}` }}
-		>
-			{position && <p className="px-1 text-xl leading-none">{position}</p>}
-
-			<div className="flex h-min w-min items-center justify-center rounded-md bg-white px-1">
-				<p className="font-mono text-zinc-500" style={{ ...(teamColor && { color: `#${teamColor}` }) }}>
-					{short}
-				</p>
-			</div>
-		</div>
+			<span className="ml-[0.5ch] font-bold" style={{ color: teamColor ? `#${teamColor}` : "#888" }}>
+				{short}
+			</span>
+		</span>
 	);
 }

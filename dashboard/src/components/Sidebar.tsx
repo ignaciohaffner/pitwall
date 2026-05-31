@@ -14,36 +14,6 @@ import DelayInput from "@/components/DelayInput";
 import SidenavButton from "@/components/SidenavButton";
 import DelayTimer from "@/components/DelayTimer";
 
-const liveTimingItems = [
-	{
-		href: "/dashboard",
-		name: "Dashboard",
-	},
-	{
-		href: "/dashboard/track-map",
-		name: "Track Map",
-	},
-	{
-		href: "/dashboard/standings",
-		name: "Standings",
-	},
-	{
-		href: "/dashboard/tyre-strategy",
-		name: "Tyre Strategy",
-	},
-	{
-		href: "/dashboard/lap-times",
-		name: "Lap Times",
-	},
-	{
-		href: "/dashboard/speed-traps",
-		name: "Speed Traps",
-	},
-	{
-		href: "/dashboard/weather",
-		name: "Weather",
-	},
-];
 
 type Props = {
 	connected: boolean;
@@ -124,14 +94,6 @@ export default function Sidebar({ connected }: Props) {
 
 						<SidenavButton className="hidden md:flex" onClick={() => (pinned ? unpin() : pin())} />
 						<SidenavButton className="md:hidden" onClick={() => close()} />
-					</div>
-
-					<p className="p-2 text-sm text-zinc-500">Live Timing</p>
-
-					<div className="flex flex-col gap-1">
-						{liveTimingItems.map((item) => (
-							<Item key={item.href} item={item} />
-						))}
 					</div>
 
 					{/* <p className="mt-4 p-2 text-sm text-zinc-500">Favorite Drivers</p>

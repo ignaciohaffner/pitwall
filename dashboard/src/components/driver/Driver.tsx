@@ -17,7 +17,6 @@ import DriverMiniSectors from "./DriverMiniSectors";
 import DriverLapTime from "./DriverLapTime";
 import DriverInfo from "./DriverInfo";
 import DriverCarMetrics from "./DriverCarMetrics";
-import DriverBattery from "./DriverBattery";
 
 type Props = {
 	position: number;
@@ -25,93 +24,79 @@ type Props = {
 	timingDriver: TimingDataDriver;
 };
 
-const hasDRS = (drs: number) => drs > 9;
+// shared grid so headers and rows line up exactly
+export const DRIVER_GRID_COLS = "7ch 3ch 7ch 4ch 9ch 9ch auto";
+export const DRIVER_GRID_GAP = "2ch";
 
+const hasDRS = (drs: number) => drs > 9;
 const possibleDRS = (drs: number) => drs === 8;
 
 const inDangerZone = (position: number, sessionPart: number) => {
 	switch (sessionPart) {
-		case 1:
-			return position > 15;
-		case 2:
-			return position > 10;
-		case 3:
-		default:
-			return false;
+		case 1: return position > 15;
+		case 2: return position > 10;
+		default: return false;
 	}
 };
 
 export default function Driver({ driver, timingDriver, position }: Props) {
-const sessionPart = useDataStore((state) => state.state?.TimingData?.SessionPart);
+	const sessionPart = useDataStore((state) => state.state?.TimingData?.SessionPart);
 	const timingStatsDriver = useDataStore((state) => state.state?.TimingStats?.Lines[driver.RacingNumber]);
 	const appTimingDriver = useDataStore((state) => state.state?.TimingAppData?.Lines[driver.RacingNumber]);
 	const carData = useDataStore((state) => (state?.carsData ? state.carsData[driver.RacingNumber].Channels : undefined));
 
 	const hasFastest = timingStatsDriver?.PersonalBestLapTime.Position == 1;
-
 	const carMetrics = useSettingsStore((state) => state.carMetrics);
-
 	const favoriteDriver = useSettingsStore((state) => state.favoriteDrivers.includes(driver.RacingNumber));
 
 	return (
-		<>
-			<motion.div
-				layout="position"
-				className={clsx("flex flex-col gap-1 rounded-lg p-1.5 select-none", {
-					"opacity-50": timingDriver.KnockedOut || timingDriver.Retired || timingDriver.Stopped,
-					"bg-sky-800/30": favoriteDriver,
-					"bg-violet-800/30": hasFastest,
-					"bg-red-800/30": sessionPart != undefined && inDangerZone(position, sessionPart),
-				})}
+		<motion.div
+			layout="position"
+			className={clsx(
+				"group flex w-full items-center border-b border-zinc-900 py-0.5 pl-2 pr-1 font-mono text-base leading-none select-none",
+				{
+					"opacity-30": timingDriver.KnockedOut || timingDriver.Retired || timingDriver.Stopped,
+					"bg-sky-950/60": favoriteDriver,
+					"bg-violet-950/60": hasFastest,
+					"bg-red-950/60": sessionPart != undefined && inDangerZone(position, sessionPart),
+				},
+			)}
+		>
+			<div
+				className="grid min-w-0 flex-1 items-center"
+				style={{ columnGap: DRIVER_GRID_GAP, gridTemplateColumns: DRIVER_GRID_COLS }}
 			>
-				<div className="flex items-center gap-1">
-					<div
-						className="grid items-center gap-2"
-						style={{
-							gridTemplateColumns: carMetrics
-								? "5.5rem 3.5rem 5.5rem 4rem 5rem 5.5rem auto 6rem 10.5rem"
-								: "5.5rem 3.5rem 5.5rem 4rem 5rem 5.5rem auto 6rem",
-						}}
-					>
-						<DriverTag className="min-w-full!" short={driver.Tla} teamColor={driver.TeamColour} position={position} />
-						<DriverDRS
-							on={carData ? hasDRS(carData[45] ?? 0) : false}
-							possible={carData ? possibleDRS(carData[45] ?? 0) : false}
-							inPit={timingDriver.InPit}
-							pitOut={timingDriver.PitOut}
-						/>
-						<DriverTire stints={appTimingDriver?.Stints} />
-						<DriverInfo timingDriver={timingDriver} gridPos={appTimingDriver ? parseInt(appTimingDriver.GridPos) : 0} />
-						<DriverGap timingDriver={timingDriver} sessionPart={sessionPart} />
-						<DriverLapTime last={timingDriver.LastLapTime} best={timingDriver.BestLapTime} hasFastest={hasFastest} />
-						<DriverMiniSectors sectors={timingDriver.Sectors} bestSectors={timingStatsDriver?.BestSectors} />
-						<DriverBattery carData={carData} />
+				<DriverTag short={driver.Tla} teamColor={driver.TeamColour} position={position} />
 
-						{carMetrics && carData && <DriverCarMetrics carData={carData} />}
-					</div>
+				<DriverDRS
+					on={carData ? hasDRS(carData[45] ?? 0) : false}
+					possible={carData ? possibleDRS(carData[45] ?? 0) : false}
+					inPit={timingDriver.InPit}
+					pitOut={timingDriver.PitOut}
+				/>
 
-					<Link
-						href={`/dashboard/driver/${driver.RacingNumber}`}
-						className="ml-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-zinc-600 hover:bg-zinc-800 hover:text-zinc-200 active:bg-zinc-700"
-						aria-label={`View details for ${driver.FullName}`}
-					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="14"
-							height="14"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							strokeWidth="2"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-						>
-							<path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
-						</svg>
-					</Link>
-				</div>
-			</motion.div>
+				<DriverTire stints={appTimingDriver?.Stints} />
 
-		</>
+				<DriverInfo timingDriver={timingDriver} gridPos={appTimingDriver ? parseInt(appTimingDriver.GridPos) : 0} />
+
+				<DriverGap timingDriver={timingDriver} sessionPart={sessionPart} />
+
+				<DriverLapTime last={timingDriver.LastLapTime} best={timingDriver.BestLapTime} hasFastest={hasFastest} />
+
+				<DriverMiniSectors sectors={timingDriver.Sectors} bestSectors={timingStatsDriver?.BestSectors} />
+
+				{carMetrics && carData && <DriverCarMetrics carData={carData} />}
+			</div>
+
+			<Link
+				href={`/dashboard/driver/${driver.RacingNumber}`}
+				className="ml-2 hidden h-4 w-4 shrink-0 items-center justify-center text-zinc-800 hover:text-zinc-500 group-hover:flex"
+				aria-label={`View ${driver.FullName}`}
+			>
+				<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+					<path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+				</svg>
+			</Link>
+		</motion.div>
 	);
 }

@@ -5,8 +5,6 @@ import { utc, duration } from "moment";
 import { useDataStore } from "@/stores/useDataStore";
 import { useSettingsStore } from "@/stores/useSettingsStore";
 
-import Flag from "@/components/Flag";
-
 const sessionPartPrefix = (name: string) => {
 	switch (name) {
 		case "Sprint Qualifying":
@@ -36,26 +34,24 @@ export default function SessionInfo() {
 				: clock.Remaining
 			: undefined;
 
+	const countryCode = session?.Meeting.Country.Code?.toUpperCase() ?? "---";
+	const sessionName = session
+		? `${session.Meeting.Name}: ${session.Name}${timingData?.SessionPart ? ` ${sessionPartPrefix(session.Name)}${timingData.SessionPart}` : ""}`
+		: null;
+
 	return (
-		<div className="flex items-center gap-2">
-			<Flag countryCode={session?.Meeting.Country.Code} />
-
-			<div className="flex flex-col justify-center">
-				{session ? (
-					<h1 className="truncate text-sm leading-none font-medium text-white">
-						{session.Meeting.Name}: {session.Name ?? "Unknown"}
-						{timingData?.SessionPart ? ` ${sessionPartPrefix(session.Name)}${timingData.SessionPart}` : ""}
-					</h1>
-				) : (
-					<div className="h-4 w-[250px] animate-pulse rounded-md bg-zinc-800" />
-				)}
-
-				{timeRemaining !== undefined ? (
-					<p className="text-2xl leading-none font-extrabold">{timeRemaining}</p>
-				) : (
-					<div className="mt-1 h-6 w-[150px] animate-pulse rounded-md bg-zinc-800 font-semibold" />
-				)}
-			</div>
-		</div>
+		<span className="flex items-center gap-[1.5ch] font-mono text-sm">
+			<span className="text-zinc-500 tabular-nums">{countryCode}</span>
+			<span className="text-zinc-700">│</span>
+			{sessionName ? (
+				<span className="text-zinc-300 uppercase tracking-wide">{sessionName}</span>
+			) : (
+				<span className="text-zinc-700">loading...</span>
+			)}
+			<span className="text-zinc-700">│</span>
+			<span className="font-bold tabular-nums text-white">
+				{timeRemaining ?? "--:--:--"}
+			</span>
+		</span>
 	);
 }

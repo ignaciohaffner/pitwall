@@ -7,5 +7,14 @@ type Props = {
 };
 
 export default function ConnectionStatus({ connected }: Props) {
-	return <div className={clsx("size-3 rounded-full", connected ? "bg-emerald-500" : "animate-pulse bg-red-500")} />;
+	return (
+		<span
+			className={clsx(
+				"font-mono text-sm font-bold leading-none",
+				connected ? "text-emerald-500" : "animate-pulse text-red-500",
+			)}
+		>
+			{connected ? "●" : "○"}
+		</span>
+	);
 }

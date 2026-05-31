@@ -1,12 +1,11 @@
 import { AnimatePresence, LayoutGroup } from "motion/react";
-import clsx from "clsx";
 
 import { useSettingsStore } from "@/stores/useSettingsStore";
 import { useDataStore } from "@/stores/useDataStore";
 
 import { sortPos } from "@/lib/sorting";
 
-import Driver from "@/components/driver/Driver";
+import Driver, { DRIVER_GRID_COLS, DRIVER_GRID_GAP } from "@/components/driver/Driver";
 
 export default function LeaderBoard() {
 	const drivers = useDataStore(({ state }) => state?.DriverList);
@@ -15,7 +14,7 @@ export default function LeaderBoard() {
 	const showTableHeader = useSettingsStore((state) => state.tableHeaders);
 
 	return (
-		<div className="flex w-fit flex-col gap-0.5">
+		<div className="w-full overflow-x-auto font-mono text-base">
 			{showTableHeader && <TableHeaders />}
 
 			{(!drivers || !driversTiming) &&
@@ -41,88 +40,23 @@ export default function LeaderBoard() {
 	);
 }
 
-const TableHeaders = () => {
-	const carMetrics = useSettingsStore((state) => state.carMetrics);
+const TableHeaders = () => (
+	<div
+		className="grid items-center border-b-2 border-zinc-600 py-0.5 pl-2 pr-1 font-mono text-base leading-none"
+		style={{ columnGap: DRIVER_GRID_GAP, gridTemplateColumns: DRIVER_GRID_COLS }}
+	>
+		<span className="text-[11px] uppercase tracking-widest text-zinc-500">POS</span>
+		<span className="text-[11px] uppercase tracking-widest text-zinc-500">OVT</span>
+		<span className="text-[11px] uppercase tracking-widest text-zinc-500">TYRE</span>
+		<span className="text-right text-[11px] uppercase tracking-widest text-zinc-500">INFO</span>
+		<span className="text-right text-[11px] uppercase tracking-widest text-zinc-500">GAP</span>
+		<span className="text-right text-[11px] uppercase tracking-widest text-zinc-500">LAP</span>
+		<span className="text-[11px] uppercase tracking-widest text-zinc-500">SECTORS</span>
+	</div>
+);
 
-	return (
-		<div
-			className="grid items-center gap-2 p-1 px-2 text-sm font-medium text-zinc-500"
-			style={{
-				gridTemplateColumns: carMetrics
-					? "5.5rem 3.5rem 5.5rem 4rem 5rem 5.5rem auto 10.5rem"
-					: "5.5rem 3.5rem 5.5rem 4rem 5rem 5.5rem auto",
-			}}
-		>
-			<p>Position</p>
-			<p>DRS</p>
-			<p>Tire</p>
-			<p>Info</p>
-			<p>Gap</p>
-			<p>LapTime</p>
-			<p>Sectors</p>
-			{carMetrics && <p>Car Metrics</p>}
-		</div>
-	);
-};
-
-const SkeletonDriver = () => {
-	const carMetrics = useSettingsStore((state) => state.carMetrics);
-
-	const animateClass = "h-8 animate-pulse rounded-md bg-zinc-800";
-
-	return (
-		<div
-			className="grid items-center gap-2 p-1.5"
-			style={{
-				gridTemplateColumns: carMetrics
-					? "5.5rem 3.5rem 5.5rem 4rem 5rem 5.5rem auto 10.5rem"
-					: "5.5rem 3.5rem 5.5rem 4rem 5rem 5.5rem auto",
-			}}
-		>
-			<div className={animateClass} style={{ width: "100%" }} />
-
-			<div className={animateClass} style={{ width: "100%" }} />
-
-			<div className="flex w-full gap-2">
-				<div className={clsx(animateClass, "w-8")} />
-
-				<div className="flex flex-1 flex-col gap-1">
-					<div className={clsx(animateClass, "h-4!")} />
-					<div className={clsx(animateClass, "h-3! w-2/3")} />
-				</div>
-			</div>
-
-			{new Array(2).fill(null).map((_, index) => (
-				<div className="flex w-full flex-col gap-1" key={`skeleton.${index}`}>
-					<div className={clsx(animateClass, "h-4!")} />
-					<div className={clsx(animateClass, "h-3! w-2/3")} />
-				</div>
-			))}
-
-			<div className="flex w-full flex-col gap-1">
-				<div className={clsx(animateClass, "h-3! w-4/5")} />
-				<div className={clsx(animateClass, "h-4!")} />
-			</div>
-
-			<div className="flex w-full gap-1">
-				{new Array(3).fill(null).map((_, index) => (
-					<div className="flex w-full flex-col gap-1" key={`skeleton.sector.${index}`}>
-						<div className={clsx(animateClass, "h-4!")} />
-						<div className={clsx(animateClass, "h-3! w-2/3")} />
-					</div>
-				))}
-			</div>
-
-			{carMetrics && (
-				<div className="flex w-full gap-2">
-					<div className={clsx(animateClass, "w-8")} />
-
-					<div className="flex flex-1 flex-col gap-1">
-						<div className={clsx(animateClass, "h-1/2!")} />
-						<div className={clsx(animateClass, "h-1/2!")} />
-					</div>
-				</div>
-			)}
-		</div>
-	);
-};
+const SkeletonDriver = () => (
+	<div className="border-b border-zinc-900 py-0.5 pl-2 pr-1 font-mono text-base leading-none text-zinc-800">
+		▌ -- ??? --  --------  ----------  ▒▒▒▒▒▒▒▒ ---  ▒▒▒▒▒▒▒▒ ---  ▒▒▒▒▒▒▒▒ ---
+	</div>
+);

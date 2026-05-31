@@ -40,16 +40,16 @@ export default function DashboardLayout({ children }: Props) {
 	const ended = useDataStore(({ state }) => state?.SessionStatus?.Status === 'Ends');
 
 	return (
-		<div className="flex h-screen w-full md:pt-2 md:pr-2 md:pb-2">
+		<div className="flex h-screen w-full">
 			<Sidebar key="sidebar" connected={connected} />
 
-			<motion.div layout="size" className="flex h-full w-full flex-1 flex-col md:gap-2">
+			<motion.div layout="size" className="flex h-full w-full flex-1 flex-col gap-0">
 				<DesktopStaticBar show={!syncing || ended} />
 				<MobileStaticBar show={!syncing || ended} connected={connected} />
 
 				<div
 					className={
-						!syncing || ended ? 'no-scrollbar w-full flex-1 overflow-auto md:rounded-lg' : 'hidden'
+						!syncing || ended ? 'no-scrollbar w-full flex-1 overflow-auto' : 'hidden'
 					}
 				>
 					<MobileDynamicBar />
@@ -59,7 +59,7 @@ export default function DashboardLayout({ children }: Props) {
 				<div
 					className={
 						syncing && !ended
-							? 'flex h-full flex-1 flex-col items-center justify-center gap-2 border-zinc-800 md:rounded-lg md:border'
+							? 'flex h-full flex-1 flex-col items-center justify-center gap-2'
 							: 'hidden'
 					}
 				>
@@ -89,14 +89,12 @@ function MobileStaticBar({ show, connected }: { show: boolean; connected: boolea
 	const open = useSidebarStore((state) => state.open);
 
 	return (
-		<div className="flex w-full items-center justify-between overflow-hidden border-b border-zinc-800 p-2 md:hidden">
-			<div className="flex items-center gap-2">
+		<div className="flex w-full items-center justify-between overflow-hidden border-b border-zinc-800 bg-black px-2 py-1 md:hidden font-mono text-sm">
+			<div className="flex items-center gap-[1.5ch]">
 				<SidenavButton key="mobile" onClick={() => open()} />
-
+				<ConnectionStatus connected={connected} />
 				<DelayInput saveDelay={500} />
 				<DelayTimer />
-
-				<ConnectionStatus connected={connected} />
 			</div>
 
 			{show && <TrackInfo />}
@@ -109,20 +107,27 @@ function DesktopStaticBar({ show }: { show: boolean }) {
 	const pin = useSidebarStore((state) => state.pin);
 
 	return (
-		<div className="hidden w-full flex-row justify-between overflow-hidden rounded-lg border border-zinc-800 p-2 md:flex">
-			<div className="flex items-center gap-2">
+		<div className="hidden w-full items-center justify-between overflow-hidden border-b border-zinc-800 bg-black px-2 py-1 md:flex">
+			<div className="flex items-center gap-[1.5ch] font-mono text-sm">
 				<AnimatePresence>
 					{!pinned && <SidenavButton key="desktop" className="shrink-0" onClick={() => pin()} />}
-
-					<motion.div key="session-info" layout="position">
-						<SessionInfo />
-					</motion.div>
 				</AnimatePresence>
+
+				<motion.div key="session-info" layout="position">
+					<SessionInfo />
+				</motion.div>
 			</div>
 
-			<div className="hidden md:items-center lg:flex">{show && <WeatherInfo />}</div>
-
-			<div className="flex justify-end">{show && <TrackInfo />}</div>
+			<div className="flex items-center gap-[2ch] font-mono text-sm">
+				{show && (
+					<>
+						<span className="text-zinc-700">│</span>
+						<WeatherInfo />
+						<span className="text-zinc-700">│</span>
+						<TrackInfo />
+					</>
+				)}
+			</div>
 		</div>
 	);
 }

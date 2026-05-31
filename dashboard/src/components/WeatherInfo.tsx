@@ -1,36 +1,47 @@
-import TemperatureComplication from "./complications/Temperature";
-import HumidityComplication from "./complications/Humidity";
-import WindSpeedComplication from "./complications/WindSpeed";
-import RainComplication from "./complications/Rain";
-
 import { useDataStore } from "@/stores/useDataStore";
+import { getWindDirection } from "@/lib/getWindDirection";
 
-export default function DataWeatherInfo() {
+export default function WeatherInfo() {
 	const weather = useDataStore((state) => state.state?.WeatherData);
 
-	return (
-		<div className="flex justify-between gap-4">
-			{weather ? (
-				<>
-					<TemperatureComplication value={Math.round(parseFloat(weather.TrackTemp))} label="TRC" />
-					<TemperatureComplication value={Math.round(parseFloat(weather.AirTemp))} label="AIR" />
-					<HumidityComplication value={parseFloat(weather.Humidity)} />
-					<RainComplication rain={weather.Rainfall === "1"} />
-					<WindSpeedComplication speed={parseFloat(weather.WindSpeed)} directionDeg={parseInt(weather.WindDirection)} />
-				</>
-			) : (
-				<>
-					<Loading />
-					<Loading />
-					<Loading />
-					<Loading />
-					<Loading />
-				</>
-			)}
-		</div>
-	);
-}
+	if (!weather) {
+		return (
+			<span className="font-mono text-sm text-zinc-700">
+				TRC --- AIR --- HUM --- --- ---
+			</span>
+		);
+	}
 
-function Loading() {
-	return <div className="h-[55px] w-[55px] animate-pulse rounded-full bg-zinc-800" />;
+	const trc = Math.round(parseFloat(weather.TrackTemp));
+	const air = Math.round(parseFloat(weather.AirTemp));
+	const hum = Math.round(parseFloat(weather.Humidity));
+	const speed = parseFloat(weather.WindSpeed).toFixed(1);
+	const dir = getWindDirection(parseInt(weather.WindDirection));
+	const rain = weather.Rainfall === "1";
+
+	return (
+		<span className="flex items-center gap-[2ch] font-mono text-sm">
+			<span>
+				<span className="text-zinc-600">TRC</span>{" "}
+				<span className="tabular-nums text-amber-300">{trc}°</span>
+			</span>
+			<span>
+				<span className="text-zinc-600">AIR</span>{" "}
+				<span className="tabular-nums text-sky-300">{air}°</span>
+			</span>
+			<span>
+				<span className="text-zinc-600">HUM</span>{" "}
+				<span className="tabular-nums text-zinc-300">{hum}%</span>
+			</span>
+			<span>
+				<span className="text-zinc-600">{dir}</span>{" "}
+				<span className="tabular-nums text-zinc-300">{speed}m/s</span>
+			</span>
+			{rain ? (
+				<span className="font-bold text-blue-400">RAIN</span>
+			) : (
+				<span className="text-zinc-600">DRY</span>
+			)}
+		</span>
+	);
 }

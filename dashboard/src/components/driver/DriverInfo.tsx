@@ -8,43 +8,53 @@ type Props = {
 };
 
 export default function DriverInfo({ timingDriver, gridPos }: Props) {
-	const positionChange = gridPos && gridPos - parseInt(timingDriver.Position);
-	const gain = positionChange && positionChange > 0;
-	const loss = positionChange && positionChange < 0;
+	const positionChange = gridPos ? gridPos - parseInt(timingDriver.Position) : 0;
+	const gain = positionChange > 0;
+	const loss = positionChange < 0;
 
 	const status = timingDriver.KnockedOut
 		? "OUT"
 		: !!timingDriver.Cutoff
-			? "CUTOFF"
+			? "CUT"
 			: timingDriver.Retired
-				? "RETIRED"
+				? "RET"
 				: timingDriver.Stopped
-					? "STOPPED"
+					? "STP"
 					: timingDriver.InPit
 						? "PIT"
 						: timingDriver.PitOut
-							? "PIT OUT"
+							? "OUT"
 							: null;
 
-	return (
-		<div className="place-self-start">
-			<p
-				className={clsx("text-lg leading-none font-medium tabular-nums", {
-					"text-emerald-500": gain,
-					"text-red-500": loss,
-					"text-zinc-500": !gain && !loss,
+	if (status) {
+		return (
+			<span
+				className={clsx("block w-full text-right", {
+					"text-cyan-400": status === "PIT" || status === "OUT",
+					"text-red-400": status === "RET" || status === "STP" || status === "CUT",
 				})}
 			>
-				{positionChange !== undefined
-					? gain
-						? `+${positionChange}`
-						: loss
-							? positionChange
-							: "-"
-					: `${timingDriver.NumberOfLaps}L`}
-			</p>
+				{status}
+			</span>
+		);
+	}
 
-			<p className="text-sm leading-none text-zinc-500">{status ?? "-"}</p>
-		</div>
+	if (positionChange !== 0) {
+		return (
+			<span
+				className={clsx("block w-full text-right tabular-nums", {
+					"text-emerald-400": gain,
+					"text-red-400": loss,
+				})}
+			>
+				{gain ? `+${positionChange}` : positionChange}
+			</span>
+		);
+	}
+
+	return (
+		<span className="block w-full text-right tabular-nums text-zinc-700">
+			{timingDriver.NumberOfLaps ?? 0}L
+		</span>
 	);
 }
