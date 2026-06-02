@@ -14,12 +14,12 @@ const COMPOUND_LETTER: Record<string, string> = {
 	wet: "W",
 };
 
-const COMPOUND_COLOR: Record<string, string> = {
-	soft: "text-red-400",
-	medium: "text-yellow-300",
-	hard: "text-zinc-100",
-	intermediate: "text-green-400",
-	wet: "text-blue-400",
+const COMPOUND_BG: Record<string, string> = {
+	soft: "bg-red-500 text-black",
+	medium: "bg-yellow-300 text-black",
+	hard: "bg-zinc-100 text-black",
+	intermediate: "bg-green-500 text-black",
+	wet: "bg-blue-500 text-black",
 };
 
 export default function DriverTire({ stints }: Props) {
@@ -28,16 +28,16 @@ export default function DriverTire({ stints }: Props) {
 	const compound = currentStint?.Compound?.toLowerCase() ?? "";
 	const known = compound in COMPOUND_LETTER;
 	const letter = known ? COMPOUND_LETTER[compound] : "?";
-	const color = known ? COMPOUND_COLOR[compound] : "text-zinc-500";
+	const bg = known ? COMPOUND_BG[compound] : "bg-zinc-700 text-black";
 	const laps = currentStint?.TotalLaps ?? 0;
 	const isNew = currentStint?.New;
 
 	return (
-		<span className="flex items-baseline gap-px whitespace-nowrap tabular-nums">
-			<span className={clsx("font-bold", color)}>{letter}</span>
-			<span className="text-zinc-300">{laps}</span>
-			{!isNew && <span className="text-zinc-600">*</span>}
-			<span className="ml-[0.5ch] text-zinc-700">p{stops}</span>
+		<span className="flex items-baseline gap-[0.5ch] whitespace-nowrap tabular-nums">
+			<span className={clsx("px-[0.3ch] font-bold leading-none", bg)}>
+				{letter} {laps}
+			</span>
+			<span className="text-zinc-700">p{stops}</span>
 		</span>
 	);
 }

@@ -1,57 +1,112 @@
+"use client";
+
+import { useState } from "react";
 import { AnimatePresence, LayoutGroup } from "motion/react";
+import clsx from "clsx";
 
 import { useSettingsStore } from "@/stores/useSettingsStore";
 import { useDataStore } from "@/stores/useDataStore";
 
 import { sortPos } from "@/lib/sorting";
 
-import Driver, { DRIVER_GRID_COLS, DRIVER_GRID_GAP } from "@/components/driver/Driver";
+import Driver, { driverGridCols, DRIVER_GRID_GAP } from "@/components/driver/Driver";
+import RaceHelpModal from "@/components/dashboard/RaceHelpModal";
 
 export default function LeaderBoard() {
 	const drivers = useDataStore(({ state }) => state?.DriverList);
 	const driversTiming = useDataStore(({ state }) => state?.TimingData);
-
 	const showTableHeader = useSettingsStore((state) => state.tableHeaders);
+	const [showInterval, setShowInterval] = useState(false);
+	const [showPace, setShowPace] = useState(false);
+	const [helpOpen, setHelpOpen] = useState(false);
 
 	return (
-		<div className="w-full overflow-x-auto font-mono text-base">
-			{showTableHeader && <TableHeaders />}
+		<>
+			{helpOpen && <RaceHelpModal onClose={() => setHelpOpen(false)} />}
+			<div className="w-full overflow-x-auto font-mono text-base">
+				<div className="flex items-center justify-between border-b border-zinc-800 px-2 py-0.5">
+					<span className="text-[11px] uppercase tracking-widest text-zinc-600">RACE</span>
+					<div className="flex items-center gap-3">
+						<button
+							onClick={() => setShowPace((v) => !v)}
+							className={clsx("text-[11px] uppercase tracking-widest transition-colors", {
+								"text-zinc-400": showPace,
+								"text-zinc-700 hover:text-zinc-400": !showPace,
+							})}
+						>
+							pace
+						</button>
+						<span className="text-zinc-800">│</span>
+						<button
+							onClick={() => setHelpOpen(true)}
+							className="text-[11px] uppercase tracking-widest text-zinc-700 hover:text-zinc-400 transition-colors"
+							aria-label="Race timing help"
+						>
+							? ayuda
+						</button>
+					</div>
+				</div>
 
-			{(!drivers || !driversTiming) &&
-				new Array(20).fill("").map((_, index) => <SkeletonDriver key={`driver.loading.${index}`} />)}
-
-			<LayoutGroup key="drivers">
-				{drivers && driversTiming && (
-					<AnimatePresence>
-						{Object.values(driversTiming.Lines)
-							.sort(sortPos)
-							.map((timingDriver, index) => (
-								<Driver
-									key={`leaderBoard.driver.${timingDriver.RacingNumber}`}
-									position={index + 1}
-									driver={drivers[timingDriver.RacingNumber]}
-									timingDriver={timingDriver}
-								/>
-							))}
-					</AnimatePresence>
+				{showTableHeader && (
+					<TableHeaders
+						showInterval={showInterval}
+						onToggleInterval={() => setShowInterval((v) => !v)}
+						showPace={showPace}
+					/>
 				)}
-			</LayoutGroup>
-		</div>
+
+				{(!drivers || !driversTiming) &&
+					new Array(20).fill("").map((_, index) => <SkeletonDriver key={`driver.loading.${index}`} />)}
+
+				<LayoutGroup key="drivers">
+					{drivers && driversTiming && (
+						<AnimatePresence>
+							{Object.values(driversTiming.Lines)
+								.sort(sortPos)
+								.map((timingDriver, index) => (
+									<Driver
+										key={`leaderBoard.driver.${timingDriver.RacingNumber}`}
+										position={index + 1}
+										driver={drivers[timingDriver.RacingNumber]}
+										timingDriver={timingDriver}
+										showInterval={showInterval}
+										showPace={showPace}
+									/>
+								))}
+						</AnimatePresence>
+					)}
+				</LayoutGroup>
+			</div>
+		</>
 	);
 }
 
-const TableHeaders = () => (
+type HeaderProps = {
+	showInterval: boolean;
+	onToggleInterval: () => void;
+	showPace: boolean;
+};
+
+const TableHeaders = ({ showInterval, onToggleInterval, showPace }: HeaderProps) => (
 	<div
 		className="grid items-center border-b-2 border-zinc-600 py-0.5 pl-2 pr-1 font-mono text-base leading-none"
-		style={{ columnGap: DRIVER_GRID_GAP, gridTemplateColumns: DRIVER_GRID_COLS }}
+		style={{ columnGap: DRIVER_GRID_GAP, gridTemplateColumns: driverGridCols(showPace) }}
 	>
 		<span className="text-[11px] uppercase tracking-widest text-zinc-500">POS</span>
 		<span className="text-[11px] uppercase tracking-widest text-zinc-500">OVT</span>
 		<span className="text-[11px] uppercase tracking-widest text-zinc-500">TYRE</span>
 		<span className="text-right text-[11px] uppercase tracking-widest text-zinc-500">INFO</span>
-		<span className="text-right text-[11px] uppercase tracking-widest text-zinc-500">GAP</span>
+		<span className="text-[11px] uppercase tracking-widest text-zinc-700">&lt;1s</span>
+		<button
+			onClick={onToggleInterval}
+			className="text-right text-[11px] uppercase tracking-widest text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+			title={showInterval ? "Switch to Gap to Leader" : "Switch to Interval"}
+		>
+			{showInterval ? "INT ↕" : "GAP ↕"}
+		</button>
 		<span className="text-right text-[11px] uppercase tracking-widest text-zinc-500">LAP</span>
 		<span className="text-[11px] uppercase tracking-widest text-zinc-500">SECTORS</span>
+		{showPace && <span className="text-[11px] uppercase tracking-widest text-zinc-500">PACE</span>}
 	</div>
 );
 

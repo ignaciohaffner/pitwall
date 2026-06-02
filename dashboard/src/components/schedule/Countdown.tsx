@@ -1,6 +1,5 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { duration, now, utc } from "moment";
 
@@ -17,17 +16,15 @@ export default function Countdown({ next, type }: Props) {
 	>([null, null, null, null]);
 
 	const nextMoment = utc(next.start);
-
 	const requestRef = useRef<number | null>(null);
 
 	useEffect(() => {
 		const animateNextFrame = () => {
 			const diff = duration(nextMoment.diff(now()));
-
-			const days = parseInt(diff.asDays().toString());
+			const d = parseInt(diff.asDays().toString());
 
 			if (diff.asSeconds() > 0) {
-				setDuration([days, diff.hours(), diff.minutes(), diff.seconds()]);
+				setDuration([d, diff.hours(), diff.minutes(), diff.seconds()]);
 			} else {
 				setDuration([0, 0, 0, 0]);
 			}
@@ -39,85 +36,32 @@ export default function Countdown({ next, type }: Props) {
 		return () => (requestRef.current ? cancelAnimationFrame(requestRef.current) : void 0);
 	}, [nextMoment]);
 
+	const fmt = (n: number | null) => (n !== null ? String(n).padStart(2, "0") : "--");
+
 	return (
-		<div>
-			<p className="text-lg">Next {type === "race" ? "race" : "session"} in</p>
+		<div className="font-mono">
+			<p className="mb-2 text-[11px] uppercase tracking-widest text-zinc-500">
+				next {type === "race" ? "race" : "session"} in
+			</p>
 
-			<AnimatePresence>
-				<div className="grid auto-cols-max grid-flow-col gap-4 text-3xl">
-					<div>
-						{days != undefined && days != null ? (
-							<motion.p
-								className="min-w-12"
-								key={days}
-								initial={{ y: -10, opacity: 0 }}
-								animate={{ y: 0, opacity: 1 }}
-								exit={{ y: 10, opacity: 0 }}
-							>
-								{days}
-							</motion.p>
-						) : (
-							<div className="h-9 w-12 animate-pulse rounded-md bg-zinc-800" />
-						)}
-
-						<p className="text-base text-zinc-500">days</p>
-					</div>
-
-					<div>
-						{hours != undefined && hours != null ? (
-							<motion.p
-								className="min-w-12"
-								key={hours}
-								initial={{ y: -10, opacity: 0 }}
-								animate={{ y: 0, opacity: 1 }}
-								exit={{ y: 10, opacity: 0 }}
-							>
-								{hours}
-							</motion.p>
-						) : (
-							<div className="h-9 w-12 animate-pulse rounded-md bg-zinc-800" />
-						)}
-
-						<p className="text-base text-zinc-500">hours</p>
-					</div>
-
-					<div>
-						{minutes != undefined && minutes != null ? (
-							<motion.p
-								className="min-w-12"
-								key={minutes}
-								initial={{ y: -10, opacity: 0 }}
-								animate={{ y: 0, opacity: 1 }}
-								exit={{ y: 10, opacity: 0 }}
-							>
-								{minutes}
-							</motion.p>
-						) : (
-							<div className="h-9 w-12 animate-pulse rounded-md bg-zinc-800" />
-						)}
-
-						<p className="text-base text-zinc-500">minutes</p>
-					</div>
-
-					<div>
-						{seconds != undefined && seconds != null ? (
-							<motion.p
-								className="min-w-12"
-								key={seconds}
-								initial={{ y: -10, opacity: 0 }}
-								animate={{ y: 0, opacity: 1 }}
-								exit={{ y: 10, opacity: 0 }}
-							>
-								{seconds}
-							</motion.p>
-						) : (
-							<div className="h-9 w-12 animate-pulse rounded-md bg-zinc-800" />
-						)}
-
-						<p className="text-base text-zinc-500">seconds</p>
-					</div>
+			<div className="flex items-end gap-[2ch]">
+				<div>
+					<p className="text-3xl tabular-nums text-white">{fmt(days)}</p>
+					<p className="text-[11px] uppercase tracking-widest text-zinc-600">days</p>
 				</div>
-			</AnimatePresence>
+				<div>
+					<p className="text-3xl tabular-nums text-white">{fmt(hours)}</p>
+					<p className="text-[11px] uppercase tracking-widest text-zinc-600">hours</p>
+				</div>
+				<div>
+					<p className="text-3xl tabular-nums text-white">{fmt(minutes)}</p>
+					<p className="text-[11px] uppercase tracking-widest text-zinc-600">min</p>
+				</div>
+				<div>
+					<p className="text-3xl tabular-nums text-white">{fmt(seconds)}</p>
+					<p className="text-[11px] uppercase tracking-widest text-zinc-600">sec</p>
+				</div>
+			</div>
 		</div>
 	);
 }

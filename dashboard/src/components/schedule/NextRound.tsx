@@ -28,8 +28,8 @@ export default async function NextRound() {
 
 	if (!next) {
 		return (
-			<div className="flex h-44 flex-col items-center justify-center">
-				<p>No upcoming weekend found</p>
+			<div className="flex h-32 flex-col items-center justify-center font-mono">
+				<p className="text-[11px] uppercase tracking-widest text-zinc-600">no upcoming weekend found</p>
 			</div>
 		);
 	}
@@ -38,15 +38,15 @@ export default async function NextRound() {
 	const nextRace = next.sessions.find((s) => s.kind.toLowerCase() == "race");
 
 	return (
-		<div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+		<div className="mb-4 grid grid-cols-1 gap-8 sm:grid-cols-2">
 			{nextSession || nextRace ? (
-				<div className="flex flex-col gap-4">
+				<div className="flex flex-col gap-6">
 					{nextSession && <Countdown next={nextSession} type="other" />}
 					{nextRace && <Countdown next={nextRace} type="race" />}
 				</div>
 			) : (
-				<div className="flex flex-col items-center justify-center">
-					<p>No upcoming sessions found</p>
+				<div className="flex flex-col items-center justify-center font-mono">
+					<p className="text-[11px] uppercase tracking-widest text-zinc-600">no upcoming sessions found</p>
 				</div>
 			)}
 

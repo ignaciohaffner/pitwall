@@ -84,49 +84,49 @@ export default function Page() {
 				)}
 
 				{activeTab === "racecontrol" && (
-					<div className="h-[30rem] overflow-y-auto p-2">
+					<div className="h-[calc(100vh-8rem)] overflow-y-auto">
 						<RaceControl />
 					</div>
 				)}
 
 				{activeTab === "radios" && (
-					<div className="h-[30rem] overflow-y-auto p-2">
+					<div className="h-[calc(100vh-8rem)] overflow-y-auto">
 						<TeamRadios />
 					</div>
 				)}
 
 				{activeTab === "violations" && (
-					<div className="h-[30rem] overflow-y-auto p-2">
+					<div className="h-[calc(100vh-8rem)] overflow-y-auto">
 						<TrackViolations />
 					</div>
 				)}
 
 				{activeTab === "tyres" && (
-					<div className="h-[70vh]">
+					<div className="h-[calc(100vh-8rem)] overflow-y-auto">
 						<TyreStrategyPage />
 					</div>
 				)}
 
 				{activeTab === "laptimes" && (
-					<div className="h-[70vh]">
+					<div className="h-[calc(100vh-8rem)] overflow-y-auto">
 						<LapTimesPage />
 					</div>
 				)}
 
 				{activeTab === "speedtraps" && (
-					<div className="h-[70vh]">
+					<div className="h-[calc(100vh-8rem)] overflow-y-auto">
 						<SpeedTrapsPage />
 					</div>
 				)}
 
 				{activeTab === "weather" && (
-					<div className="h-[70vh]">
+					<div className="h-[calc(100vh-8rem)] overflow-y-auto">
 						<WeatherPage />
 					</div>
 				)}
 
 				{activeTab === "standings" && (
-					<div className="h-[70vh] overflow-auto">
+					<div className="h-[calc(100vh-8rem)] overflow-y-auto">
 						<StandingsPage />
 					</div>
 				)}

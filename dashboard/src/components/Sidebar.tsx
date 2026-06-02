@@ -78,17 +78,15 @@ export default function Sidebar({ connected }: Props) {
 				transition={{ type: "spring", bounce: 0.1 }}
 			>
 				<nav
-					className={clsx("m-2 flex w-52 flex-col p-2", {
-						"rounded-lg border border-zinc-800": !pinned,
-						"bg-black": oledMode,
-						"bg-zinc-950": !oledMode,
+					className={clsx("flex w-52 flex-col border-zinc-800 bg-black px-2 py-2", {
+						"border": !pinned,
+						"border-r": pinned,
 					})}
 				>
-					<div className="flex items-center justify-between gap-2">
-						<div className="flex items-center gap-2">
+					<div className="flex items-center justify-between gap-[1ch]">
+						<div className="flex items-center gap-[1.5ch]">
 							<DelayInput saveDelay={500} />
 							<DelayTimer />
-
 							<ConnectionStatus connected={connected} />
 						</div>
 
@@ -96,36 +94,26 @@ export default function Sidebar({ connected }: Props) {
 						<SidenavButton className="md:hidden" onClick={() => close()} />
 					</div>
 
-					{/* <p className="mt-4 p-2 text-sm text-zinc-500">Favorite Drivers</p>
+					<Link href="/dashboard" className="mt-3 border border-zinc-700 px-3 py-1.5 text-center font-mono text-[11px] uppercase tracking-widest text-zinc-300 transition-colors hover:border-zinc-500 hover:text-white">
+						→ back to race
+					</Link>
 
-					<div className="flex flex-col gap-1">
-						{driverItems === null && (
-							<>
-								<div className="h-8 animate-pulse rounded-lg bg-zinc-800" />
-								<div className="h-8 animate-pulse rounded-lg bg-zinc-800" />
-							</>
-						)}
-						{driverItems !== null && driverItems.length === 0 && <div className="p-2">No favorites</div>}
-						{driverItems?.map((item) => <Item key={item.href} item={item} />)}
-					</div> */}
+					<p className="mt-4 mb-1 px-2 text-[11px] uppercase tracking-widest text-zinc-600">general</p>
 
-					<p className="mt-4 p-2 text-sm text-zinc-500">General</p>
-
-					<div className="flex flex-col gap-1">
-						<Item item={{ href: "/dashboard/settings", name: "Settings" }} />
-
-						<Item target="_blank" item={{ href: "/schedule", name: "Schedule" }} />
-						<Item target="_blank" item={{ href: "/help", name: "Help" }} />
-						<Item target="_blank" item={{ href: "/", name: "Home" }} />
+					<div className="flex flex-col">
+						<Item item={{ href: "/dashboard/settings", name: "settings" }} />
+						<Item target="_blank" item={{ href: "/schedule", name: "schedule" }} />
+						<Item target="_blank" item={{ href: "/help", name: "help" }} />
+						<Item target="_blank" item={{ href: "/", name: "home" }} />
 					</div>
 
-					<p className="mt-4 p-2 text-sm text-zinc-500">Links</p>
+					<p className="mt-4 mb-1 px-2 text-[11px] uppercase tracking-widest text-zinc-600">links</p>
 
-					<div className="flex flex-col gap-1">
-						<Item target="_blank" item={{ href: "https://github.com/slowlydev/f1-dash", name: "Github" }} />
-						<Item target="_blank" item={{ href: "https://discord.gg/unJwu66NuB", name: "Discord" }} />
-						<Item target="_blank" item={{ href: "https://buymeacoffee.com/slowlydev", name: "Buy me a coffee" }} />
-						<Item target="_blank" item={{ href: "https://github.com/sponsors/slowlydev", name: "Sponsor me" }} />
+					<div className="flex flex-col">
+						<Item target="_blank" item={{ href: "https://github.com/slowlydev/f1-dash", name: "github" }} />
+						<Item target="_blank" item={{ href: "https://discord.gg/unJwu66NuB", name: "discord" }} />
+						<Item target="_blank" item={{ href: "https://buymeacoffee.com/slowlydev", name: "coffee" }} />
+						<Item target="_blank" item={{ href: "https://github.com/sponsors/slowlydev", name: "sponsor" }} />
 					</div>
 				</nav>
 			</motion.div>
@@ -144,8 +132,9 @@ const Item = ({ target, item }: ItemProps) => {
 	return (
 		<Link href={item.href} target={target}>
 			<div
-				className={clsx("rounded-lg p-1 px-2 hover:bg-zinc-900", {
-					"bg-zinc-800!": active,
+				className={clsx("px-2 py-1 font-mono text-sm transition-colors", {
+					"text-white": active,
+					"text-zinc-500 hover:text-zinc-300": !active,
 				})}
 			>
 				{item.name}

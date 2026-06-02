@@ -2,39 +2,26 @@ import Link from "next/link";
 
 export default function Footer() {
 	return (
-		<footer className="my-8 text-sm text-zinc-500">
-			<div className="mb-4 flex flex-wrap gap-2">
-				<p>
-					Made with ♥ by <TextLink website="https://slowly.dev">Slowly</TextLink>.
-				</p>
-
-				<p>
-					<TextLink website="https://www.buymeacoffee.com/slowlydev">Buy me a coffee</TextLink> to support me.
-				</p>
-
-				<p>
-					Contribute on <TextLink website="https://github.com/slowlydev/f1-dash">GitHub</TextLink>.
-				</p>
-
-				<p>
-					Check out the Community <TextLink website="https://discord.gg/unJwu66NuB">Discord</TextLink>.
-				</p>
-
-				<p>
-					Get{" "}
-					<Link className="text-blue-500" href="/help">
-						Help
-					</Link>
-					.
-				</p>
-
-				<p>Version: {process.env.version}</p>
+		<footer className="my-8 font-mono">
+			<div className="mb-2 flex flex-wrap items-center gap-[1.5ch] text-[11px] text-zinc-600">
+				<span>pitwall</span>
+				<span className="text-zinc-800">│</span>
+				<TextLink website="https://slowly.dev">slowly</TextLink>
+				<span className="text-zinc-800">│</span>
+				<TextLink website="https://github.com/slowlydev/f1-dash">github</TextLink>
+				<span className="text-zinc-800">│</span>
+				<TextLink website="https://discord.gg/unJwu66NuB">discord</TextLink>
+				<span className="text-zinc-800">│</span>
+				<Link className="text-zinc-600 transition-colors hover:text-zinc-400" href="/help">
+					help
+				</Link>
+				<span className="text-zinc-800">│</span>
+				<span>v{process.env.version}</span>
 			</div>
 
-			<p>
-				This project/website is unofficial and is not associated in any way with the Formula 1 companies. F1, FORMULA
-				ONE, FORMULA 1, FIA FORMULA ONE WORLD CHAMPIONSHIP, GRAND PRIX and related marks are trademarks of Formula One
-				Licensing B.V.
+			<p className="text-[10px] leading-relaxed text-zinc-700">
+				unofficial project, not associated with formula one companies. f1, formula one, formula 1, fia formula one
+				world championship, grand prix and related marks are trademarks of formula one licensing b.v.
 			</p>
 		</footer>
 	);
@@ -47,7 +34,7 @@ type TextLinkProps = {
 
 const TextLink = ({ website, children }: TextLinkProps) => {
 	return (
-		<a className="text-blue-500" target="_blank" href={website}>
+		<a className="text-zinc-600 transition-colors hover:text-zinc-400" target="_blank" href={website}>
 			{children}
 		</a>
 	);

@@ -1,5 +1,7 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 import SegmentedControls from "@/components/ui/SegmentedControls";
 import Button from "@/components/ui/Button";
 import Slider from "@/components/ui/Slider";
@@ -14,58 +16,70 @@ import Toggle from "@/components/ui/Toggle";
 import { useSettingsStore } from "@/stores/useSettingsStore";
 import Footer from "@/components/Footer";
 
+function SectionHeader({ label }: { label: string }) {
+	return (
+		<div className="my-4 border-b border-zinc-800 pb-1">
+			<p className="text-[11px] uppercase tracking-widest text-zinc-500">{label}</p>
+		</div>
+	);
+}
+
+function SettingRow({ label, children }: { label: string; children: ReactNode }) {
+	return (
+		<div className="flex items-center gap-[1.5ch] py-1">
+			{children}
+			<p className="text-sm text-zinc-400">{label}</p>
+		</div>
+	);
+}
+
 export default function SettingsPage() {
 	const settings = useSettingsStore();
+
 	return (
-		<div>
-			<h1 className="mb-4 text-3xl">Settings</h1>
+		<div className="font-mono">
+			<div className="my-4 border-b border-zinc-800 pb-1">
+				<p className="text-[11px] uppercase tracking-widest text-zinc-300">{">"} settings</p>
+			</div>
 
-			<h2 className="my-4 text-2xl">Visual</h2>
+			<SectionHeader label="visual" />
 
-			<div className="flex gap-2">
+			<SettingRow label="show car metrics (rpm, gear, speed)">
 				<Toggle enabled={settings.carMetrics} setEnabled={(v) => settings.setCarMetrics(v)} />
-				<p className="text-zinc-500">Show Car Metrics (RPM, Gear, Speed)</p>
-			</div>
+			</SettingRow>
 
-			<div className="flex gap-2">
+			<SettingRow label="show corner numbers on track map">
 				<Toggle enabled={settings.showCornerNumbers} setEnabled={(v) => settings.setShowCornerNumbers(v)} />
-				<p className="text-zinc-500">Show Corner Numbers on Track Map</p>
-			</div>
+			</SettingRow>
 
-			<div className="flex gap-2">
+			<SettingRow label="show driver table header">
 				<Toggle enabled={settings.tableHeaders} setEnabled={(v) => settings.setTableHeaders(v)} />
-				<p className="text-zinc-500">Show Driver Table Header</p>
-			</div>
+			</SettingRow>
 
-			<div className="flex gap-2">
+			<SettingRow label="show drivers best sectors">
 				<Toggle enabled={settings.showBestSectors} setEnabled={(v) => settings.setShowBestSectors(v)} />
-				<p className="text-zinc-500">Show Drivers Best Sectors</p>
-			</div>
+			</SettingRow>
 
-			<div className="flex gap-2">
+			<SettingRow label="show drivers mini sectors">
 				<Toggle enabled={settings.showMiniSectors} setEnabled={(v) => settings.setShowMiniSectors(v)} />
-				<p className="text-zinc-500">Show Drivers Mini Sectors</p>
-			</div>
+			</SettingRow>
 
-			<div className="flex gap-2">
+			<SettingRow label="oled mode (pure black background)">
 				<Toggle enabled={settings.oledMode} setEnabled={(v) => settings.setOledMode(v)} />
-				<p className="text-zinc-500">OLED Mode (Pure Black Background)</p>
-			</div>
+			</SettingRow>
 
-			<div className="flex gap-2">
+			<SettingRow label="use safety car colors">
 				<Toggle enabled={settings.useSafetyCarColors} setEnabled={(v) => settings.setUseSafetyCarColors(v)} />
-				<p className="text-zinc-500">Use Safety Car Colors</p>
-			</div>
+			</SettingRow>
 
-			<h2 className="my-4 text-2xl">Race Control</h2>
+			<SectionHeader label="race control" />
 
-			<div className="flex gap-2">
+			<SettingRow label="play chime on new race control message">
 				<Toggle enabled={settings.raceControlChime} setEnabled={(v) => settings.setRaceControlChime(v)} />
-				<p className="text-zinc-500">Play Chime on new Race Control Message</p>
-			</div>
+			</SettingRow>
 
 			{settings.raceControlChime && (
-				<div className="flex flex-row items-center gap-2">
+				<div className="flex flex-row items-center gap-[1.5ch] py-1">
 					<Input
 						value={String(settings.raceControlChimeVolume)}
 						setValue={(v) => {
@@ -76,24 +90,25 @@ export default function SettingsPage() {
 						}}
 					/>
 					<Slider
-						className="!w-52"
+						className="w-52!"
 						value={settings.raceControlChimeVolume}
 						setValue={(v) => settings.setRaceControlChimeVolume(v)}
 					/>
-
-					<p className="text-zinc-500">Race Control Chime Volume</p>
+					<p className="text-sm text-zinc-400">chime volume</p>
 				</div>
 			)}
 
-			<h2 className="my-4 text-2xl">Favorite Drivers</h2>
+			<SectionHeader label="favorite drivers" />
 
-			<p className="mb-4">Select your favorite drivers to highlight them on the dashboard.</p>
+			<p className="mb-4 text-sm text-zinc-400">
+				select your favorite drivers to highlight them on the dashboard.
+			</p>
 
 			<FavoriteDrivers />
 
-			<h2 className="my-4 text-2xl">Speed Metric</h2>
+			<SectionHeader label="speed unit" />
 
-			<p className="mb-4">Choose the unit in which you want to display speeds.</p>
+			<p className="mb-4 text-sm text-zinc-400">choose the unit for displaying speeds.</p>
 
 			<SegmentedControls
 				id="speed-unit"
@@ -105,22 +120,21 @@ export default function SettingsPage() {
 				]}
 			/>
 
-			<h2 className="my-4 text-2xl">Delay</h2>
+			<SectionHeader label="delay" />
 
-			<p className="mb-4">
-				Here you have to option to set a delay for the data, it will displayed the amount entered in seconds later than
-				on the live edge. On the Dashboard page there is the same delay input field so you can set it without going to
-				the settings. It can be found in the most top bar on the right side.
+			<p className="mb-4 text-sm text-zinc-400">
+				set a delay in seconds — data will be displayed later than the live edge. useful for syncing with a
+				broadcast stream.
 			</p>
 
-			<div className="flex items-center gap-2">
+			<div className="flex items-center gap-[1.5ch]">
 				<DelayTimer />
 				<DelayInput />
-				<p className="text-zinc-500">Delay in seconds</p>
+				<p className="text-sm text-zinc-400">delay in seconds</p>
 			</div>
 
-			<Button className="mt-2 bg-red-500!" onClick={() => settings.setDelay(0)}>
-				Reset delay
+			<Button className="mt-3 border-red-900! text-red-600! hover:border-red-700! hover:text-red-400!" onClick={() => settings.setDelay(0)}>
+				reset delay
 			</Button>
 
 			<Footer />

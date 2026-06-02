@@ -1,127 +1,99 @@
 "use client";
 
 import { useDataStore } from "@/stores/useDataStore";
-
 import NumberDiff from "@/components/NumberDiff";
-import Image from "next/image";
 
 export default function Standings() {
 	const driverStandings = useDataStore((state) => state.state?.ChampionshipPrediction?.Drivers);
 	const teamStandings = useDataStore((state) => state.state?.ChampionshipPrediction?.Teams);
-
 	const drivers = useDataStore((state) => state.state?.DriverList);
-
 	const isRace = useDataStore((state) => state.state?.SessionInfo?.Type === "Race");
 
 	if (!isRace) {
 		return (
-			<div className="flex h-full w-full flex-col items-center justify-center">
-				<p>championship standings unavailable</p>
-				<p className="text-sm text-zinc-500">currently only available during a race</p>
+			<div className="px-2 py-3 font-mono text-sm text-zinc-700">
+				standings only available during a race session
 			</div>
 		);
 	}
 
 	return (
-		<div className="grid h-full grid-cols-1 divide-y divide-zinc-800 lg:grid-cols-2 lg:divide-x lg:divide-y-0">
-			<div className="h-full p-4">
-				<h2 className="text-xl">Driver Championship Standings</h2>
-
-				<div className="divide flex flex-col divide-y divide-zinc-800">
-					{!driverStandings &&
-						new Array(20).fill("").map((_, index) => <SkeletonItem key={`driver.loading.${index}`} />)}
-
-					{driverStandings &&
-						drivers &&
-						Object.values(driverStandings)
-							.sort((a, b) => a.PredictedPosition - b.PredictedPosition)
-							.map((driver) => {
-								const driverDetails = drivers[driver.RacingNumber];
-
-								if (!driverDetails) {
-									return null;
-								}
-
-								return (
-									<div
-										className="grid p-2"
-										style={{
-											gridTemplateColumns: "2rem 2rem auto 4rem 4rem",
-										}}
-										key={driver.RacingNumber}
-									>
-										<NumberDiff old={driver.CurrentPosition} current={driver.PredictedPosition} />
-										<p>{driver.PredictedPosition}</p>
-
-										<p>
-											{driverDetails.FirstName} {driverDetails.LastName}
-										</p>
-
-										<p>{driver.PredictedPoints}</p>
-
-										<NumberDiff old={driver.PredictedPoints} current={driver.CurrentPoints} />
-									</div>
-								);
-							})}
+		<div className="grid grid-cols-1 font-mono lg:grid-cols-2 lg:divide-x lg:divide-zinc-800">
+			{/* Drivers */}
+			<div>
+				<div className="border-b-2 border-zinc-700 px-2 py-0.5 text-[11px] uppercase tracking-widest text-zinc-500">
+					drivers
 				</div>
+				{!driverStandings &&
+					new Array(20).fill("").map((_, i) => <SkeletonRow key={i} />)}
+				{driverStandings && drivers &&
+					Object.values(driverStandings)
+						.sort((a, b) => a.PredictedPosition - b.PredictedPosition)
+						.map((driver) => {
+							const info = drivers[driver.RacingNumber];
+							if (!info) return null;
+							const delta = driver.PredictedPosition - driver.CurrentPosition;
+							return (
+								<div
+									key={driver.RacingNumber}
+									className="flex items-baseline gap-[1ch] border-b border-zinc-900 px-2 py-0.5 text-sm"
+								>
+									<span className="w-[2ch] shrink-0 tabular-nums text-zinc-600">{driver.PredictedPosition}</span>
+									<span className={delta < 0 ? "text-emerald-400" : delta > 0 ? "text-red-500" : "text-zinc-700"}>
+										{delta < 0 ? "↑" : delta > 0 ? "↓" : "·"}
+									</span>
+									<span className="font-bold" style={{ color: `#${info.TeamColour}` }}>
+										{info.Tla}
+									</span>
+									<span className="text-zinc-400">{info.LastName}</span>
+									<span className="ml-auto tabular-nums text-zinc-300">{driver.PredictedPoints}</span>
+									<span className={`w-[4ch] text-right tabular-nums text-[11px] ${driver.PredictedPoints > driver.CurrentPoints ? "text-emerald-400" : "text-zinc-700"}`}>
+										{driver.PredictedPoints > driver.CurrentPoints ? `+${driver.PredictedPoints - driver.CurrentPoints}` : ""}
+									</span>
+								</div>
+							);
+						})}
 			</div>
 
-			<div className="h-full p-4">
-				<h2 className="text-xl">Team Championship Standings</h2>
-
-				<div className="divide flex flex-col divide-y divide-zinc-800">
-					{!teamStandings && new Array(10).fill("").map((_, index) => <SkeletonItem key={`team.loading.${index}`} />)}
-
-					{teamStandings &&
-						Object.values(teamStandings)
-							.sort((a, b) => a.PredictedPosition - b.PredictedPosition)
-							.map((team) => (
-								<div
-									className="grid p-2"
-									style={{
-										gridTemplateColumns: "2rem 2rem 2rem auto 4rem 4rem",
-									}}
-									key={team.TeamName}
-								>
-									<NumberDiff old={team.CurrentPosition} current={team.PredictedPosition} />
-									<p>{team.PredictedPosition}</p>
-
-									<Image
-										src={`/team-logos/${team.TeamName.replaceAll(" ", "-").toLowerCase()}.${"svg"}`}
-										alt={team.TeamName}
-										width={24}
-										height={24}
-										className="overflow-hidden rounded-lg"
-									/>
-
-									<p>{team.TeamName}</p>
-
-									<p>{team.PredictedPoints}</p>
-
-									<NumberDiff old={team.PredictedPoints} current={team.CurrentPoints} />
-								</div>
-							))}
+			{/* Teams */}
+			<div>
+				<div className="border-b-2 border-zinc-700 px-2 py-0.5 text-[11px] uppercase tracking-widest text-zinc-500">
+					constructors
 				</div>
+				{!teamStandings &&
+					new Array(10).fill("").map((_, i) => <SkeletonRow key={i} />)}
+				{teamStandings &&
+					Object.values(teamStandings)
+						.sort((a, b) => a.PredictedPosition - b.PredictedPosition)
+						.map((team) => {
+							const delta = team.PredictedPosition - team.CurrentPosition;
+							return (
+								<div
+									key={team.TeamName}
+									className="flex items-baseline gap-[1ch] border-b border-zinc-900 px-2 py-0.5 text-sm"
+								>
+									<span className="w-[2ch] shrink-0 tabular-nums text-zinc-600">{team.PredictedPosition}</span>
+									<span className={delta < 0 ? "text-emerald-400" : delta > 0 ? "text-red-500" : "text-zinc-700"}>
+										{delta < 0 ? "↑" : delta > 0 ? "↓" : "·"}
+									</span>
+									<span className="text-zinc-300">{team.TeamName}</span>
+									<span className="ml-auto tabular-nums text-zinc-300">{team.PredictedPoints}</span>
+									<span className={`w-[4ch] text-right tabular-nums text-[11px] ${team.PredictedPoints > team.CurrentPoints ? "text-emerald-400" : "text-zinc-700"}`}>
+										{team.PredictedPoints > team.CurrentPoints ? `+${team.PredictedPoints - team.CurrentPoints}` : ""}
+									</span>
+								</div>
+							);
+						})}
 			</div>
 		</div>
 	);
 }
 
-const SkeletonItem = () => {
-	return (
-		<div
-			className="grid gap-2 p-2"
-			style={{
-				gridTemplateColumns: "2rem 2rem auto 4rem 4rem 4rem",
-			}}
-		>
-			<div className="h-4 w-4 animate-pulse rounded-md bg-zinc-800" />
-			<div className="h-4 w-4 animate-pulse rounded-md bg-zinc-800" />
-			<div className="h-4 w-4 animate-pulse rounded-md bg-zinc-800" />
-			<div className="h-4 w-16 animate-pulse rounded-md bg-zinc-800" />
-			<div className="h-4 w-8 animate-pulse rounded-md bg-zinc-800" />
-			<div className="h-4 w-8 animate-pulse rounded-md bg-zinc-800" />
-			<div className="h-4 w-4 animate-pulse rounded-md bg-zinc-800" />
-		</div>
-	);
-};
+const SkeletonRow = () => (
+	<div className="flex items-baseline gap-[1ch] border-b border-zinc-900 px-2 py-0.5">
+		<span className="inline-block h-3 w-4 animate-pulse rounded-sm bg-zinc-800" />
+		<span className="inline-block h-3 w-8 animate-pulse rounded-sm bg-zinc-800" />
+		<span className="inline-block h-3 w-24 animate-pulse rounded-sm bg-zinc-800" />
+		<span className="ml-auto inline-block h-3 w-8 animate-pulse rounded-sm bg-zinc-800" />
+	</div>
+);

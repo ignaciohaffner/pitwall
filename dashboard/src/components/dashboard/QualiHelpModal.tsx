@@ -141,11 +141,11 @@ export default function QualiHelpModal({ onClose }: Props) {
 							neumáticos
 						</div>
 						<div className="space-y-1 text-[12px]">
-							<ColorRow color="text-red-400"   char="S" label="SOFT"         desc="Blando — rojo" />
-							<ColorRow color="text-yellow-300" char="M" label="MEDIUM"       desc="Medio — amarillo" />
-							<ColorRow color="text-zinc-100"  char="H" label="HARD"          desc="Duro — blanco" />
-							<ColorRow color="text-green-400" char="I" label="INTERMEDIATE"  desc="Intermedio — verde" />
-							<ColorRow color="text-blue-400"  char="W" label="WET"           desc="Full wet — azul" />
+							<TyreRow bg="bg-red-500"    char="S" label="SOFT"        desc="Blando — rojo" />
+							<TyreRow bg="bg-yellow-300" char="M" label="MEDIUM"      desc="Medio — amarillo" />
+							<TyreRow bg="bg-zinc-100"   char="H" label="HARD"         desc="Duro — blanco" />
+							<TyreRow bg="bg-green-500"  char="I" label="INTERMEDIATE" desc="Intermedio — verde" />
+							<TyreRow bg="bg-blue-500"   char="W" label="WET"          desc="Full wet — azul" />
 						</div>
 						<p className="mt-1 text-[11px] text-zinc-700">
 							El número tras la letra indica vueltas en ese set. * = neumático usado.
@@ -208,6 +208,20 @@ function ColorRow({
 			<span className={`w-[8ch] shrink-0 tabular-nums ${color}`}>{char}</span>
 			<span className="text-zinc-500">
 				{label && <span className="mr-1 text-zinc-400">{label}</span>}
+				{desc}
+			</span>
+		</div>
+	);
+}
+
+function TyreRow({ bg, char, label, desc }: { bg: string; char: string; label: string; desc: string }) {
+	return (
+		<div className="flex items-baseline gap-3">
+			<span className="w-[8ch] shrink-0">
+				<span className={`px-[0.3ch] font-bold text-black ${bg}`}>{char} 0</span>
+			</span>
+			<span className="text-zinc-500">
+				<span className="mr-1 text-zinc-400">{label}</span>
 				{desc}
 			</span>
 		</div>

@@ -5,18 +5,12 @@ import Button from "@/components/ui/Button";
 export default function NotFound() {
 	return (
 		<div className="container mx-auto max-w-(--breakpoint-lg) px-4">
-			<section className="flex h-screen w-full flex-col items-center pt-20 sm:justify-center sm:pt-0">
-				<p className="text-center text-8xl font-bold">404</p>
-
-				<h1 className="my-20 text-center text-5xl font-bold">Page not found</h1>
-
-				<div className="flex flex-wrap gap-4">
-					<Link href="/">
-						<Button className="rounded-xl! border-2 border-zinc-700 bg-transparent! p-4 font-medium">
-							Go back to home
-						</Button>
-					</Link>
-				</div>
+			<section className="flex h-screen w-full flex-col items-center justify-center gap-6 font-mono">
+				<p className="text-[11px] uppercase tracking-widest text-zinc-600">404</p>
+				<p className="text-4xl font-bold text-white">page not found</p>
+				<Link href="/">
+					<Button>go back home</Button>
+				</Link>
 			</section>
 		</div>
 	);

@@ -5,19 +5,19 @@ import Schedule from "@/components/schedule/Schedule";
 
 export default async function SchedulePage() {
 	return (
-		<div>
-			<div className="my-4">
-				<h1 className="text-3xl">Up Next</h1>
-				<p className="text-zinc-500">All times are local time</p>
+		<div className="font-mono">
+			<div className="my-4 border-b border-zinc-800 pb-1">
+				<p className="text-[11px] uppercase tracking-widest text-zinc-500">up next</p>
+				<p className="text-[10px] text-zinc-700">all times local</p>
 			</div>
 
 			<Suspense fallback={<NextRoundLoading />}>
 				<NextRound />
 			</Suspense>
 
-			<div className="my-4">
-				<h1 className="text-3xl">Schedule</h1>
-				<p className="text-zinc-500">All times are local time</p>
+			<div className="my-4 border-b border-zinc-800 pb-1">
+				<p className="text-[11px] uppercase tracking-widest text-zinc-500">schedule</p>
+				<p className="text-[10px] text-zinc-700">all times local</p>
 			</div>
 
 			<Suspense fallback={<FullScheduleLoading />}>
@@ -29,14 +29,14 @@ export default async function SchedulePage() {
 
 const RoundLoading = () => {
 	return (
-		<div className="flex flex-col gap-1">
-			<div className="h-12 w-full animate-pulse rounded-md bg-zinc-800" />
-
-			<div className="grid grid-cols-3 gap-8 pt-1">
+		<div className="flex flex-col gap-2 font-mono">
+			<p className="animate-pulse text-sm text-zinc-700">▌▌▌▌▌▌▌▌▌▌▌▌▌▌▌▌▌▌▌▌▌▌▌▌</p>
+			<div className="grid grid-cols-3 gap-4 pt-1">
 				{Array.from({ length: 3 }).map((_, i) => (
-					<div key={`day.${i}`} className="grid grid-rows-2 gap-2">
-						<div className="h-12 w-full animate-pulse rounded-md bg-zinc-800" />
-						<div className="h-12 w-full animate-pulse rounded-md bg-zinc-800" />
+					<div key={`day.${i}`} className="flex flex-col gap-2">
+						<p className="animate-pulse text-[11px] text-zinc-700">▌▌▌▌▌▌▌</p>
+						<p className="animate-pulse text-xs text-zinc-700">▌▌▌▌▌▌▌▌▌▌▌▌</p>
+						<p className="animate-pulse text-xs text-zinc-700">▌▌▌▌▌▌▌▌</p>
 					</div>
 				))}
 			</div>
@@ -46,12 +46,11 @@ const RoundLoading = () => {
 
 const NextRoundLoading = () => {
 	return (
-		<div className="grid h-44 grid-cols-1 gap-8 sm:grid-cols-2">
-			<div className="flex flex-col gap-4">
-				<div className="h-1/2 w-3/4 animate-pulse rounded-md bg-zinc-800" />
-				<div className="h-1/2 w-3/4 animate-pulse rounded-md bg-zinc-800" />
+		<div className="mb-4 grid grid-cols-1 gap-8 sm:grid-cols-2">
+			<div className="flex flex-col gap-4 font-mono">
+				<p className="animate-pulse text-3xl tabular-nums text-zinc-700">-- -- -- --</p>
+				<p className="animate-pulse text-[11px] uppercase tracking-widest text-zinc-700">▌▌▌▌▌▌▌▌▌▌</p>
 			</div>
-
 			<RoundLoading />
 		</div>
 	);

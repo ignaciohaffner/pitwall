@@ -1,7 +1,6 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { motion } from "motion/react";
 import clsx from "clsx";
 
 type Props = {
@@ -11,15 +10,15 @@ type Props = {
 };
 
 export default function Button({ children, onClick, className }: Props) {
-	// TODO add hover effect
 	return (
-		<motion.button
-			whileHover={{ scale: 1.05 }}
-			whileTap={{ scale: 0.95 }}
-			className={clsx(className, "cursor-pointer rounded-lg bg-zinc-800 p-2 text-center leading-none text-white")}
+		<button
+			className={clsx(
+				"cursor-pointer border border-zinc-700 px-3 py-1.5 font-mono text-[11px] uppercase tracking-widest text-zinc-300 transition-colors hover:border-zinc-500 hover:text-white",
+				className,
+			)}
 			onClick={onClick}
 		>
 			{children}
-		</motion.button>
+		</button>
 	);
 }

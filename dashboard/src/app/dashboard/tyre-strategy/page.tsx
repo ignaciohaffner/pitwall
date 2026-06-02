@@ -9,7 +9,7 @@ const COMPOUND_COLORS: Record<string, string> = {
 	HARD: "#F0F0F0",
 	INTERMEDIATE: "#39B54A",
 	WET: "#0085FF",
-	UNKNOWN: "#888888",
+	UNKNOWN: "#555555",
 };
 
 const COMPOUND_TEXT: Record<string, string> = {
@@ -21,7 +21,24 @@ const COMPOUND_TEXT: Record<string, string> = {
 	UNKNOWN: "#fff",
 };
 
+const COMPOUND_LETTER: Record<string, string> = {
+	SOFT: "S",
+	MEDIUM: "M",
+	HARD: "H",
+	INTERMEDIATE: "I",
+	WET: "W",
+	UNKNOWN: "?",
+};
+
 const X_TICKS = 10;
+
+function isLight(hex: string): boolean {
+	if (!hex || hex.length < 6) return false;
+	const r = parseInt(hex.slice(0, 2), 16);
+	const g = parseInt(hex.slice(2, 4), 16);
+	const b = parseInt(hex.slice(4, 6), 16);
+	return (r * 299 + g * 587 + b * 114) / 1000 > 128;
+}
 
 export default function TyreStrategy() {
 	const timingApp = useDataStore((s) => s.state?.TimingAppData?.Lines);
@@ -31,9 +48,7 @@ export default function TyreStrategy() {
 
 	if (!timingApp || !driverList || totalLaps === 0) {
 		return (
-			<div className="flex h-full w-full items-center justify-center">
-				<p className="text-zinc-500">waiting for session data...</p>
-			</div>
+			<div className="px-2 py-1 font-mono text-sm text-zinc-700">waiting for session data...</div>
 		);
 	}
 
@@ -42,45 +57,95 @@ export default function TyreStrategy() {
 		.sort((a, b) => a.Line - b.Line);
 
 	const tickInterval = Math.ceil(totalLaps / X_TICKS);
-	const ticks = Array.from({ length: Math.floor(totalLaps / tickInterval) + 1 }, (_, i) => i * tickInterval);
+	const ticks = Array.from(
+		{ length: Math.floor(totalLaps / tickInterval) + 1 },
+		(_, i) => i * tickInterval,
+	);
 
 	return (
-		<div className="flex h-full w-full flex-col p-4">
-			<h2 className="mb-4 text-lg font-semibold">Tyre Strategy</h2>
+		<div className="flex w-full flex-col px-2 py-1 font-mono">
+			<div className="mb-1 text-[11px] uppercase tracking-widest text-zinc-500">
+				tyre strategy
+			</div>
 
-			<div className="flex min-w-0 flex-1 flex-col gap-0.5 overflow-auto">
+			<div className="flex min-w-0 flex-1 flex-col gap-px overflow-auto">
 				{drivers.map((d) => {
 					const driver = driverList[d.RacingNumber];
 					if (!driver) return null;
 
+					const teamColor = driver.TeamColour ? `#${driver.TeamColour}` : "#444";
+					const textColor = driver.TeamColour && isLight(driver.TeamColour) ? "#000" : "#fff";
+					const stints = d.Stints ?? [];
+					const pitLaps = getPitLaps(stints);
+
 					return (
 						<div key={d.RacingNumber} className="flex items-center gap-2">
-							{/* Driver label */}
-							<div className="w-10 shrink-0 text-right text-xs font-bold" style={{ color: `#${driver.TeamColour}` }}>
-								{driver.Tla}
+							{/* Driver label — highlighted like the rest of the UI */}
+							<div className="w-8 shrink-0 text-right">
+								<span
+									className="px-[0.3ch] text-[11px] font-bold leading-none"
+									style={{ backgroundColor: teamColor, color: textColor }}
+								>
+									{driver.Tla}
+								</span>
 							</div>
 
 							{/* Bar area */}
-							<div className="relative h-6 flex-1 rounded-sm bg-zinc-900">
-								{renderStints(d.Stints ?? [], totalLaps, currentLap)}
+							<div className="relative h-5 flex-1 bg-zinc-900">
+								{renderStints(stints, totalLaps, currentLap)}
+
+								{/* Pit stop markers */}
+								{pitLaps.map((lap) => (
+									<div
+										key={lap}
+										className="absolute top-0 z-10 h-full w-px bg-black/70"
+										style={{ left: `${(lap / totalLaps) * 100}%` }}
+										title={`Pit at lap ${lap}`}
+									/>
+								))}
+
+								{/* Current lap marker */}
+								{currentLap > 0 && (
+									<div
+										className="absolute top-0 z-20 h-full w-px bg-white/40"
+										style={{ left: `${(currentLap / totalLaps) * 100}%` }}
+									/>
+								)}
 							</div>
 						</div>
 					);
 				})}
 
-				{/* X axis */}
-				<div className="mt-1 flex items-center gap-2">
-					<div className="w-10 shrink-0" />
-					<div className="relative flex-1">
-						{ticks.map((lap) => (
+				{/* Lap ruler */}
+				<div className="mt-1 flex items-start gap-2">
+					<div className="w-8 shrink-0" />
+					<div className="relative h-4 flex-1">
+						{/* Regular tick numbers */}
+						{ticks.map((lap) => {
+							if (lap === 0) return null;
+							return (
+								<span
+									key={lap}
+									className="absolute -translate-x-1/2 text-[10px] tabular-nums text-zinc-700"
+									style={{ left: `${(lap / totalLaps) * 100}%` }}
+								>
+									{lap}
+								</span>
+							);
+						})}
+						{/* Total laps at the end */}
+						<span className="absolute right-0 translate-x-1/2 text-[10px] tabular-nums text-zinc-600">
+							{totalLaps}
+						</span>
+						{/* Current lap — white, bold */}
+						{currentLap > 0 && (
 							<span
-								key={lap}
-								className="absolute -translate-x-1/2 text-xs text-zinc-500"
-								style={{ left: `${(lap / totalLaps) * 100}%` }}
+								className="absolute -translate-x-1/2 text-[10px] font-bold tabular-nums text-zinc-300"
+								style={{ left: `${(currentLap / totalLaps) * 100}%` }}
 							>
-								{lap === 0 ? "" : lap}
+								{currentLap}
 							</span>
-						))}
+						)}
 					</div>
 				</div>
 			</div>
@@ -88,39 +153,71 @@ export default function TyreStrategy() {
 	);
 }
 
+function getPitLaps(stints: Stint[]): number[] {
+	const laps: number[] = [];
+	let offset = 0;
+	for (let i = 0; i < stints.length - 1; i++) {
+		const lapsInStint = stints[i].TotalLaps ?? 0;
+		const compound = stints[i].Compound ?? "UNKNOWN";
+		const isArtifact = lapsInStint <= 1 && (compound === "INTERMEDIATE" || compound === "WET" || compound === "UNKNOWN");
+		offset += lapsInStint;
+		if (offset > 0 && !isArtifact) laps.push(offset);
+	}
+	return laps;
+}
+
 function renderStints(stints: Stint[], totalLaps: number, currentLap: number) {
 	let offset = 0;
 
 	return stints.map((stint, i) => {
 		const laps = stint.TotalLaps ?? 0;
+		// Skip 0-lap stints and 1-lap formation-lap artifacts on non-dry compounds
 		if (laps === 0) return null;
+		const compound = stint.Compound ?? "UNKNOWN";
+		if (laps <= 1 && (compound === "INTERMEDIATE" || compound === "WET" || compound === "UNKNOWN")) {
+			offset += laps;
+			return null;
+		}
 
 		const startLap = offset + 1;
 		const endLap = offset + laps;
 		const leftPct = (offset / totalLaps) * 100;
 		const widthPct = (laps / totalLaps) * 100;
-		const compound = stint.Compound ?? "UNKNOWN";
 		const bg = COMPOUND_COLORS[compound] ?? COMPOUND_COLORS.UNKNOWN;
 		const fg = COMPOUND_TEXT[compound] ?? "#fff";
+		const letter = COMPOUND_LETTER[compound] ?? "?";
 		const isNew = stint.New === "TRUE";
+		const isCurrent = i === stints.length - 1;
 
 		offset += laps;
+
+		// Decide what label to show based on available width
+		const widthChars = (widthPct / 100) * 80; // rough estimate at typical width
+		const label =
+			widthChars > 10
+				? `${letter} ${startLap}–${endLap}`
+				: widthChars > 4
+					? letter
+					: "";
 
 		return (
 			<div
 				key={i}
-				className="absolute top-0 flex h-full items-center overflow-hidden rounded-sm px-1"
+				className="absolute top-0 flex h-full items-center overflow-hidden px-0.5"
 				style={{
 					left: `${leftPct}%`,
 					width: `calc(${widthPct}% - 1px)`,
 					backgroundColor: bg,
-					outline: isNew ? "none" : "1px solid rgba(255,255,255,0.2)",
+					outline: isNew ? "none" : "1px solid rgba(255,255,255,0.15)",
+					opacity: isCurrent ? 1 : 0.85,
 				}}
-				title={`${compound} — laps ${startLap}–${endLap} (${laps} laps)${isNew ? "" : " — used"}`}
+				title={`${compound}${isNew ? "" : " (used)"} — L${startLap}–${endLap} (${laps} laps)`}
 			>
-				<span className="truncate text-xs font-semibold leading-none" style={{ color: fg }}>
-					{startLap}–{endLap}
-					<span className="ml-1 opacity-70">({laps})</span>
+				<span
+					className="truncate text-[10px] font-bold leading-none tabular-nums"
+					style={{ color: fg }}
+				>
+					{label}
 				</span>
 			</div>
 		);

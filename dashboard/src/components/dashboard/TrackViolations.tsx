@@ -30,14 +30,7 @@ export default function TrackViolations() {
 			.reduce((acc: Violations, violations) => {
 				const carNr = findCarNumber(violations.Message);
 				if (!carNr) return acc;
-
-				if (acc[carNr] === undefined) {
-					acc[carNr] = 1;
-				} else {
-					const newValue = acc[carNr] + 1;
-					acc[carNr] = newValue;
-				}
-
+				acc[carNr] = (acc[carNr] ?? 0) + 1;
 				return acc;
 			}, {}) ?? {};
 
@@ -46,11 +39,13 @@ export default function TrackViolations() {
 		: undefined;
 
 	return (
-		<div className="flex flex-col gap-0.5">
+		<div className="font-mono">
+			<div className="border-b-2 border-zinc-700 px-2 py-0.5 text-[11px] uppercase tracking-widest text-zinc-500">
+				track violations
+			</div>
+
 			{violationDrivers && violationDrivers.length < 1 && (
-				<div className="flex h-96 w-full flex-col items-center justify-center">
-					<p className="text-gray-500">No violations yet</p>
-				</div>
+				<div className="px-2 py-3 text-sm text-zinc-700">no violations</div>
 			)}
 
 			{violationDrivers &&

@@ -1,6 +1,5 @@
 import { AnimatePresence } from "motion/react";
 import { useEffect, useRef } from "react";
-import clsx from "clsx";
 
 import { useSettingsStore } from "@/stores/useSettingsStore";
 import { useDataStore } from "@/stores/useDataStore";
@@ -24,7 +23,6 @@ export default function RaceControl() {
 			const chime = new Audio("/sounds/chime.mp3");
 			chime.volume = raceControlChimeVolume / 100;
 			chimeRef.current = chime;
-
 			return () => {
 				chimeRef.current = null;
 			};
@@ -34,26 +32,21 @@ export default function RaceControl() {
 
 	useEffect(() => {
 		if (typeof window === "undefined") return;
-
 		if (messages === undefined || messages === null) return;
-
 		if (!pastMessageTimestamps.current) {
 			pastMessageTimestamps.current = messages.map((msg) => msg.Utc);
 			return;
 		}
-
 		const newMessages = messages.filter((msg) => !pastMessageTimestamps.current?.includes(msg.Utc));
-
 		if (newMessages.length > 0 && raceControlChime) {
 			chimeRef.current?.play();
 		}
-
 		pastMessageTimestamps.current = messages.map((msg) => msg.Utc);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [messages]);
 
 	return (
-		<ul className="flex flex-col gap-2">
+		<ul className="flex flex-col font-mono">
 			{!messages &&
 				new Array(7).fill("").map((_, index) => <SkeletonMessage key={`msg.loading.${index}`} index={index} />)}
 
@@ -72,20 +65,15 @@ export default function RaceControl() {
 }
 
 const SkeletonMessage = ({ index }: { index: number }) => {
-	const animateClass = "h-6 animate-pulse rounded-md bg-zinc-800";
-
-	const flag = index % 4 === 0;
 	const long = index % 5 === 0;
 	const mid = index % 3 === 0;
-
 	return (
-		<li className="flex flex-col gap-1 p-2">
-			<div className={clsx(animateClass, "h-4! w-16")} />
-
-			<div className="flex gap-1">
-				{flag && <div className={clsx(animateClass, "w-6")} />}
-				<div className={animateClass} style={{ width: long ? "100%" : mid ? "75%" : "40%" }} />
-			</div>
+		<li className="flex items-baseline gap-[1ch] border-b border-zinc-900 px-2 py-0.5 font-mono text-sm">
+			<span className="inline-block h-3 w-14 animate-pulse rounded-sm bg-zinc-800" />
+			<span
+				className="inline-block h-3 animate-pulse rounded-sm bg-zinc-800"
+				style={{ width: long ? "70%" : mid ? "50%" : "35%" }}
+			/>
 		</li>
 	);
 };

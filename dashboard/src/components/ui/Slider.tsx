@@ -13,7 +13,7 @@ export default function Slider({ value, setValue, className }: Props) {
 		<input
 			type="range"
 			value={value}
-			className={clsx("h-2 w-full cursor-pointer appearance-none rounded-lg bg-zinc-800", className)}
+			className={clsx("h-1 w-full cursor-pointer appearance-none bg-zinc-800 accent-zinc-400", className)}
 			onChange={(e) => setValue(Number(e.target.value))}
 		/>
 	);

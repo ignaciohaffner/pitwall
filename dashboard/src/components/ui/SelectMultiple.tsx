@@ -11,9 +11,7 @@ type Option<T> = {
 
 type Props<T> = {
 	placeholder?: string;
-
 	options: Option<T>[];
-
 	selected: T[];
 	setSelected: (value: T[]) => void;
 };
@@ -30,32 +28,31 @@ export default function SelectMultiple<T>({ placeholder, options, selected, setS
 				<ComboboxInput
 					placeholder={placeholder}
 					className={clsx(
-						"w-full rounded-lg border-none bg-zinc-900 py-1.5 pr-8 pl-3 text-sm/6 text-white",
-						"focus:outline-hidden data-focus:outline-2 data-focus:-outline-offset-2 data-focus:outline-zinc-700",
+						"w-full border border-zinc-700 bg-black py-1.5 pr-8 pl-3 font-mono text-sm text-zinc-300 placeholder:text-zinc-600",
+						"focus:border-zinc-500 focus:outline-none",
 					)}
 					displayValue={(option: Option<T> | null) => option?.label ?? ""}
 					onChange={(event) => setQuery(event.target.value)}
 				/>
-				<ComboboxButton className="group absolute inset-y-0 right-0 px-2.5">
-					{/* <ChevronDownIcon className="size-4 fill-white/60 group-data-hover:fill-white" /> */}
+				<ComboboxButton className="absolute inset-y-0 right-0 px-2.5 font-mono text-xs text-zinc-600">
+					▾
 				</ComboboxButton>
 			</div>
 
 			<ComboboxOptions
 				anchor="bottom"
 				className={clsx(
-					"w-[var(--input-width)] rounded-xl border border-white/5 bg-zinc-900 p-1 [--anchor-gap:var(--spacing-1)] empty:invisible",
-					"z-50 mt-1 transition duration-100 ease-in data-leave:data-closed:opacity-0",
+					"z-50 mt-1 w-[var(--input-width)] border border-zinc-700 bg-black p-0 [--anchor-gap:var(--spacing-1)] empty:invisible",
+					"transition duration-100 ease-in data-leave:data-closed:opacity-0",
 				)}
 			>
 				{filteredOptions.slice(0, 5).map((option, idx) => (
 					<ComboboxOption
 						key={idx}
 						value={option.value}
-						className="group flex cursor-pointer items-center gap-2 rounded-lg px-3 py-1.5 select-none data-focus:bg-white/10"
+						className="cursor-pointer px-3 py-1.5 font-mono text-sm text-zinc-400 select-none data-focus:bg-zinc-900 data-focus:text-zinc-200"
 					>
-						{/* <CheckIcon className="invisible size-4 fill-white group-data-selected:visible" /> */}
-						<div className="text-sm/6 text-white">{option.label}</div>
+						{option.label}
 					</ComboboxOption>
 				))}
 			</ComboboxOptions>

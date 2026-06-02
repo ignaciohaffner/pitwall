@@ -5,9 +5,10 @@ import type { TimingDataDriver } from "@/types/state.type";
 type Props = {
 	timingDriver: TimingDataDriver;
 	gridPos?: number;
+	hasFastest?: boolean;
 };
 
-export default function DriverInfo({ timingDriver, gridPos }: Props) {
+export default function DriverInfo({ timingDriver, gridPos, hasFastest }: Props) {
 	const positionChange = gridPos ? gridPos - parseInt(timingDriver.Position) : 0;
 	const gain = positionChange > 0;
 	const loss = positionChange < 0;
@@ -36,6 +37,12 @@ export default function DriverInfo({ timingDriver, gridPos }: Props) {
 			>
 				{status}
 			</span>
+		);
+	}
+
+	if (hasFastest) {
+		return (
+			<span className="block w-full text-right font-bold text-violet-400">FL</span>
 		);
 	}
 

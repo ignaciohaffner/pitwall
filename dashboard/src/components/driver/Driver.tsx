@@ -17,16 +17,22 @@ import DriverMiniSectors from "./DriverMiniSectors";
 import DriverLapTime from "./DriverLapTime";
 import DriverInfo from "./DriverInfo";
 import DriverCarMetrics from "./DriverCarMetrics";
+import DriverPace from "./DriverPace";
+import DriverProximity from "./DriverProximity";
 
 type Props = {
 	position: number;
 	driver: Driver;
 	timingDriver: TimingDataDriver;
+	showInterval: boolean;
+	showPace: boolean;
 };
 
-// shared grid so headers and rows line up exactly
-export const DRIVER_GRID_COLS = "7ch 3ch 7ch 4ch 9ch 9ch auto";
 export const DRIVER_GRID_GAP = "2ch";
+export const driverGridCols = (showPace: boolean) =>
+	showPace ? "7ch 3ch 7ch 4ch 5ch 9ch 9ch 1fr auto" : "7ch 3ch 7ch 4ch 5ch 9ch 9ch 1fr";
+// keep alias so any other import doesn't break
+export const DRIVER_GRID_COLS = driverGridCols(true);
 
 const hasDRS = (drs: number) => drs > 9;
 const possibleDRS = (drs: number) => drs === 8;
@@ -39,7 +45,7 @@ const inDangerZone = (position: number, sessionPart: number) => {
 	}
 };
 
-export default function Driver({ driver, timingDriver, position }: Props) {
+export default function Driver({ driver, timingDriver, position, showInterval, showPace }: Props) {
 	const sessionPart = useDataStore((state) => state.state?.TimingData?.SessionPart);
 	const timingStatsDriver = useDataStore((state) => state.state?.TimingStats?.Lines[driver.RacingNumber]);
 	const appTimingDriver = useDataStore((state) => state.state?.TimingAppData?.Lines[driver.RacingNumber]);
@@ -64,7 +70,7 @@ export default function Driver({ driver, timingDriver, position }: Props) {
 		>
 			<div
 				className="grid min-w-0 flex-1 items-center"
-				style={{ columnGap: DRIVER_GRID_GAP, gridTemplateColumns: DRIVER_GRID_COLS }}
+				style={{ columnGap: DRIVER_GRID_GAP, gridTemplateColumns: driverGridCols(showPace) }}
 			>
 				<DriverTag short={driver.Tla} teamColor={driver.TeamColour} position={position} />
 
@@ -77,13 +83,17 @@ export default function Driver({ driver, timingDriver, position }: Props) {
 
 				<DriverTire stints={appTimingDriver?.Stints} />
 
-				<DriverInfo timingDriver={timingDriver} gridPos={appTimingDriver ? parseInt(appTimingDriver.GridPos) : 0} />
+				<DriverInfo timingDriver={timingDriver} gridPos={appTimingDriver ? parseInt(appTimingDriver.GridPos) : 0} hasFastest={hasFastest} />
 
-				<DriverGap timingDriver={timingDriver} sessionPart={sessionPart} />
+				<DriverProximity timingDriver={timingDriver} />
+
+				<DriverGap timingDriver={timingDriver} sessionPart={sessionPart} showInterval={showInterval} />
 
 				<DriverLapTime last={timingDriver.LastLapTime} best={timingDriver.BestLapTime} hasFastest={hasFastest} />
 
 				<DriverMiniSectors sectors={timingDriver.Sectors} bestSectors={timingStatsDriver?.BestSectors} />
+
+				{showPace && <DriverPace stints={appTimingDriver?.Stints} racingNumber={driver.RacingNumber} />}
 
 				{carMetrics && carData && <DriverCarMetrics carData={carData} />}
 			</div>

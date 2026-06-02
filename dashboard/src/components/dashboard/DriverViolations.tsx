@@ -11,22 +11,21 @@ type Props = {
 };
 
 export default function DriverViolations({ driver, driverViolations, driversTiming }: Props) {
-	return (
-		<div className="flex gap-2 p-1.5" key={`violation.${driver.RacingNumber}`}>
-			<DriverTag className="h-fit" teamColor={driver.TeamColour} short={driver.Tla} />
+	const hasPenalty = driverViolations > 4;
+	const penaltySeconds = Math.round(driverViolations / 5) * 5;
 
-			<div className="flex flex-col justify-around text-sm leading-none text-zinc-600">
-				<p>
-					{driverViolations} Violation{driverViolations > 1 ? "s" : ""}
-					{driverViolations > 4 && <span> - {Math.round(driverViolations / 5) * 5}s Penalty</span>}
-				</p>
-				{driverViolations > 4 && driversTiming && (
-					<p>
-						{calculatePosition(Math.round(driverViolations / 5) * 5, driver.RacingNumber, driversTiming)}
-						th after penalty
-					</p>
-				)}
-			</div>
+	return (
+		<div className="flex items-baseline gap-[1ch] border-b border-zinc-900 px-2 py-0.5 font-mono text-sm">
+			<DriverTag teamColor={driver.TeamColour} short={driver.Tla} />
+			<span className="text-amber-400">{driverViolations}v</span>
+			{hasPenalty && (
+				<span className="text-red-500">+{penaltySeconds}s</span>
+			)}
+			{hasPenalty && driversTiming && (
+				<span className="text-zinc-600">
+					→ {calculatePosition(penaltySeconds, driver.RacingNumber, driversTiming)}th
+				</span>
+			)}
 		</div>
 	);
 }

@@ -5,9 +5,10 @@ import type { TimingDataDriver } from "@/types/state.type";
 type Props = {
 	timingDriver: TimingDataDriver;
 	sessionPart: number | undefined;
+	showInterval?: boolean;
 };
 
-export default function DriverGap({ timingDriver, sessionPart }: Props) {
+export default function DriverGap({ timingDriver, sessionPart, showInterval = false }: Props) {
 	const gapToLeader =
 		timingDriver.GapToLeader ??
 		(timingDriver.Stats ? timingDriver.Stats[sessionPart ? sessionPart - 1 : 0].TimeDiffToFastest : undefined) ??
@@ -21,17 +22,33 @@ export default function DriverGap({ timingDriver, sessionPart }: Props) {
 		"";
 
 	const catching = timingDriver.IntervalToPositionAhead?.Catching;
-	const interval = gapToFront || gapToLeader || "";
 
+	if (showInterval) {
+		const isLeader = !gapToFront || gapToFront === "0.000";
+		return (
+			<span
+				className={clsx("block w-full text-right tabular-nums", {
+					"text-emerald-400": catching && !isLeader,
+					"text-zinc-500": isLeader,
+					"text-zinc-300": !catching && !isLeader && !!gapToFront,
+					"text-zinc-700": !gapToFront,
+				})}
+			>
+				{isLeader ? "·" : gapToFront || "---"}
+			</span>
+		);
+	}
+
+	const isLeader = !gapToLeader || gapToLeader === "0.000";
 	return (
 		<span
 			className={clsx("block w-full text-right tabular-nums", {
-				"text-emerald-400": catching,
-				"text-zinc-300": !catching && !!interval,
-				"text-zinc-700": !interval,
+				"text-emerald-400": isLeader,
+				"text-zinc-300": !isLeader && !!gapToLeader,
+				"text-zinc-700": !gapToLeader,
 			})}
 		>
-			{interval || "---"}
+			{isLeader ? "LEADER" : gapToLeader || "---"}
 		</span>
 	);
 }

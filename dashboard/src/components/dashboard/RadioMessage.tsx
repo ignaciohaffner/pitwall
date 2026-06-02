@@ -1,17 +1,15 @@
+"use client";
+
 import { useRef, useState } from "react";
 import { motion } from "motion/react";
 import { utc } from "moment";
 import clsx from "clsx";
 
 import type { Driver, RadioCapture } from "@/types/state.type";
-
 import { useSettingsStore } from "@/stores/useSettingsStore";
-
 import { toTrackTime } from "@/lib/toTrackTime";
 
 import DriverTag from "@/components/driver/DriverTag";
-import PlayControls from "@/components/ui/PlayControls";
-import Progress from "@/components/ui/Progress";
 
 type Props = {
 	driver: Driver;
@@ -36,10 +34,7 @@ export default function RadioMessage({ driver, capture, basePath, gmtOffset }: P
 	const onEnded = () => {
 		setPlaying(false);
 		setProgress(0);
-
-		if (intervalRef.current) {
-			clearInterval(intervalRef.current);
-		}
+		if (intervalRef.current) clearInterval(intervalRef.current);
 	};
 
 	const updateProgress = () => {
@@ -50,60 +45,54 @@ export default function RadioMessage({ driver, capture, basePath, gmtOffset }: P
 	const togglePlayback = () => {
 		setPlaying((old) => {
 			if (!audioRef.current) return old;
-
 			if (!old) {
 				audioRef.current.play();
-				intervalRef.current = setInterval(updateProgress, 10);
+				intervalRef.current = setInterval(updateProgress, 100);
 			} else {
 				audioRef.current.pause();
-
-				if (intervalRef.current) {
-					clearInterval(intervalRef.current);
-				}
-
+				if (intervalRef.current) clearInterval(intervalRef.current);
 				setTimeout(() => {
 					setProgress(0);
 					audioRef.current?.fastSeek(0);
 				}, 10000);
 			}
-
 			return !old;
 		});
 	};
 
 	const favoriteDriver = useSettingsStore((state) => state.favoriteDrivers.includes(driver.RacingNumber));
-
 	const localTime = utc(capture.Utc).local().format("HH:mm:ss");
-	const trackTime = utc(toTrackTime(capture.Utc, gmtOffset)).format("HH:mm");
+	const pct = Math.min(1, progress / duration);
+	const barFilled = Math.round(pct * 20);
+	const barEmpty = 20 - barFilled;
 
 	return (
 		<motion.li
-			animate={{ opacity: 1, scale: 1 }}
-			initial={{ opacity: 0, scale: 0.9 }}
-			className={clsx("flex flex-col gap-1 rounded-lg p-2", { "bg-sky-800/30": favoriteDriver })}
+			animate={{ opacity: 1 }}
+			initial={{ opacity: 0 }}
+			className={clsx("flex items-center gap-[1ch] border-b border-zinc-900 px-2 py-0.5 font-mono text-sm", {
+				"bg-sky-950/40": favoriteDriver,
+			})}
 		>
-			<div className="flex items-center gap-1 text-sm leading-none text-zinc-500">
-				<time dateTime={localTime}>{localTime}</time>
-				{"·"}
-				<time className="text-zinc-700" dateTime={trackTime}>
-					{trackTime}
-				</time>
-			</div>
-
-			<div className="flex items-center gap-1">
-				<DriverTag className="!w-fit" teamColor={driver.TeamColour} short={driver.Tla} />
-
-				<PlayControls playing={playing} onClick={togglePlayback} />
-				<Progress duration={duration} progress={progress} />
-
-				<audio
-					preload="none"
-					src={`${basePath}${capture.Path}`}
-					ref={audioRef}
-					onEnded={() => onEnded()}
-					onLoadedMetadata={() => loadMeta()}
-				/>
-			</div>
+			<time className="shrink-0 text-[11px] tabular-nums text-zinc-600">{localTime}</time>
+			<DriverTag teamColor={driver.TeamColour} short={driver.Tla} />
+			<button
+				onClick={togglePlayback}
+				className="shrink-0 text-zinc-500 hover:text-zinc-200 transition-colors"
+				aria-label={playing ? "Pause" : "Play"}
+			>
+				{playing ? "■" : "►"}
+			</button>
+			<span className="text-[11px] tabular-nums text-zinc-600 select-none">
+				{"█".repeat(barFilled)}{"░".repeat(barEmpty)}
+			</span>
+			<audio
+				preload="none"
+				src={`${basePath}${capture.Path}`}
+				ref={audioRef}
+				onEnded={onEnded}
+				onLoadedMetadata={loadMeta}
+			/>
 		</motion.li>
 	);
 }

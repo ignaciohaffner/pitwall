@@ -1,9 +1,5 @@
 import { type ReactNode } from "react";
-import Image from "next/image";
 import Link from "next/link";
-
-import githubIcon from "public/icons/github.svg";
-import coffeeIcon from "public/icons/bmc-logo.svg";
 
 import Footer from "@/components/Footer";
 
@@ -14,39 +10,38 @@ type Props = {
 export default function Layout({ children }: Props) {
 	return (
 		<>
-			<nav className="sticky top-0 left-0 z-10 flex h-12 w-full items-center justify-between gap-4 border-b border-zinc-800 p-2 px-4 backdrop-blur-lg">
-				<div className="flex gap-4">
-					<Link className="transition duration-100 active:scale-95" href="/">
-						Home
+			<nav className="sticky top-0 left-0 z-10 flex h-10 w-full items-center justify-between border-b border-zinc-800 bg-black/80 px-4 font-mono backdrop-blur-lg">
+				<div className="flex items-center gap-[2ch]">
+					<Link className="text-zinc-300 transition-colors hover:text-white" href="/">
+						<span className="text-zinc-600">{">"}</span> pitwall
 					</Link>
-					<Link className="transition duration-100 active:scale-95" href="/dashboard">
-						Dashboard
+					<span className="text-zinc-800">│</span>
+					<Link className="text-[11px] uppercase tracking-widest text-zinc-500 transition-colors hover:text-zinc-300" href="/dashboard">
+						dashboard
 					</Link>
-					<Link className="transition duration-100 active:scale-95" href="/schedule">
-						Schedule
+					<Link className="text-[11px] uppercase tracking-widest text-zinc-500 transition-colors hover:text-zinc-300" href="/schedule">
+						schedule
 					</Link>
-					<Link className="transition duration-100 active:scale-95" href="/help">
-						Help
+					<Link className="text-[11px] uppercase tracking-widest text-zinc-500 transition-colors hover:text-zinc-300" href="/help">
+						help
 					</Link>
 				</div>
 
-				<div className="hidden items-center gap-4 pr-2 sm:flex">
+				<div className="hidden items-center gap-[2ch] sm:flex">
+					<span className="text-zinc-800">│</span>
 					<Link
-						className="flex items-center gap-2 transition duration-100 active:scale-95"
+						className="text-[11px] uppercase tracking-widest text-zinc-600 transition-colors hover:text-zinc-400"
 						href="https://www.buymeacoffee.com/slowlydev"
 						target="_blank"
 					>
-						<Image src={coffeeIcon} alt="Buy Me A Coffee" width={20} height={20} />
-						<span>Coffee</span>
+						[coffee]
 					</Link>
-
 					<Link
-						className="flex items-center gap-2 transition duration-100 active:scale-95"
+						className="text-[11px] uppercase tracking-widest text-zinc-600 transition-colors hover:text-zinc-400"
 						href="https://github.com/slowlydev/f1-dash"
 						target="_blank"
 					>
-						<Image src={githubIcon} alt="GitHub" width={20} height={20} />
-						<span>GitHub</span>
+						[github]
 					</Link>
 				</div>
 			</nav>

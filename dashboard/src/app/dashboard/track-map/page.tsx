@@ -16,15 +16,19 @@ import { useDataStore } from "@/stores/useDataStore";
 import type { Driver, TimingDataDriver } from "@/types/state.type";
 import { useSettingsStore } from "@/stores/useSettingsStore";
 
+const GRID_COLS = "7ch 3ch 4ch 8ch 8ch";
+const GRID_GAP = "1ch";
+
 export default function TrackMap() {
 	const drivers = useDataStore((state) => state.state?.DriverList);
 	const driversTiming = useDataStore((state) => state.state?.TimingData);
 
 	return (
-		<div className="flex flex-col-reverse md:h-full md:flex-row">
-			<div className="flex w-full flex-col gap-0.5 overflow-y-auto border-zinc-800 md:h-full md:w-fit md:rounded-lg md:border md:p-2">
+		<div className="flex h-full flex-col-reverse md:flex-row font-mono">
+			{/* Sidebar */}
+			<div className="w-full shrink-0 overflow-y-auto border-r border-zinc-800 md:w-auto">
 				{(!drivers || !driversTiming) &&
-					new Array(20).fill("").map((_, index) => <SkeletonDriver key={`driver.loading.${index}`} />)}
+					new Array(20).fill("").map((_, i) => <SkeletonDriver key={`map.skeleton.${i}`} />)}
 
 				{drivers && driversTiming && (
 					<AnimatePresence>
@@ -42,7 +46,8 @@ export default function TrackMap() {
 				)}
 			</div>
 
-			<div className="md:flex-1">
+			{/* Map */}
+			<div className="min-h-64 flex-1 md:min-h-0">
 				<Map />
 			</div>
 		</div>
@@ -56,18 +61,13 @@ type TrackMapDriverProps = {
 };
 
 const hasDRS = (drs: number) => drs > 9;
-
 const possibleDRS = (drs: number) => drs === 8;
 
 const inDangerZone = (position: number, sessionPart: number) => {
 	switch (sessionPart) {
-		case 1:
-			return position > 15;
-		case 2:
-			return position > 10;
-		case 3:
-		default:
-			return false;
+		case 1: return position > 15;
+		case 2: return position > 10;
+		default: return false;
 	}
 };
 
@@ -76,35 +76,38 @@ const TrackMapDriver = ({ position, driver, timingDriver }: TrackMapDriverProps)
 	const timingStatsDriver = useDataStore((state) => state.state?.TimingStats?.Lines[driver.RacingNumber]);
 	const appTimingDriver = useDataStore((state) => state.state?.TimingAppData?.Lines[driver.RacingNumber]);
 	const hasFastest = timingStatsDriver?.PersonalBestLapTime.Position == 1;
-
 	const carData = useDataStore((state) => (state?.carsData ? state.carsData[driver.RacingNumber].Channels : undefined));
-
 	const favoriteDriver = useSettingsStore((state) => state.favoriteDrivers.includes(driver.RacingNumber));
 
 	return (
 		<motion.div
 			layout="position"
-			className={clsx("flex flex-col gap-1 rounded-lg p-1.5 select-none", {
-				"opacity-50": timingDriver.KnockedOut || timingDriver.Retired || timingDriver.Stopped,
-				"bg-sky-800/30": favoriteDriver,
-				"bg-violet-800/30": hasFastest,
-				"bg-red-800/30": sessionPart != undefined && inDangerZone(position, sessionPart),
-			})}
+			className={clsx(
+				"border-b border-zinc-900 py-0.5 pl-2 pr-1 leading-none select-none",
+				{
+					"opacity-30": timingDriver.KnockedOut || timingDriver.Retired || timingDriver.Stopped,
+					"bg-sky-950/60": favoriteDriver,
+					"bg-violet-950/60": hasFastest,
+					"bg-red-950/60": sessionPart != undefined && inDangerZone(position, sessionPart),
+				},
+			)}
 		>
 			<div
-				className="grid items-center gap-2"
-				style={{
-					gridTemplateColumns: "5.5rem 3.5rem 4rem 5rem 5rem",
-				}}
+				className="grid items-center"
+				style={{ columnGap: GRID_GAP, gridTemplateColumns: GRID_COLS }}
 			>
-				<DriverTag className="min-w-full!" short={driver.Tla} teamColor={driver.TeamColour} position={position} />
+				<DriverTag short={driver.Tla} teamColor={driver.TeamColour} position={position} />
 				<DriverDRS
 					on={carData ? hasDRS(carData[45] ?? 0) : false}
 					possible={carData ? possibleDRS(carData[45] ?? 0) : false}
 					inPit={timingDriver.InPit}
 					pitOut={timingDriver.PitOut}
 				/>
-				<DriverInfo timingDriver={timingDriver} gridPos={appTimingDriver ? parseInt(appTimingDriver.GridPos) : 0} />
+				<DriverInfo
+					timingDriver={timingDriver}
+					gridPos={appTimingDriver ? parseInt(appTimingDriver.GridPos) : 0}
+					hasFastest={hasFastest}
+				/>
 				<DriverGap timingDriver={timingDriver} sessionPart={sessionPart} />
 				<DriverLapTime last={timingDriver.LastLapTime} best={timingDriver.BestLapTime} hasFastest={hasFastest} />
 			</div>
@@ -112,31 +115,15 @@ const TrackMapDriver = ({ position, driver, timingDriver }: TrackMapDriverProps)
 	);
 };
 
-const SkeletonDriver = () => {
-	const animateClass = "h-8 animate-pulse rounded-md bg-zinc-800";
-
-	return (
-		<div
-			className="grid place-items-center items-center gap-1 p-1"
-			style={{
-				gridTemplateColumns: "5.5rem 4rem 5.5rem 5rem 5rem",
-			}}
-		>
-			<div className={animateClass} style={{ width: "100%" }} />
-
-			<div className={animateClass} style={{ width: "90%" }} />
-
-			{new Array(2).fill(null).map((_, index) => (
-				<div className="flex w-full flex-col gap-1" key={`skeleton.${index}`}>
-					<div className={clsx(animateClass, "h-4!")} />
-					<div className={clsx(animateClass, "h-3! w-2/3")} />
-				</div>
-			))}
-
-			<div className="flex w-full flex-col gap-1">
-				<div className={clsx(animateClass, "h-3! w-4/5")} />
-				<div className={clsx(animateClass, "h-4!")} />
-			</div>
-		</div>
-	);
-};
+const SkeletonDriver = () => (
+	<div
+		className="grid items-center border-b border-zinc-900 py-0.5 pl-2 pr-1 text-zinc-800"
+		style={{ columnGap: GRID_GAP, gridTemplateColumns: GRID_COLS }}
+	>
+		<span>▌ ---</span>
+		<span>---</span>
+		<span>----</span>
+		<span className="text-right">--------</span>
+		<span className="text-right">--------</span>
+	</div>
+);

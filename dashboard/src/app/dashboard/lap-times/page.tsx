@@ -4,23 +4,28 @@ import { useState } from "react";
 import clsx from "clsx";
 
 import { useDataStore } from "@/stores/useDataStore";
-import { useHistoryStore } from "@/stores/useHistoryStore";
+import { useHistoryStore, type LapTimeEntry } from "@/stores/useHistoryStore";
+import { useHeadToHeadStore } from "@/stores/useHeadToHeadStore";
+import type { Stint } from "@/types/state.type";
+import { getStintBoundaries, classifyLap, type StintBoundary } from "@/lib/stints";
+
+// ── Component ────────────────────────────────────────────────────────────────
 
 export default function LapTimes() {
 	const driverList = useDataStore((s) => s.state?.DriverList);
 	const currentLap = useDataStore((s) => s.state?.LapCount?.CurrentLap ?? 0);
 	const timingLines = useDataStore((s) => s.state?.TimingData?.Lines);
+	const timingAppLines = useDataStore((s) => s.state?.TimingAppData?.Lines);
 	const lapTimes = useHistoryStore((s) => s.lapTimes);
+
+	const { first, second, setFirst, setSecond } = useHeadToHeadStore();
 
 	const [selectedDrivers, setSelectedDrivers] = useState<Set<string>>(new Set());
 	const [showPicker, setShowPicker] = useState(false);
+	const [compareMode, setCompareMode] = useState(false);
 
 	if (!driverList) {
-		return (
-			<div className="flex h-full w-full items-center justify-center">
-				<p className="text-zinc-500">waiting for session data...</p>
-			</div>
-		);
+		return <div className="px-2 py-1 font-mono text-sm text-zinc-700">waiting for session data...</div>;
 	}
 
 	const allDrivers = Object.values(driverList).sort((a, b) => {
@@ -45,115 +50,214 @@ export default function LapTimes() {
 	const selectAll = () => setSelectedDrivers(new Set(allDrivers.map((d) => d.RacingNumber)));
 	const selectNone = () => setSelectedDrivers(new Set());
 
+	// Precompute stint boundaries per driver
+	const stintBoundariesByDriver: Record<string, StintBoundary[]> = {};
+	for (const d of allDrivers) {
+		const stints = timingAppLines?.[d.RacingNumber]?.Stints ?? [];
+		stintBoundariesByDriver[d.RacingNumber] = getStintBoundaries(stints);
+	}
+
+	// Compare mode drivers
+	const d1 = first ? driverList[first] : null;
+	const d2 = second ? driverList[second] : null;
+
 	return (
-		<div className="flex h-full w-full flex-col p-4">
-			<div className="mb-4 flex items-center justify-between">
-				<h2 className="text-lg font-semibold">Lap Times</h2>
-				<button
-					onClick={() => setShowPicker((v) => !v)}
-					className="rounded-lg border border-zinc-700 px-3 py-1 text-sm hover:bg-zinc-800"
-				>
-					Drivers ({visibleDrivers.length})
-				</button>
+		<div className="flex w-full flex-col font-mono">
+			{/* Header */}
+			<div className="flex items-center justify-between border-b border-zinc-800 px-2 py-0.5">
+				<span className="text-[11px] uppercase tracking-widest text-zinc-500">lap times</span>
+				<div className="flex items-center gap-3">
+					<button
+						onClick={() => setCompareMode((v) => !v)}
+						className={clsx("text-[11px] uppercase tracking-widest transition-colors", {
+							"text-zinc-400": compareMode,
+							"text-zinc-700 hover:text-zinc-400": !compareMode,
+						})}
+					>
+						compare
+					</button>
+					<span className="text-zinc-800">│</span>
+					<button
+						onClick={() => setShowPicker((v) => !v)}
+						className="text-[11px] uppercase tracking-widest text-zinc-700 hover:text-zinc-400 transition-colors"
+					>
+						drivers ({visibleDrivers.length})
+					</button>
+				</div>
 			</div>
 
 			{/* Driver picker */}
 			{showPicker && (
-				<div className="mb-4 rounded-lg border border-zinc-700 bg-zinc-900 p-3">
-					<div className="mb-2 flex gap-2">
-						<button onClick={selectAll} className="rounded bg-zinc-700 px-2 py-0.5 text-xs hover:bg-zinc-600">
-							ALL
+				<div className="border-b border-zinc-800 px-2 py-1">
+					<div className="mb-1 flex gap-2">
+						<button onClick={selectAll} className="text-[11px] uppercase tracking-widest text-zinc-500 hover:text-zinc-300">
+							all
 						</button>
-						<button onClick={selectNone} className="rounded bg-zinc-700 px-2 py-0.5 text-xs hover:bg-zinc-600">
-							NONE
+						<span className="text-zinc-700">│</span>
+						<button onClick={selectNone} className="text-[11px] uppercase tracking-widest text-zinc-500 hover:text-zinc-300">
+							none
+						</button>
+						<span className="text-zinc-700">│</span>
+						<button onClick={() => setShowPicker(false)} className="text-[11px] uppercase tracking-widest text-zinc-500 hover:text-zinc-300">
+							done
 						</button>
 					</div>
-					<div className="flex flex-wrap gap-2">
+					<div className="flex flex-wrap gap-1">
 						{allDrivers.map((d) => {
 							const selected = selectedDrivers.size === 0 ? visibleDrivers.includes(d) : selectedDrivers.has(d.RacingNumber);
 							return (
 								<button
 									key={d.RacingNumber}
 									onClick={() => toggleDriver(d.RacingNumber)}
-									className={clsx("rounded px-2 py-0.5 text-xs font-bold transition-opacity", {
-										"opacity-40": !selected,
-									})}
-									style={{ backgroundColor: `#${d.TeamColour}`, color: isLight(d.TeamColour) ? "#000" : "#fff" }}
+									className={clsx("text-[11px] font-bold transition-opacity", { "opacity-30": !selected })}
+									style={{ color: `#${d.TeamColour}` }}
 								>
 									{d.Tla}
 								</button>
 							);
 						})}
 					</div>
-					<button
-						onClick={() => setShowPicker(false)}
-						className="mt-3 w-full rounded bg-zinc-700 py-1 text-xs hover:bg-zinc-600"
-					>
-						DONE
-					</button>
 				</div>
 			)}
 
-			{/* Table */}
-			{currentLap === 0 ? (
-				<div className="flex flex-1 items-center justify-center">
-					<p className="text-zinc-500">no laps completed yet</p>
-				</div>
-			) : (
-				<div className="no-scrollbar overflow-auto rounded-lg border border-zinc-800">
-					<table className="w-full text-sm">
-						<thead className="sticky top-0 bg-zinc-950">
-							<tr>
-								<th className="p-2 text-left text-xs text-zinc-500">LAP</th>
-								{visibleDrivers.map((d) => (
-									<th
-										key={d.RacingNumber}
-										className="p-2 text-right text-xs font-bold"
-										style={{ color: `#${d.TeamColour}` }}
-									>
-										{d.Tla}
-									</th>
-								))}
-							</tr>
-						</thead>
-						<tbody className="divide-y divide-zinc-800/50">
-							{laps.map((lap) => (
-								<tr key={lap} className="hover:bg-zinc-900/50">
-									<td className="p-2 text-xs text-zinc-500">{lap}</td>
-									{visibleDrivers.map((d) => {
-										const entry = lapTimes[d.RacingNumber]?.find((e) => e.lap === lap);
+			{/* Compare mode */}
+			{compareMode ? (
+				<div className="flex flex-col">
+					<div className="flex items-center gap-2 border-b border-zinc-800 px-2 py-1">
+						<select
+							value={first ?? ""}
+							onChange={(e) => setFirst(e.target.value || null)}
+							className="bg-black text-[11px] uppercase tracking-widest text-zinc-400 border border-zinc-800 px-1 py-0.5 focus:outline-none"
+						>
+							<option value="">driver A</option>
+							{allDrivers.map((d) => (
+								<option key={d.RacingNumber} value={d.RacingNumber}>
+									{d.Tla}
+								</option>
+							))}
+						</select>
+						<span className="text-zinc-700 text-[11px]">vs</span>
+						<select
+							value={second ?? ""}
+							onChange={(e) => setSecond(e.target.value || null)}
+							className="bg-black text-[11px] uppercase tracking-widest text-zinc-400 border border-zinc-800 px-1 py-0.5 focus:outline-none"
+						>
+							<option value="">driver B</option>
+							{allDrivers.map((d) => (
+								<option key={d.RacingNumber} value={d.RacingNumber}>
+									{d.Tla}
+								</option>
+							))}
+						</select>
+					</div>
+
+					{!d1 || !d2 ? (
+						<div className="px-2 py-3 text-[11px] text-zinc-700">select two drivers to compare</div>
+					) : (
+						<div className="overflow-auto">
+							<table className="w-full text-sm">
+								<thead className="sticky top-0 bg-black">
+									<tr className="border-b-2 border-zinc-600">
+										<th className="px-2 py-0.5 text-left text-[11px] uppercase tracking-widest text-zinc-500">LAP</th>
+										<th className="px-2 py-0.5 text-right text-[11px] font-bold" style={{ color: `#${d1.TeamColour}` }}>
+											{d1.Tla}
+										</th>
+										<th className="px-2 py-0.5 text-center text-[11px] uppercase tracking-widest text-zinc-500">Δ</th>
+										<th className="px-2 py-0.5 text-left text-[11px] font-bold" style={{ color: `#${d2.TeamColour}` }}>
+											{d2.Tla}
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									{laps.map((lap) => {
+										const e1 = lapTimes[d1.RacingNumber]?.find((e) => e.lap === lap);
+										const e2 = lapTimes[d2.RacingNumber]?.find((e) => e.lap === lap);
+										const delta = e1 && e2 ? e1.ms - e2.ms : null;
+										const d1Faster = delta !== null && delta < 0;
+										const d2Faster = delta !== null && delta > 0;
 										return (
-											<td key={d.RacingNumber} className="p-2 text-right font-mono text-xs">
-												{entry ? (
-													<span
-														className={clsx({
-															"text-purple-400": entry.overallFastest,
-															"text-green-400": !entry.overallFastest && entry.personalFastest,
-															"text-zinc-300": !entry.overallFastest && !entry.personalFastest,
-														})}
-													>
-														{entry.time}
-													</span>
-												) : (
-													<span className="text-zinc-700">—</span>
-												)}
-											</td>
+											<tr key={lap} className="border-b border-zinc-900">
+												<td className="px-2 py-0.5 text-[11px] tabular-nums text-zinc-600">{lap}</td>
+												<td className={clsx("px-2 py-0.5 text-right tabular-nums text-sm", d1Faster ? "text-emerald-400" : "text-zinc-300")}>
+													{e1 ? e1.time : <span className="text-zinc-800">—</span>}
+												</td>
+												<td className="px-2 py-0.5 text-center tabular-nums text-[11px]">
+													{delta !== null ? (
+														<span className={clsx(delta < 0 ? "text-emerald-400" : delta > 0 ? "text-red-400" : "text-zinc-600")}>
+															{delta > 0 ? "+" : ""}{(delta / 1000).toFixed(3)}
+														</span>
+													) : (
+														<span className="text-zinc-800">—</span>
+													)}
+												</td>
+												<td className={clsx("px-2 py-0.5 text-left tabular-nums text-sm", d2Faster ? "text-emerald-400" : "text-zinc-300")}>
+													{e2 ? e2.time : <span className="text-zinc-800">—</span>}
+												</td>
+											</tr>
 										);
 									})}
-								</tr>
-							))}
-						</tbody>
-					</table>
+								</tbody>
+							</table>
+						</div>
+					)}
 				</div>
+			) : (
+				currentLap === 0 ? (
+					<div className="px-2 py-3 text-sm text-zinc-700">no laps completed yet</div>
+				) : (
+					<div className="overflow-auto">
+						<table className="w-full text-sm">
+							<thead className="sticky top-0 bg-black">
+								<tr className="border-b-2 border-zinc-600">
+									<th className="px-2 py-0.5 text-left text-[11px] uppercase tracking-widest text-zinc-500">LAP</th>
+									{visibleDrivers.map((d) => (
+										<th
+											key={d.RacingNumber}
+											className="px-2 py-0.5 text-right text-[11px] font-bold"
+											style={{ color: `#${d.TeamColour}` }}
+										>
+											{d.Tla}
+										</th>
+									))}
+								</tr>
+							</thead>
+							<tbody>
+								{laps.map((lap) => (
+									<tr key={lap} className="border-b border-zinc-900">
+										<td className="px-2 py-0.5 text-[11px] tabular-nums text-zinc-600">{lap}</td>
+										{visibleDrivers.map((d) => {
+											const entry = lapTimes[d.RacingNumber]?.find((e) => e.lap === lap);
+											const boundaries = stintBoundariesByDriver[d.RacingNumber];
+											const lapType = boundaries.length > 0 ? classifyLap(lap, boundaries) : "push";
+											return (
+												<td key={d.RacingNumber} className="px-2 py-0.5 text-right tabular-nums">
+													{entry ? (
+														<span className="inline-flex items-baseline gap-0.5">
+															<span
+																className={clsx("text-sm", {
+																	"text-violet-400": entry.overallFastest,
+																	"text-emerald-400": !entry.overallFastest && entry.personalFastest,
+																	"text-zinc-300": !entry.overallFastest && !entry.personalFastest,
+																})}
+															>
+																{entry.time}
+															</span>
+															{lapType === "out" && <span className="text-[9px] text-zinc-600">O</span>}
+															{lapType === "in" && <span className="text-[9px] text-zinc-600">I</span>}
+														</span>
+													) : (
+														<span className="text-zinc-800">—</span>
+													)}
+												</td>
+											);
+										})}
+									</tr>
+								))}
+							</tbody>
+						</table>
+					</div>
+				)
 			)}
 		</div>
 	);
-}
-
-function isLight(hex: string | undefined): boolean {
-	if (!hex || hex.length < 6) return false;
-	const r = parseInt(hex.slice(0, 2), 16);
-	const g = parseInt(hex.slice(2, 4), 16);
-	const b = parseInt(hex.slice(4, 6), 16);
-	return (r * 299 + g * 587 + b * 114) / 1000 > 128;
 }
