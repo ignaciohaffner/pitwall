@@ -44,14 +44,12 @@ export default function SessionInfo() {
 			<span className="text-zinc-500 tabular-nums">{countryCode}</span>
 			<span className="text-zinc-700">│</span>
 			{sessionName ? (
-				<span className="text-zinc-300 uppercase tracking-wide">{sessionName}</span>
+				<span className="tracking-wide text-zinc-300 uppercase">{sessionName}</span>
 			) : (
 				<span className="text-zinc-700">loading...</span>
 			)}
 			<span className="text-zinc-700">│</span>
-			<span className="font-bold tabular-nums text-white">
-				{timeRemaining ?? "--:--:--"}
-			</span>
+			<span className="font-bold text-white tabular-nums">{timeRemaining ?? "--:--:--"}</span>
 		</span>
 	);
 }

@@ -25,11 +25,11 @@ export default function LeaderBoard() {
 			{helpOpen && <RaceHelpModal onClose={() => setHelpOpen(false)} />}
 			<div className="w-full overflow-x-auto font-mono text-base">
 				<div className="flex items-center justify-between border-b border-zinc-800 px-2 py-0.5">
-					<span className="text-[11px] uppercase tracking-widest text-zinc-600">RACE</span>
+					<span className="text-[11px] tracking-widest text-zinc-600 uppercase">RACE</span>
 					<div className="flex items-center gap-3">
 						<button
 							onClick={() => setShowPace((v) => !v)}
-							className={clsx("text-[11px] uppercase tracking-widest transition-colors", {
+							className={clsx("text-[11px] tracking-widest uppercase transition-colors", {
 								"text-zinc-400": showPace,
 								"text-zinc-700 hover:text-zinc-400": !showPace,
 							})}
@@ -39,7 +39,7 @@ export default function LeaderBoard() {
 						<span className="text-zinc-800">│</span>
 						<button
 							onClick={() => setHelpOpen(true)}
-							className="text-[11px] uppercase tracking-widest text-zinc-700 hover:text-zinc-400 transition-colors"
+							className="text-[11px] tracking-widest text-zinc-700 uppercase transition-colors hover:text-zinc-400"
 							aria-label="Race timing help"
 						>
 							? ayuda
@@ -89,29 +89,29 @@ type HeaderProps = {
 
 const TableHeaders = ({ showInterval, onToggleInterval, showPace }: HeaderProps) => (
 	<div
-		className="grid items-center border-b-2 border-zinc-600 py-0.5 pl-2 pr-1 font-mono text-base leading-none"
+		className="grid items-center border-b-2 border-zinc-600 py-0.5 pr-1 pl-2 font-mono text-base leading-none"
 		style={{ columnGap: DRIVER_GRID_GAP, gridTemplateColumns: driverGridCols(showPace) }}
 	>
-		<span className="text-[11px] uppercase tracking-widest text-zinc-500">POS</span>
-		<span className="text-[11px] uppercase tracking-widest text-zinc-500">OVT</span>
-		<span className="text-[11px] uppercase tracking-widest text-zinc-500">TYRE</span>
-		<span className="text-right text-[11px] uppercase tracking-widest text-zinc-500">INFO</span>
-		<span className="text-[11px] uppercase tracking-widest text-zinc-700">&lt;1s</span>
+		<span className="text-[11px] tracking-widest text-zinc-500 uppercase">POS</span>
+		<span className="text-[11px] tracking-widest text-zinc-500 uppercase">OVT</span>
+		<span className="text-[11px] tracking-widest text-zinc-500 uppercase">TYRE</span>
+		<span className="text-right text-[11px] tracking-widest text-zinc-500 uppercase">INFO</span>
+		<span className="text-[11px] tracking-widest text-zinc-700 uppercase">&lt;1s</span>
 		<button
 			onClick={onToggleInterval}
-			className="text-right text-[11px] uppercase tracking-widest text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+			className="cursor-pointer text-right text-[11px] tracking-widest text-zinc-400 uppercase transition-colors hover:text-zinc-200"
 			title={showInterval ? "Switch to Gap to Leader" : "Switch to Interval"}
 		>
 			{showInterval ? "INT ↕" : "GAP ↕"}
 		</button>
-		<span className="text-right text-[11px] uppercase tracking-widest text-zinc-500">LAP</span>
-		<span className="text-[11px] uppercase tracking-widest text-zinc-500">SECTORS</span>
-		{showPace && <span className="text-[11px] uppercase tracking-widest text-zinc-500">PACE</span>}
+		<span className="text-right text-[11px] tracking-widest text-zinc-500 uppercase">LAP</span>
+		<span className="text-[11px] tracking-widest text-zinc-500 uppercase">SECTORS</span>
+		{showPace && <span className="text-[11px] tracking-widest text-zinc-500 uppercase">PACE</span>}
 	</div>
 );
 
 const SkeletonDriver = () => (
-	<div className="border-b border-zinc-900 py-0.5 pl-2 pr-1 font-mono text-base leading-none text-zinc-800">
-		▌ -- ??? --  --------  ----------  ▒▒▒▒▒▒▒▒ ---  ▒▒▒▒▒▒▒▒ ---  ▒▒▒▒▒▒▒▒ ---
+	<div className="border-b border-zinc-900 py-0.5 pr-1 pl-2 font-mono text-base leading-none text-zinc-800">
+		▌ -- ??? -- -------- ---------- ▒▒▒▒▒▒▒▒ --- ▒▒▒▒▒▒▒▒ --- ▒▒▒▒▒▒▒▒ ---
 	</div>
 );

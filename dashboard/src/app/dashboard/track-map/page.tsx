@@ -24,7 +24,7 @@ export default function TrackMap() {
 	const driversTiming = useDataStore((state) => state.state?.TimingData);
 
 	return (
-		<div className="flex h-full flex-col-reverse md:flex-row font-mono">
+		<div className="flex h-full flex-col-reverse font-mono md:flex-row">
 			{/* Sidebar */}
 			<div className="w-full shrink-0 overflow-y-auto border-r border-zinc-800 md:w-auto">
 				{(!drivers || !driversTiming) &&
@@ -65,9 +65,12 @@ const possibleDRS = (drs: number) => drs === 8;
 
 const inDangerZone = (position: number, sessionPart: number) => {
 	switch (sessionPart) {
-		case 1: return position > 15;
-		case 2: return position > 10;
-		default: return false;
+		case 1:
+			return position > 15;
+		case 2:
+			return position > 10;
+		default:
+			return false;
 	}
 };
 
@@ -82,20 +85,14 @@ const TrackMapDriver = ({ position, driver, timingDriver }: TrackMapDriverProps)
 	return (
 		<motion.div
 			layout="position"
-			className={clsx(
-				"border-b border-zinc-900 py-0.5 pl-2 pr-1 leading-none select-none",
-				{
-					"opacity-30": timingDriver.KnockedOut || timingDriver.Retired || timingDriver.Stopped,
-					"bg-sky-950/60": favoriteDriver,
-					"bg-violet-950/60": hasFastest,
-					"bg-red-950/60": sessionPart != undefined && inDangerZone(position, sessionPart),
-				},
-			)}
+			className={clsx("border-b border-zinc-900 py-0.5 pr-1 pl-2 leading-none select-none", {
+				"opacity-30": timingDriver.KnockedOut || timingDriver.Retired || timingDriver.Stopped,
+				"bg-sky-950/60": favoriteDriver,
+				"bg-violet-950/60": hasFastest,
+				"bg-red-950/60": sessionPart != undefined && inDangerZone(position, sessionPart),
+			})}
 		>
-			<div
-				className="grid items-center"
-				style={{ columnGap: GRID_GAP, gridTemplateColumns: GRID_COLS }}
-			>
+			<div className="grid items-center" style={{ columnGap: GRID_GAP, gridTemplateColumns: GRID_COLS }}>
 				<DriverTag short={driver.Tla} teamColor={driver.TeamColour} position={position} />
 				<DriverDRS
 					on={carData ? hasDRS(carData[45] ?? 0) : false}
@@ -117,7 +114,7 @@ const TrackMapDriver = ({ position, driver, timingDriver }: TrackMapDriverProps)
 
 const SkeletonDriver = () => (
 	<div
-		className="grid items-center border-b border-zinc-900 py-0.5 pl-2 pr-1 text-zinc-800"
+		className="grid items-center border-b border-zinc-900 py-0.5 pr-1 pl-2 text-zinc-800"
 		style={{ columnGap: GRID_GAP, gridTemplateColumns: GRID_COLS }}
 	>
 		<span>▌ ---</span>

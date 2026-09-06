@@ -19,7 +19,7 @@ import Footer from "@/components/Footer";
 function SectionHeader({ label }: { label: string }) {
 	return (
 		<div className="my-4 border-b border-zinc-800 pb-1">
-			<p className="text-[11px] uppercase tracking-widest text-zinc-500">{label}</p>
+			<p className="text-[11px] tracking-widest text-zinc-500 uppercase">{label}</p>
 		</div>
 	);
 }
@@ -39,7 +39,7 @@ export default function SettingsPage() {
 	return (
 		<div className="font-mono">
 			<div className="my-4 border-b border-zinc-800 pb-1">
-				<p className="text-[11px] uppercase tracking-widest text-zinc-300">{">"} settings</p>
+				<p className="text-[11px] tracking-widest text-zinc-300 uppercase">{">"} settings</p>
 			</div>
 
 			<SectionHeader label="visual" />
@@ -100,9 +100,7 @@ export default function SettingsPage() {
 
 			<SectionHeader label="favorite drivers" />
 
-			<p className="mb-4 text-sm text-zinc-400">
-				select your favorite drivers to highlight them on the dashboard.
-			</p>
+			<p className="mb-4 text-sm text-zinc-400">select your favorite drivers to highlight them on the dashboard.</p>
 
 			<FavoriteDrivers />
 
@@ -123,8 +121,8 @@ export default function SettingsPage() {
 			<SectionHeader label="delay" />
 
 			<p className="mb-4 text-sm text-zinc-400">
-				set a delay in seconds — data will be displayed later than the live edge. useful for syncing with a
-				broadcast stream.
+				set a delay in seconds — data will be displayed later than the live edge. useful for syncing with a broadcast
+				stream.
 			</p>
 
 			<div className="flex items-center gap-[1.5ch]">
@@ -133,7 +131,10 @@ export default function SettingsPage() {
 				<p className="text-sm text-zinc-400">delay in seconds</p>
 			</div>
 
-			<Button className="mt-3 border-red-900! text-red-600! hover:border-red-700! hover:text-red-400!" onClick={() => settings.setDelay(0)}>
+			<Button
+				className="mt-3 border-red-900! text-red-600! hover:border-red-700! hover:text-red-400!"
+				onClick={() => settings.setDelay(0)}
+			>
 				reset delay
 			</Button>
 

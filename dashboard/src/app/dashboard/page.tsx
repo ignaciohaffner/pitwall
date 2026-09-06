@@ -58,10 +58,8 @@ export default function Page() {
 						key={tab.id}
 						onClick={() => setActiveTab(tab.id)}
 						className={clsx(
-							"shrink-0 px-3 py-1.5 font-mono text-[11px] uppercase tracking-widest",
-							activeTab === tab.id
-								? "bg-zinc-200 text-black"
-								: "text-zinc-600 hover:text-zinc-300",
+							"shrink-0 px-3 py-1.5 font-mono text-[11px] tracking-widest uppercase",
+							activeTab === tab.id ? "bg-zinc-200 text-black" : "text-zinc-600 hover:text-zinc-300",
 						)}
 					>
 						{tab.label}
@@ -71,11 +69,7 @@ export default function Page() {
 
 			{/* Tab content */}
 			<div className="flex-1">
-				{activeTab === "timing" && (
-					<div className="w-full">
-						{isQuali ? <QualiLeaderBoard /> : <LeaderBoard />}
-					</div>
-				)}
+				{activeTab === "timing" && <div className="w-full">{isQuali ? <QualiLeaderBoard /> : <LeaderBoard />}</div>}
 
 				{activeTab === "map" && (
 					<div className="h-[calc(100vh-12rem)]">

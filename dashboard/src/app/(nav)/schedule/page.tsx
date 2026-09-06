@@ -7,7 +7,7 @@ export default async function SchedulePage() {
 	return (
 		<div className="font-mono">
 			<div className="my-4 border-b border-zinc-800 pb-1">
-				<p className="text-[11px] uppercase tracking-widest text-zinc-500">up next</p>
+				<p className="text-[11px] tracking-widest text-zinc-500 uppercase">up next</p>
 				<p className="text-[10px] text-zinc-700">all times local</p>
 			</div>
 
@@ -16,7 +16,7 @@ export default async function SchedulePage() {
 			</Suspense>
 
 			<div className="my-4 border-b border-zinc-800 pb-1">
-				<p className="text-[11px] uppercase tracking-widest text-zinc-500">schedule</p>
+				<p className="text-[11px] tracking-widest text-zinc-500 uppercase">schedule</p>
 				<p className="text-[10px] text-zinc-700">all times local</p>
 			</div>
 
@@ -48,8 +48,8 @@ const NextRoundLoading = () => {
 	return (
 		<div className="mb-4 grid grid-cols-1 gap-8 sm:grid-cols-2">
 			<div className="flex flex-col gap-4 font-mono">
-				<p className="animate-pulse text-3xl tabular-nums text-zinc-700">-- -- -- --</p>
-				<p className="animate-pulse text-[11px] uppercase tracking-widest text-zinc-700">▌▌▌▌▌▌▌▌▌▌</p>
+				<p className="animate-pulse text-3xl text-zinc-700 tabular-nums">-- -- -- --</p>
+				<p className="animate-pulse text-[11px] tracking-widest text-zinc-700 uppercase">▌▌▌▌▌▌▌▌▌▌</p>
 			</div>
 			<RoundLoading />
 		</div>

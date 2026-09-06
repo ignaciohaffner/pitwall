@@ -17,13 +17,14 @@ export default function DriverProximity({ timingDriver }: Props) {
 
 	return (
 		<span
-			className={clsx("block tabular-nums text-[11px] leading-none", {
-				"text-red-500":    gap < 0.3,
-				"text-amber-400":  gap >= 0.3 && gap < 0.6,
+			className={clsx("block text-[11px] leading-none tabular-nums", {
+				"text-red-500": gap < 0.3,
+				"text-amber-400": gap >= 0.3 && gap < 0.6,
 				"text-yellow-300": gap >= 0.6,
 			})}
 		>
-			{"█".repeat(filled)}{"░".repeat(SEGMENTS - filled)}
+			{"█".repeat(filled)}
+			{"░".repeat(SEGMENTS - filled)}
 		</span>
 	);
 }

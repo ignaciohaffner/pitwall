@@ -72,17 +72,18 @@ export default function RadioMessage({ driver, capture, basePath }: Props) {
 				"bg-sky-950/40": favoriteDriver,
 			})}
 		>
-			<time className="shrink-0 text-[11px] tabular-nums text-zinc-600">{localTime}</time>
+			<time className="shrink-0 text-[11px] text-zinc-600 tabular-nums">{localTime}</time>
 			<DriverTag teamColor={driver.TeamColour} short={driver.Tla} />
 			<button
 				onClick={togglePlayback}
-				className="shrink-0 text-zinc-500 hover:text-zinc-200 transition-colors"
+				className="shrink-0 text-zinc-500 transition-colors hover:text-zinc-200"
 				aria-label={playing ? "Pause" : "Play"}
 			>
 				{playing ? "■" : "►"}
 			</button>
-			<span className="text-[11px] tabular-nums text-zinc-600 select-none">
-				{"█".repeat(barFilled)}{"░".repeat(barEmpty)}
+			<span className="text-[11px] text-zinc-600 tabular-nums select-none">
+				{"█".repeat(barFilled)}
+				{"░".repeat(barEmpty)}
 			</span>
 			<audio
 				preload="none"

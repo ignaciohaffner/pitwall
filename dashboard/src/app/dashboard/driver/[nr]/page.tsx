@@ -117,7 +117,7 @@ export default function DriverPage({ params }: Props) {
 				{/* Car telemetry */}
 				{carData && (
 					<div className="px-4 py-3">
-						<p className="mb-2 text-xs font-semibold uppercase tracking-widest text-zinc-500">Car</p>
+						<p className="mb-2 text-xs font-semibold tracking-widest text-zinc-500 uppercase">Car</p>
 						<DriverCarMetrics carData={carData} />
 					</div>
 				)}
@@ -125,7 +125,7 @@ export default function DriverPage({ params }: Props) {
 				{/* Current sectors */}
 				{timingDriver && (
 					<div className="px-4 py-3">
-						<p className="mb-2 text-xs font-semibold uppercase tracking-widest text-zinc-500">Sectors</p>
+						<p className="mb-2 text-xs font-semibold tracking-widest text-zinc-500 uppercase">Sectors</p>
 						<DriverMiniSectors sectors={timingDriver.Sectors} />
 					</div>
 				)}
@@ -133,7 +133,7 @@ export default function DriverPage({ params }: Props) {
 				{/* Tyres */}
 				{appTiming?.Stints && (
 					<div className="px-4 py-3">
-						<p className="mb-2 text-xs font-semibold uppercase tracking-widest text-zinc-500">Tyres</p>
+						<p className="mb-2 text-xs font-semibold tracking-widest text-zinc-500 uppercase">Tyres</p>
 						<div className="flex items-center gap-4">
 							<DriverTire stints={appTiming.Stints} />
 							<DriverHistoryTires stints={appTiming.Stints} />
@@ -144,7 +144,7 @@ export default function DriverPage({ params }: Props) {
 				{/* Strategy bar */}
 				{appTiming?.Stints && totalLaps > 0 && (
 					<div className="px-4 py-3">
-						<p className="mb-2 text-xs font-semibold uppercase tracking-widest text-zinc-500">Strategy</p>
+						<p className="mb-2 text-xs font-semibold tracking-widest text-zinc-500 uppercase">Strategy</p>
 						<div className="relative h-6 w-full rounded-sm bg-zinc-900">
 							{(() => {
 								let offset = 0;
@@ -178,7 +178,7 @@ export default function DriverPage({ params }: Props) {
 				{/* Speed traps */}
 				{timingStats?.BestSpeeds && (
 					<div className="px-4 py-3">
-						<p className="mb-2 text-xs font-semibold uppercase tracking-widest text-zinc-500">Speed Traps</p>
+						<p className="mb-2 text-xs font-semibold tracking-widest text-zinc-500 uppercase">Speed Traps</p>
 						<div className="grid grid-cols-4 gap-3">
 							{(
 								[
@@ -207,12 +207,12 @@ export default function DriverPage({ params }: Props) {
 				{/* Lap history */}
 				{lapHistory && lapHistory.length > 0 && (
 					<div className="px-4 py-3">
-						<p className="mb-2 text-xs font-semibold uppercase tracking-widest text-zinc-500">Lap History</p>
+						<p className="mb-2 text-xs font-semibold tracking-widest text-zinc-500 uppercase">Lap History</p>
 						<div className="no-scrollbar max-h-48 overflow-y-auto">
 							<table className="w-full text-sm">
 								<thead>
 									<tr className="text-left text-xs text-zinc-500">
-										<th className="pb-1 pr-4">Lap</th>
+										<th className="pr-4 pb-1">Lap</th>
 										<th className="pb-1">Time</th>
 									</tr>
 								</thead>
@@ -240,7 +240,7 @@ export default function DriverPage({ params }: Props) {
 				{/* Team radio */}
 				{driverRadios.length > 0 && gmtOffset && (
 					<div className="px-4 py-3">
-						<p className="mb-2 text-xs font-semibold uppercase tracking-widest text-zinc-500">
+						<p className="mb-2 text-xs font-semibold tracking-widest text-zinc-500 uppercase">
 							Team Radio ({driverRadios.length})
 						</p>
 						<ul className="flex flex-col gap-2">

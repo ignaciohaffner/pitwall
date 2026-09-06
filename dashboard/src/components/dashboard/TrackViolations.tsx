@@ -40,7 +40,7 @@ export default function TrackViolations() {
 
 	return (
 		<div className="font-mono">
-			<div className="border-b-2 border-zinc-700 px-2 py-0.5 text-[11px] uppercase tracking-widest text-zinc-500">
+			<div className="border-b-2 border-zinc-700 px-2 py-0.5 text-[11px] tracking-widest text-zinc-500 uppercase">
 				track violations
 			</div>
 

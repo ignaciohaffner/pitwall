@@ -59,35 +59,32 @@ export default function DriverDetailModal({ driver, timingDriver, position, onCl
 						inPit={timingDriver.InPit}
 						pitOut={timingDriver.PitOut}
 					/>
-					<DriverInfo
-						timingDriver={timingDriver}
-						gridPos={appTimingDriver ? parseInt(appTimingDriver.GridPos) : 0}
-					/>
+					<DriverInfo timingDriver={timingDriver} gridPos={appTimingDriver ? parseInt(appTimingDriver.GridPos) : 0} />
 				</div>
 
 				<div className="px-4 py-3">
-					<p className="mb-2 text-xs font-semibold uppercase tracking-widest text-zinc-500">Tire</p>
+					<p className="mb-2 text-xs font-semibold tracking-widest text-zinc-500 uppercase">Tire</p>
 					<DriverTire stints={appTimingDriver?.Stints} />
 				</div>
 
 				<div className="px-4 py-3">
-					<p className="mb-2 text-xs font-semibold uppercase tracking-widest text-zinc-500">Gap</p>
+					<p className="mb-2 text-xs font-semibold tracking-widest text-zinc-500 uppercase">Gap</p>
 					<DriverGap timingDriver={timingDriver} sessionPart={sessionPart} />
 				</div>
 
 				<div className="px-4 py-3">
-					<p className="mb-2 text-xs font-semibold uppercase tracking-widest text-zinc-500">Lap Time</p>
+					<p className="mb-2 text-xs font-semibold tracking-widest text-zinc-500 uppercase">Lap Time</p>
 					<DriverLapTime last={timingDriver.LastLapTime} best={timingDriver.BestLapTime} hasFastest={hasFastest} />
 				</div>
 
 				<div className="px-4 py-3">
-					<p className="mb-2 text-xs font-semibold uppercase tracking-widest text-zinc-500">Sectors</p>
+					<p className="mb-2 text-xs font-semibold tracking-widest text-zinc-500 uppercase">Sectors</p>
 					<DriverMiniSectors sectors={timingDriver.Sectors} />
 				</div>
 
 				{carData && (
 					<div className="px-4 py-3">
-						<p className="mb-2 text-xs font-semibold uppercase tracking-widest text-zinc-500">Car</p>
+						<p className="mb-2 text-xs font-semibold tracking-widest text-zinc-500 uppercase">Car</p>
 						<DriverCarMetrics carData={carData} />
 					</div>
 				)}
