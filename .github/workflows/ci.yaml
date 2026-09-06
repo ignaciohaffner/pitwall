@@ -8,9 +8,9 @@ on:
   push:
     branches-ignore:
       - main
+  # sin filtro de branches: corre en PRs a develop y en el release PR develop -> main
+  # (ese check es requisito de la protección de rama).
   pull_request:
-    branches:
-      - develop
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
