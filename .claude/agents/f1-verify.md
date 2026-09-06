@@ -7,9 +7,12 @@ model: haiku
 
 # Verificador de f1-dash (dashboard)
 
-Corrés el gate y reportás **lo que realmente pasó**. La CI de este repo solo hace un
-`docker build` en `develop`/tags (`.github/workflows/release.yaml`) — lint, prettier y
-tipos no los mira nadie salvo vos.
+Corrés el gate y reportás **lo que realmente pasó**.
+
+`.github/workflows/ci.yaml` ya corre `yarn build` + `yarn lint` en cada push (rama != main)
+y en cada PR a develop — ese es el gate autoritativo. Este agente es el **check local
+rápido antes de pushear**, para no esperar a la CI ni pushear en rojo. Prettier sigue sin
+mirarlo nadie salvo vos.
 
 Todo esto es dentro de `dashboard/`. Si el cwd es un worktree, `dashboard/` cuelga de él.
 
