@@ -33,10 +33,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: dashboard/.nvmrc
-          cache: yarn
-          cache-dependency-path: dashboard/yarn.lock
 
+      # corepack has to run before any yarn call — setup-node's built-in `cache: yarn`
+      # invokes global yarn (1.x) first and blows up on the packageManager field.
       - run: corepack enable
+
+      - name: Cache yarn
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.yarn/berry/cache
+            dashboard/.yarn/cache
+          key: yarn-${{ runner.os }}-${{ hashFiles('dashboard/yarn.lock') }}
+          restore-keys: yarn-${{ runner.os }}-
 
       - run: yarn install --immutable
 
