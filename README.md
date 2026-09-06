@@ -70,9 +70,10 @@ sessions, use **dev replay mode** (`?dev=1` on `/dashboard`) to work on the UI.
 
 - Branch off `develop`, PRs target `develop` (`main` is production).
 - Conventional commits (`feat:`, `fix:`, `refactor:`, `perf:`, `chore:`).
-- CI (`.github/workflows/ci.yaml`) runs `yarn build` + `yarn lint` on every push and PR.
+- CI (`.github/workflows/ci.yaml`) runs `yarn build` + `yarn lint` + `yarn test` on every push and PR.
+- Tests: `yarn test` (Vitest, `src/**/*.test.ts`) — `yarn test:watch` while developing.
 - Before a PR: format **only your changed files** with `./node_modules/.bin/prettier --write <files>`
-  (`yarn prettier` rewrites the whole tree), then `yarn lint` and `yarn build`.
+  (`yarn prettier` rewrites the whole tree), then `yarn lint`, `yarn test` and `yarn build`.
 
 ## Credits
 
