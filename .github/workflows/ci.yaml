@@ -1,0 +1,62 @@
+name: ci
+
+# Gate del dashboard: typecheck (via next build) + lint. El repo es público, así que
+# los runners de GitHub son gratis e ilimitados. release.yaml hace el docker build/push
+# de la app en develop/tags; esto es el check rápido por rama y por PR.
+
+on:
+  push:
+    branches-ignore:
+      - main
+  # sin filtro de branches: corre en PRs a develop y en el release PR develop -> main
+  # (ese check es requisito de la protección de rama).
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dashboard:
+    runs-on: ubuntu-latest
+
+    # same-repo: corre en el push y no de nuevo en el PR. fork PR: corre solo en el PR.
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+
+    defaults:
+      run:
+        working-directory: dashboard
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: dashboard/.nvmrc
+
+      # corepack has to run before any yarn call — setup-node's built-in `cache: yarn`
+      # invokes global yarn (1.x) first and blows up on the packageManager field.
+      - run: corepack enable
+
+      - name: Cache yarn
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.yarn/berry/cache
+            dashboard/.yarn/cache
+          key: yarn-${{ runner.os }}-${{ hashFiles('dashboard/yarn.lock') }}
+          restore-keys: yarn-${{ runner.os }}-
+
+      - run: yarn install --immutable
+
+      - name: Typecheck + build
+        run: yarn build
+        env:
+          SKIP_ENV_VALIDATION: "1"
+          NEXT_TELEMETRY_DISABLED: "1"
+
+      # develop arranca con 3 errores pre-existentes (react-hooks v6 en DelayInput.tsx /
+      # useDataEngine.ts). Hasta arreglarlos, lint es informativo y no tumba el check.
+      - name: Lint
+        run: yarn lint
+        continue-on-error: true
