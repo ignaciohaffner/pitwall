@@ -8,13 +8,17 @@ import { useSettingsStore } from "@/stores/useSettingsStore";
 import { useDataStore } from "@/stores/useDataStore";
 
 import { sortPos } from "@/lib/sorting";
+import { useLoadingGrace } from "@/hooks/useLoadingGrace";
 
 import Driver, { driverGridCols, DRIVER_GRID_GAP } from "@/components/driver/Driver";
 import RaceHelpModal from "@/components/dashboard/RaceHelpModal";
+import NoSession from "@/components/dashboard/NoSession";
 
 export default function LeaderBoard() {
 	const drivers = useDataStore(({ state }) => state?.DriverList);
 	const driversTiming = useDataStore(({ state }) => state?.TimingData);
+	const noData = !drivers || !driversTiming;
+	const graceOver = useLoadingGrace();
 	const showTableHeader = useSettingsStore((state) => state.tableHeaders);
 	const [showInterval, setShowInterval] = useState(false);
 	const [showPace, setShowPace] = useState(false);
@@ -55,8 +59,9 @@ export default function LeaderBoard() {
 					/>
 				)}
 
-				{(!drivers || !driversTiming) &&
-					new Array(20).fill("").map((_, index) => <SkeletonDriver key={`driver.loading.${index}`} />)}
+				{noData && !graceOver && new Array(20).fill("").map((_, index) => <SkeletonDriver key={`driver.loading.${index}`} />)}
+
+				{noData && graceOver && <NoSession />}
 
 				<LayoutGroup key="drivers">
 					{drivers && driversTiming && (
