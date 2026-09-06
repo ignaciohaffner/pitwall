@@ -47,9 +47,7 @@ export default function TyreStrategy() {
 	const currentLap = useDataStore((s) => s.state?.LapCount?.CurrentLap ?? 0);
 
 	if (!timingApp || !driverList || totalLaps === 0) {
-		return (
-			<div className="px-2 py-1 font-mono text-sm text-zinc-700">waiting for session data...</div>
-		);
+		return <div className="px-2 py-1 font-mono text-sm text-zinc-700">waiting for session data...</div>;
 	}
 
 	const drivers = Object.values(timingApp)
@@ -57,16 +55,11 @@ export default function TyreStrategy() {
 		.sort((a, b) => a.Line - b.Line);
 
 	const tickInterval = Math.ceil(totalLaps / X_TICKS);
-	const ticks = Array.from(
-		{ length: Math.floor(totalLaps / tickInterval) + 1 },
-		(_, i) => i * tickInterval,
-	);
+	const ticks = Array.from({ length: Math.floor(totalLaps / tickInterval) + 1 }, (_, i) => i * tickInterval);
 
 	return (
 		<div className="flex w-full flex-col px-2 py-1 font-mono">
-			<div className="mb-1 text-[11px] uppercase tracking-widest text-zinc-500">
-				tyre strategy
-			</div>
+			<div className="mb-1 text-[11px] tracking-widest text-zinc-500 uppercase">tyre strategy</div>
 
 			<div className="flex min-w-0 flex-1 flex-col gap-px overflow-auto">
 				{drivers.map((d) => {
@@ -83,7 +76,7 @@ export default function TyreStrategy() {
 							{/* Driver label — highlighted like the rest of the UI */}
 							<div className="w-8 shrink-0 text-right">
 								<span
-									className="px-[0.3ch] text-[11px] font-bold leading-none"
+									className="px-[0.3ch] text-[11px] leading-none font-bold"
 									style={{ backgroundColor: teamColor, color: textColor }}
 								>
 									{driver.Tla}
@@ -92,7 +85,7 @@ export default function TyreStrategy() {
 
 							{/* Bar area */}
 							<div className="relative h-5 flex-1 bg-zinc-900">
-								{renderStints(stints, totalLaps, currentLap)}
+								{renderStints(stints, totalLaps)}
 
 								{/* Pit stop markers */}
 								{pitLaps.map((lap) => (
@@ -126,7 +119,7 @@ export default function TyreStrategy() {
 							return (
 								<span
 									key={lap}
-									className="absolute -translate-x-1/2 text-[10px] tabular-nums text-zinc-700"
+									className="absolute -translate-x-1/2 text-[10px] text-zinc-700 tabular-nums"
 									style={{ left: `${(lap / totalLaps) * 100}%` }}
 								>
 									{lap}
@@ -134,13 +127,11 @@ export default function TyreStrategy() {
 							);
 						})}
 						{/* Total laps at the end */}
-						<span className="absolute right-0 translate-x-1/2 text-[10px] tabular-nums text-zinc-600">
-							{totalLaps}
-						</span>
+						<span className="absolute right-0 translate-x-1/2 text-[10px] text-zinc-600 tabular-nums">{totalLaps}</span>
 						{/* Current lap — white, bold */}
 						{currentLap > 0 && (
 							<span
-								className="absolute -translate-x-1/2 text-[10px] font-bold tabular-nums text-zinc-300"
+								className="absolute -translate-x-1/2 text-[10px] font-bold text-zinc-300 tabular-nums"
 								style={{ left: `${(currentLap / totalLaps) * 100}%` }}
 							>
 								{currentLap}
@@ -159,14 +150,15 @@ function getPitLaps(stints: Stint[]): number[] {
 	for (let i = 0; i < stints.length - 1; i++) {
 		const lapsInStint = stints[i].TotalLaps ?? 0;
 		const compound = stints[i].Compound ?? "UNKNOWN";
-		const isArtifact = lapsInStint <= 1 && (compound === "INTERMEDIATE" || compound === "WET" || compound === "UNKNOWN");
+		const isArtifact =
+			lapsInStint <= 1 && (compound === "INTERMEDIATE" || compound === "WET" || compound === "UNKNOWN");
 		offset += lapsInStint;
 		if (offset > 0 && !isArtifact) laps.push(offset);
 	}
 	return laps;
 }
 
-function renderStints(stints: Stint[], totalLaps: number, currentLap: number) {
+function renderStints(stints: Stint[], totalLaps: number) {
 	let offset = 0;
 
 	return stints.map((stint, i) => {
@@ -193,12 +185,7 @@ function renderStints(stints: Stint[], totalLaps: number, currentLap: number) {
 
 		// Decide what label to show based on available width
 		const widthChars = (widthPct / 100) * 80; // rough estimate at typical width
-		const label =
-			widthChars > 10
-				? `${letter} ${startLap}–${endLap}`
-				: widthChars > 4
-					? letter
-					: "";
+		const label = widthChars > 10 ? `${letter} ${startLap}–${endLap}` : widthChars > 4 ? letter : "";
 
 		return (
 			<div
@@ -213,10 +200,7 @@ function renderStints(stints: Stint[], totalLaps: number, currentLap: number) {
 				}}
 				title={`${compound}${isNew ? "" : " (used)"} — L${startLap}–${endLap} (${laps} laps)`}
 			>
-				<span
-					className="truncate text-[10px] font-bold leading-none tabular-nums"
-					style={{ color: fg }}
-				>
+				<span className="truncate text-[10px] leading-none font-bold tabular-nums" style={{ color: fg }}>
 					{label}
 				</span>
 			</div>

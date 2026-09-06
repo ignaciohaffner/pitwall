@@ -1,30 +1,30 @@
-'use client';
+"use client";
 
-import { type ReactNode, useEffect, useRef } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { type ReactNode, useEffect, useRef } from "react";
+import { AnimatePresence, motion } from "motion/react";
 
-import { useDataEngine } from '@/hooks/useDataEngine';
-import { useWakeLock } from '@/hooks/useWakeLock';
-import { useStores } from '@/hooks/useStores';
-import { useSocket } from '@/hooks/useSocket';
-import { useReplaySocket } from '@/hooks/useReplaySocket';
-import { useHistoryEngine } from '@/hooks/useHistoryEngine';
+import { useDataEngine } from "@/hooks/useDataEngine";
+import { useWakeLock } from "@/hooks/useWakeLock";
+import { useStores } from "@/hooks/useStores";
+import { useSocket } from "@/hooks/useSocket";
+import { useReplaySocket } from "@/hooks/useReplaySocket";
+import { useHistoryEngine } from "@/hooks/useHistoryEngine";
 
-import { useSettingsStore } from '@/stores/useSettingsStore';
-import { useSidebarStore } from '@/stores/useSidebarStore';
-import { useDataStore } from '@/stores/useDataStore';
-import { useHistoryStore } from '@/stores/useHistoryStore';
-import { useReplayStore } from '@/stores/useReplayStore';
+import { useSettingsStore } from "@/stores/useSettingsStore";
+import { useSidebarStore } from "@/stores/useSidebarStore";
+import { useDataStore } from "@/stores/useDataStore";
+import { useHistoryStore } from "@/stores/useHistoryStore";
+import { useReplayStore } from "@/stores/useReplayStore";
 
-import ReplayOverlay from '@/components/dev/ReplayOverlay';
-import Sidebar from '@/components/Sidebar';
-import SidenavButton from '@/components/SidenavButton';
-import SessionInfo from '@/components/SessionInfo';
-import WeatherInfo from '@/components/WeatherInfo';
-import TrackInfo from '@/components/TrackInfo';
-import DelayInput from '@/components/DelayInput';
-import DelayTimer from '@/components/DelayTimer';
-import ConnectionStatus from '@/components/ConnectionStatus';
+import ReplayOverlay from "@/components/dev/ReplayOverlay";
+import Sidebar from "@/components/Sidebar";
+import SidenavButton from "@/components/SidenavButton";
+import SessionInfo from "@/components/SessionInfo";
+import WeatherInfo from "@/components/WeatherInfo";
+import TrackInfo from "@/components/TrackInfo";
+import DelayInput from "@/components/DelayInput";
+import DelayTimer from "@/components/DelayTimer";
+import ConnectionStatus from "@/components/ConnectionStatus";
 
 type Props = {
 	children: ReactNode;
@@ -39,7 +39,7 @@ export default function DashboardLayout({ children }: Props) {
 	const replayMode = useReplayStore((state) => state.mode);
 	const replaySessionId = useReplayStore((state) => state.sessionId);
 	const replayEpoch = useReplayStore((state) => state.epoch);
-	const replayActive = replayMode === 'replay' && !!replaySessionId;
+	const replayActive = replayMode === "replay" && !!replaySessionId;
 
 	const live = useSocket({ handleInitial, handleUpdate }, { enabled: !replayActive });
 	const dev = useReplaySocket({ handleInitial, handleUpdate }, { enabled: replayActive });
@@ -77,7 +77,7 @@ export default function DashboardLayout({ children }: Props) {
 
 	useWakeLock();
 
-	const ended = useDataStore(({ state }) => state?.SessionStatus?.Status === 'Ends');
+	const ended = useDataStore(({ state }) => state?.SessionStatus?.Status === "Ends");
 
 	return (
 		<div className="flex h-screen w-full">
@@ -88,22 +88,12 @@ export default function DashboardLayout({ children }: Props) {
 				<DesktopStaticBar show={!syncing || ended} />
 				<MobileStaticBar show={!syncing || ended} connected={connected} />
 
-				<div
-					className={
-						!syncing || ended ? 'no-scrollbar w-full flex-1 overflow-auto' : 'hidden'
-					}
-				>
+				<div className={!syncing || ended ? "no-scrollbar w-full flex-1 overflow-auto" : "hidden"}>
 					<MobileDynamicBar />
 					{children}
 				</div>
 
-				<div
-					className={
-						syncing && !ended
-							? 'flex h-full flex-1 flex-col items-center justify-center gap-2'
-							: 'hidden'
-					}
-				>
+				<div className={syncing && !ended ? "flex h-full flex-1 flex-col items-center justify-center gap-2" : "hidden"}>
 					<h1 className="my-20 text-center text-5xl font-bold">Syncing...</h1>
 					<p>Please wait for {delay - maxDelay} seconds.</p>
 					<p>Or make your delay smaller.</p>
@@ -130,7 +120,7 @@ function MobileStaticBar({ show, connected }: { show: boolean; connected: boolea
 	const open = useSidebarStore((state) => state.open);
 
 	return (
-		<div className="flex w-full items-center justify-between overflow-hidden border-b border-zinc-800 bg-black px-2 py-1 md:hidden font-mono text-sm">
+		<div className="flex w-full items-center justify-between overflow-hidden border-b border-zinc-800 bg-black px-2 py-1 font-mono text-sm md:hidden">
 			<div className="flex items-center gap-[1.5ch]">
 				<SidenavButton key="mobile" onClick={() => open()} />
 				<ConnectionStatus connected={connected} />

@@ -40,26 +40,26 @@ export default function Countdown({ next, type }: Props) {
 
 	return (
 		<div className="font-mono">
-			<p className="mb-2 text-[11px] uppercase tracking-widest text-zinc-500">
+			<p className="mb-2 text-[11px] tracking-widest text-zinc-500 uppercase">
 				next {type === "race" ? "race" : "session"} in
 			</p>
 
 			<div className="flex items-end gap-[2ch]">
 				<div>
-					<p className="text-3xl tabular-nums text-white">{fmt(days)}</p>
-					<p className="text-[11px] uppercase tracking-widest text-zinc-600">days</p>
+					<p className="text-3xl text-white tabular-nums">{fmt(days)}</p>
+					<p className="text-[11px] tracking-widest text-zinc-600 uppercase">days</p>
 				</div>
 				<div>
-					<p className="text-3xl tabular-nums text-white">{fmt(hours)}</p>
-					<p className="text-[11px] uppercase tracking-widest text-zinc-600">hours</p>
+					<p className="text-3xl text-white tabular-nums">{fmt(hours)}</p>
+					<p className="text-[11px] tracking-widest text-zinc-600 uppercase">hours</p>
 				</div>
 				<div>
-					<p className="text-3xl tabular-nums text-white">{fmt(minutes)}</p>
-					<p className="text-[11px] uppercase tracking-widest text-zinc-600">min</p>
+					<p className="text-3xl text-white tabular-nums">{fmt(minutes)}</p>
+					<p className="text-[11px] tracking-widest text-zinc-600 uppercase">min</p>
 				</div>
 				<div>
-					<p className="text-3xl tabular-nums text-white">{fmt(seconds)}</p>
-					<p className="text-[11px] uppercase tracking-widest text-zinc-600">sec</p>
+					<p className="text-3xl text-white tabular-nums">{fmt(seconds)}</p>
+					<p className="text-[11px] tracking-widest text-zinc-600 uppercase">sec</p>
 				</div>
 			</div>
 		</div>

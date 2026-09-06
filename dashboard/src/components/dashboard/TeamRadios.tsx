@@ -16,8 +16,7 @@ export default function TeamRadios() {
 
 	return (
 		<ul className="flex flex-col font-mono">
-			{!teamRadios &&
-				new Array(6).fill("").map((_, index) => <SkeletonMessage key={`radio.loading.${index}`} />)}
+			{!teamRadios && new Array(6).fill("").map((_, index) => <SkeletonMessage key={`radio.loading.${index}`} />)}
 
 			{teamRadios && gmtOffset && drivers && teamRadios.Captures && (
 				<AnimatePresence>
@@ -29,7 +28,6 @@ export default function TeamRadios() {
 								driver={drivers[teamRadio.RacingNumber]}
 								capture={teamRadio}
 								basePath={basePath}
-								gmtOffset={gmtOffset}
 							/>
 						))}
 				</AnimatePresence>

@@ -30,11 +30,10 @@ export default function DriverTire({ stints }: Props) {
 	const letter = known ? COMPOUND_LETTER[compound] : "?";
 	const bg = known ? COMPOUND_BG[compound] : "bg-zinc-700 text-black";
 	const laps = currentStint?.TotalLaps ?? 0;
-	const isNew = currentStint?.New;
 
 	return (
 		<span className="flex items-baseline gap-[0.5ch] whitespace-nowrap tabular-nums">
-			<span className={clsx("px-[0.3ch] font-bold leading-none", bg)}>
+			<span className={clsx("px-[0.3ch] leading-none font-bold", bg)}>
 				{letter} {laps}
 			</span>
 			<span className="text-zinc-700">p{stops}</span>

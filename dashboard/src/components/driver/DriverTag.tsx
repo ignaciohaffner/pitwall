@@ -20,12 +20,9 @@ export default function DriverTag({ position, teamColor, short, className }: Pro
 	return (
 		<span className={`flex items-baseline gap-[0.5ch] overflow-hidden ${className ?? ""}`}>
 			{position !== undefined && (
-				<span className="w-[2ch] shrink-0 text-right tabular-nums text-zinc-600">{position}</span>
+				<span className="w-[2ch] shrink-0 text-right text-zinc-600 tabular-nums">{position}</span>
 			)}
-			<span
-				className="shrink-0 px-[0.3ch] font-bold leading-none"
-				style={{ backgroundColor: bg, color: fg }}
-			>
+			<span className="shrink-0 px-[0.3ch] leading-none font-bold" style={{ backgroundColor: bg, color: fg }}>
 				{short}
 			</span>
 		</span>

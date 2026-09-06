@@ -48,8 +48,14 @@ export default function DriverPace({ stints, racingNumber }: Props) {
 							<span className="text-[11px] text-zinc-700">—</span>
 						)}
 						{deg != null && (
-							<span className={clsx("text-[10px]", deg > 150 ? "text-red-500" : deg < -50 ? "text-emerald-500" : "text-zinc-600")}>
-								{deg > 0 ? "+" : ""}{(deg / 1000).toFixed(2)}
+							<span
+								className={clsx(
+									"text-[10px]",
+									deg > 150 ? "text-red-500" : deg < -50 ? "text-emerald-500" : "text-zinc-600",
+								)}
+							>
+								{deg > 0 ? "+" : ""}
+								{(deg / 1000).toFixed(2)}
 							</span>
 						)}
 					</span>

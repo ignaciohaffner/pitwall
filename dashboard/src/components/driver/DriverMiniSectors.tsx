@@ -1,14 +1,13 @@
 import clsx from "clsx";
 
-import type { TimingDataDriver, TimingStatsDriver } from "@/types/state.type";
+import type { TimingDataDriver } from "@/types/state.type";
 import { useSettingsStore } from "@/stores/useSettingsStore";
 
 type Props = {
 	sectors: TimingDataDriver["Sectors"];
-	bestSectors: TimingStatsDriver["BestSectors"] | undefined;
 };
 
-export default function DriverMiniSectors({ sectors = [], bestSectors }: Props) {
+export default function DriverMiniSectors({ sectors = [] }: Props) {
 	const showMiniSectors = useSettingsStore((state) => state.showMiniSectors);
 
 	return (

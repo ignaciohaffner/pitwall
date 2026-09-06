@@ -20,13 +20,11 @@ export default function HelpPage() {
 	return (
 		<div className="font-mono">
 			<div className="my-4 border-b border-zinc-800 pb-1">
-				<p className="text-[11px] uppercase tracking-widest text-zinc-300">{">"} help</p>
+				<p className="text-[11px] tracking-widest text-zinc-300 uppercase">{">"} help</p>
 				<p className="text-[10px] text-zinc-600">pitwall ui reference</p>
 			</div>
 
-			<p className="mb-6 text-sm text-zinc-400">
-				this page explains core features and ui elements of pitwall.
-			</p>
+			<p className="mb-6 text-sm text-zinc-400">this page explains core features and ui elements of pitwall.</p>
 
 			<SectionHeader label="colors" />
 
@@ -84,7 +82,7 @@ export default function HelpPage() {
 					<span className="text-zinc-400">purple background — driver has the fastest overall lap time</span>
 				</div>
 				<div className="flex items-center gap-[2ch]">
-					<span className="inline-block opacity-50 text-zinc-400">░░░</span>
+					<span className="inline-block text-zinc-400 opacity-50">░░░</span>
 					<span className="text-zinc-400">transparent — driver has crashed or retired from the session</span>
 				</div>
 				<div className="flex items-center gap-[2ch]">
@@ -182,20 +180,20 @@ export default function HelpPage() {
 			</p>
 
 			<Note className="mb-4">
-				you can only set a delay up to the time you have been on the dashboard page. so 30s delay on a 20s visit
-				means you wait 10s until playback resumes. (this will change in a future update)
+				you can only set a delay up to the time you have been on the dashboard page. so 30s delay on a 20s visit means
+				you wait 10s until playback resumes. (this will change in a future update)
 			</Note>
 
-			<p className="mb-2 text-[11px] uppercase tracking-widest text-zinc-500">what to look for when syncing</p>
+			<p className="mb-2 text-[11px] tracking-widest text-zinc-500 uppercase">what to look for when syncing</p>
 
 			<ul className="mb-6 flex flex-col gap-1 text-sm text-zinc-400">
 				<li className="flex items-center gap-[1ch]">
 					<span className="text-zinc-600">—</span>
-					start of a new lap <span className="text-zinc-600 ml-1">(race)</span>
+					start of a new lap <span className="ml-1 text-zinc-600">(race)</span>
 				</li>
 				<li className="flex items-center gap-[1ch]">
 					<span className="text-zinc-600">—</span>
-					session clock <span className="text-zinc-600 ml-1">(practice, qualifying)</span>
+					session clock <span className="ml-1 text-zinc-600">(practice, qualifying)</span>
 				</li>
 				<li className="flex items-center gap-[1ch]">
 					<span className="text-zinc-600">—</span>
@@ -263,7 +261,7 @@ export default function HelpPage() {
 function SectionHeader({ label }: { label: string }) {
 	return (
 		<div className="mb-3 border-b border-zinc-800 pb-1">
-			<p className="text-[11px] uppercase tracking-widest text-zinc-500">{label}</p>
+			<p className="text-[11px] tracking-widest text-zinc-500 uppercase">{label}</p>
 		</div>
 	);
 }

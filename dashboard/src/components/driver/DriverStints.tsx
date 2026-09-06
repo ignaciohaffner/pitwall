@@ -27,9 +27,7 @@ export default function DriverStints({ stints }: Props) {
 				return (
 					<span key={i} className="flex items-baseline gap-[0.3ch]">
 						<span className={clsx("text-[11px] font-bold", color)}>{letter}</span>
-						<span className={clsx("text-[11px]", isLast ? "text-zinc-400" : "text-zinc-600")}>
-							{laps}
-						</span>
+						<span className={clsx("text-[11px]", isLast ? "text-zinc-400" : "text-zinc-600")}>{laps}</span>
 					</span>
 				);
 			})}

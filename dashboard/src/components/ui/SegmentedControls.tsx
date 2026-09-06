@@ -20,7 +20,7 @@ export default function SegmentedControls<T>({ id, className, options, selected,
 						key={String(option.label)}
 						onClick={() => onSelect?.(option.value)}
 						className={clsx(
-							"cursor-pointer px-4 py-1.5 font-mono text-[11px] uppercase tracking-widest transition-colors",
+							"cursor-pointer px-4 py-1.5 font-mono text-[11px] tracking-widest uppercase transition-colors",
 							isActive ? "bg-zinc-200 text-black" : "text-zinc-600 hover:text-zinc-300",
 						)}
 					>

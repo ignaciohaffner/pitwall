@@ -32,7 +32,11 @@ export function classifyLap(lapNr: number, boundaries: StintBoundary[]): LapType
 	return "push";
 }
 
-export function stintPushLaps(entries: LapTimeEntry[], b: StintBoundary, allBoundaries: StintBoundary[]): LapTimeEntry[] {
+export function stintPushLaps(
+	entries: LapTimeEntry[],
+	b: StintBoundary,
+	allBoundaries: StintBoundary[],
+): LapTimeEntry[] {
 	return entries.filter((e) => {
 		if (e.lap < b.startLap || e.lap > b.endLap) return false;
 		return classifyLap(e.lap, allBoundaries) === "push";
@@ -46,7 +50,11 @@ export function stintAvgMs(entries: LapTimeEntry[], b: StintBoundary, allBoundar
 }
 
 // Returns ms/lap degradation (positive = getting slower)
-export function stintDegradation(entries: LapTimeEntry[], b: StintBoundary, allBoundaries: StintBoundary[]): number | null {
+export function stintDegradation(
+	entries: LapTimeEntry[],
+	b: StintBoundary,
+	allBoundaries: StintBoundary[],
+): number | null {
 	const push = stintPushLaps(entries, b, allBoundaries).sort((a, z) => a.lap - z.lap);
 	if (push.length < 3) return null;
 	return (push[push.length - 1].ms - push[0].ms) / (push.length - 1);

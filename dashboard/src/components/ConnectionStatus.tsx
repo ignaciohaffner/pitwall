@@ -10,7 +10,7 @@ export default function ConnectionStatus({ connected }: Props) {
 	return (
 		<span
 			className={clsx(
-				"font-mono text-sm font-bold leading-none",
+				"font-mono text-sm leading-none font-bold",
 				connected ? "text-emerald-500" : "animate-pulse text-red-500",
 			)}
 		>
