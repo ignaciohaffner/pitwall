@@ -7,14 +7,18 @@ import { useDataStore } from "@/stores/useDataStore";
 import { useSettingsStore } from "@/stores/useSettingsStore";
 import { sortPos } from "@/lib/sorting";
 import { parseTimeMs } from "@/lib/timeUtils";
+import { useLoadingGrace } from "@/hooks/useLoadingGrace";
 
 import QualiDriver, { QUALI_GRID_COLS, QUALI_GRID_GAP } from "@/components/driver/QualiDriver";
 import QualiHelpModal from "@/components/dashboard/QualiHelpModal";
+import NoSession from "@/components/dashboard/NoSession";
 
 export default function QualiLeaderBoard() {
 	const drivers = useDataStore(({ state }) => state?.DriverList);
 	const driversTiming = useDataStore(({ state }) => state?.TimingData);
 	const timingStats = useDataStore(({ state }) => state?.TimingStats);
+	const noData = !drivers || !driversTiming;
+	const graceOver = useLoadingGrace();
 	const showTableHeader = useSettingsStore((state) => state.tableHeaders);
 	const [helpOpen, setHelpOpen] = useState(false);
 
@@ -55,8 +59,9 @@ export default function QualiLeaderBoard() {
 
 				{showTableHeader && <QualiHeaders fastestSectors={fastestSectors} />}
 
-				{(!drivers || !driversTiming) &&
-					new Array(20).fill("").map((_, i) => <SkeletonDriver key={`quali.skeleton.${i}`} />)}
+				{noData && !graceOver && new Array(20).fill("").map((_, i) => <SkeletonDriver key={`quali.skeleton.${i}`} />)}
+
+				{noData && graceOver && <NoSession />}
 
 				<LayoutGroup key="quali-drivers">
 					{drivers && driversTiming && (

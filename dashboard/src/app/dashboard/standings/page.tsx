@@ -1,6 +1,7 @@
 "use client";
 
 import { useDataStore } from "@/stores/useDataStore";
+import { useLoadingGrace } from "@/hooks/useLoadingGrace";
 
 export default function Standings() {
 	const driverStandings = useDataStore((state) => state.state?.ChampionshipPrediction?.Drivers);
@@ -8,9 +9,19 @@ export default function Standings() {
 	const drivers = useDataStore((state) => state.state?.DriverList);
 	const isRace = useDataStore((state) => state.state?.SessionInfo?.Type === "Race");
 
+	// the feed doesn't always carry ChampionshipPrediction — after a grace period,
+	// stop showing skeletons forever and say so.
+	const waited = useLoadingGrace();
+
 	if (!isRace) {
 		return (
 			<div className="px-2 py-3 font-mono text-sm text-zinc-700">standings only available during a race session</div>
+		);
+	}
+
+	if (!driverStandings && !teamStandings && waited) {
+		return (
+			<div className="px-2 py-3 font-mono text-sm text-zinc-700">no championship prediction for this session</div>
 		);
 	}
 
