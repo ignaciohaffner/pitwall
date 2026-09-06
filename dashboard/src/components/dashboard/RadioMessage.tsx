@@ -7,7 +7,6 @@ import clsx from "clsx";
 
 import type { Driver, RadioCapture } from "@/types/state.type";
 import { useSettingsStore } from "@/stores/useSettingsStore";
-import { toTrackTime } from "@/lib/toTrackTime";
 
 import DriverTag from "@/components/driver/DriverTag";
 
@@ -15,10 +14,9 @@ type Props = {
 	driver: Driver;
 	capture: RadioCapture;
 	basePath: string;
-	gmtOffset: string;
 };
 
-export default function RadioMessage({ driver, capture, basePath, gmtOffset }: Props) {
+export default function RadioMessage({ driver, capture, basePath }: Props) {
 	const audioRef = useRef<HTMLAudioElement | null>(null);
 	const intervalRef = useRef<NodeJS.Timeout | null>(null);
 

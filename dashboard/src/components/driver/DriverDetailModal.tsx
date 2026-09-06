@@ -82,7 +82,7 @@ export default function DriverDetailModal({ driver, timingDriver, position, onCl
 
 				<div className="px-4 py-3">
 					<p className="mb-2 text-xs font-semibold uppercase tracking-widest text-zinc-500">Sectors</p>
-					<DriverMiniSectors sectors={timingDriver.Sectors} bestSectors={timingStatsDriver?.BestSectors} />
+					<DriverMiniSectors sectors={timingDriver.Sectors} />
 				</div>
 
 				{carData && (

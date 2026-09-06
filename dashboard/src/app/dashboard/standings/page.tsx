@@ -1,7 +1,6 @@
 "use client";
 
 import { useDataStore } from "@/stores/useDataStore";
-import NumberDiff from "@/components/NumberDiff";
 
 export default function Standings() {
 	const driverStandings = useDataStore((state) => state.state?.ChampionshipPrediction?.Drivers);

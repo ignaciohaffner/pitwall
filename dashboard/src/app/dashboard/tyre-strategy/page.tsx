@@ -92,7 +92,7 @@ export default function TyreStrategy() {
 
 							{/* Bar area */}
 							<div className="relative h-5 flex-1 bg-zinc-900">
-								{renderStints(stints, totalLaps, currentLap)}
+								{renderStints(stints, totalLaps)}
 
 								{/* Pit stop markers */}
 								{pitLaps.map((lap) => (
@@ -166,7 +166,7 @@ function getPitLaps(stints: Stint[]): number[] {
 	return laps;
 }
 
-function renderStints(stints: Stint[], totalLaps: number, currentLap: number) {
+function renderStints(stints: Stint[], totalLaps: number) {
 	let offset = 0;
 
 	return stints.map((stint, i) => {

@@ -7,7 +7,6 @@ import Link from "next/link";
 import clsx from "clsx";
 
 import { useSidebarStore } from "@/stores/useSidebarStore";
-import { useSettingsStore } from "@/stores/useSettingsStore";
 
 import ConnectionStatus from "@/components/ConnectionStatus";
 import DelayInput from "@/components/DelayInput";
@@ -36,8 +35,6 @@ export default function Sidebar({ connected }: Props) {
 
 	const pin = useSidebarStore((state) => state.pin);
 	const unpin = useSidebarStore((state) => state.unpin);
-
-	const oledMode = useSettingsStore((state) => state.oledMode);
 
 	useEffect(() => {
 		const handleResize = () => {

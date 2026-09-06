@@ -91,7 +91,7 @@ export default function Driver({ driver, timingDriver, position, showInterval, s
 
 				<DriverLapTime last={timingDriver.LastLapTime} best={timingDriver.BestLapTime} hasFastest={hasFastest} />
 
-				<DriverMiniSectors sectors={timingDriver.Sectors} bestSectors={timingStatsDriver?.BestSectors} />
+				<DriverMiniSectors sectors={timingDriver.Sectors} />
 
 				{showPace && <DriverPace stints={appTimingDriver?.Stints} racingNumber={driver.RacingNumber} />}
 

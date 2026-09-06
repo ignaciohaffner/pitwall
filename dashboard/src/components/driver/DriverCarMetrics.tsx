@@ -1,5 +1,3 @@
-import clsx from "clsx";
-
 import { useSettingsStore } from "@/stores/useSettingsStore";
 
 import type { CarDataChannels } from "@/types/state.type";

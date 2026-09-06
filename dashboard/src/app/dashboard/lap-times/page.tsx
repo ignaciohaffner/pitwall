@@ -4,9 +4,8 @@ import { useState } from "react";
 import clsx from "clsx";
 
 import { useDataStore } from "@/stores/useDataStore";
-import { useHistoryStore, type LapTimeEntry } from "@/stores/useHistoryStore";
+import { useHistoryStore } from "@/stores/useHistoryStore";
 import { useHeadToHeadStore } from "@/stores/useHeadToHeadStore";
-import type { Stint } from "@/types/state.type";
 import { getStintBoundaries, classifyLap, type StintBoundary } from "@/lib/stints";
 
 // ── Component ────────────────────────────────────────────────────────────────
@@ -42,7 +41,8 @@ export default function LapTimes() {
 	const toggleDriver = (nr: string) => {
 		setSelectedDrivers((prev) => {
 			const next = new Set(prev);
-			next.has(nr) ? next.delete(nr) : next.add(nr);
+			if (next.has(nr)) next.delete(nr);
+			else next.add(nr);
 			return next;
 		});
 	};

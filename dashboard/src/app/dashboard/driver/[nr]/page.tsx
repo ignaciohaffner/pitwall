@@ -126,7 +126,7 @@ export default function DriverPage({ params }: Props) {
 				{timingDriver && (
 					<div className="px-4 py-3">
 						<p className="mb-2 text-xs font-semibold uppercase tracking-widest text-zinc-500">Sectors</p>
-						<DriverMiniSectors sectors={timingDriver.Sectors} bestSectors={timingStats?.BestSectors} />
+						<DriverMiniSectors sectors={timingDriver.Sectors} />
 					</div>
 				)}
 
@@ -245,13 +245,7 @@ export default function DriverPage({ params }: Props) {
 						</p>
 						<ul className="flex flex-col gap-2">
 							{driverRadios.slice(0, 10).map((capture, i) => (
-								<RadioMessage
-									key={`radio.${i}`}
-									driver={driver}
-									capture={capture}
-									basePath={basePath}
-									gmtOffset={gmtOffset}
-								/>
+								<RadioMessage key={`radio.${i}`} driver={driver} capture={capture} basePath={basePath} />
 							))}
 						</ul>
 					</div>

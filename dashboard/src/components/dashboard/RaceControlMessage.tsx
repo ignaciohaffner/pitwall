@@ -6,11 +6,9 @@ import clsx from "clsx";
 
 import type { Message } from "@/types/state.type";
 import { useSettingsStore } from "@/stores/useSettingsStore";
-import { toTrackTime } from "@/lib/toTrackTime";
 
 type Props = {
 	msg: Message;
-	gmtOffset: string;
 };
 
 const FLAG_ABBR: Record<string, string> = {
@@ -38,7 +36,7 @@ const getDriverNumber = (msg: Message) => {
 	return match?.[1];
 };
 
-export function RaceControlMessage({ msg, gmtOffset }: Props) {
+export function RaceControlMessage({ msg }: Props) {
 	const favoriteDriver = useSettingsStore((state) =>
 		state.favoriteDrivers.includes(getDriverNumber(msg) ?? ""),
 	);

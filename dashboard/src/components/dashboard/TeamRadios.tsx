@@ -29,7 +29,6 @@ export default function TeamRadios() {
 								driver={drivers[teamRadio.RacingNumber]}
 								capture={teamRadio}
 								basePath={basePath}
-								gmtOffset={gmtOffset}
 							/>
 						))}
 				</AnimatePresence>
