@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import type { MessageInitial, MessageUpdate } from "@/types/message.type";
 
 import { useReplayStore } from "@/stores/useReplayStore";
+import { parseMessage } from "@/lib/parseMessage";
 
 type Props = {
 	handleInitial: (data: MessageInitial) => void;
@@ -56,11 +57,11 @@ export const useReplaySocket = ({ handleInitial, handleUpdate }: Props, { enable
 		});
 
 		sse.addEventListener("initial", (e) => {
-			handlersRef.current.handleInitial(JSON.parse((e as MessageEvent).data));
+			handlersRef.current.handleInitial(parseMessage((e as MessageEvent).data));
 		});
 
 		sse.addEventListener("update", (e) => {
-			handlersRef.current.handleUpdate(JSON.parse((e as MessageEvent).data));
+			handlersRef.current.handleUpdate(parseMessage((e as MessageEvent).data));
 		});
 
 		sse.addEventListener("clock", (e) => {
