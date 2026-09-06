@@ -28,7 +28,7 @@ export default function DriverDetailModal({ driver, timingDriver, position, onCl
 	const sessionPart = useDataStore((s) => s.state?.TimingData?.SessionPart);
 	const timingStatsDriver = useDataStore((s) => s.state?.TimingStats?.Lines[driver.RacingNumber]);
 	const appTimingDriver = useDataStore((s) => s.state?.TimingAppData?.Lines[driver.RacingNumber]);
-	const carData = useDataStore((s) => (s.carsData ? s.carsData[driver.RacingNumber].Channels : undefined));
+	const carData = useDataStore((s) => s.carsData?.[driver.RacingNumber]?.Channels);
 	const hasFastest = timingStatsDriver?.PersonalBestLapTime.Position === 1;
 
 	return createPortal(

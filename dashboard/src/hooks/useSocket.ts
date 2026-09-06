@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import type { MessageInitial, MessageUpdate } from "@/types/message.type";
 
 import { env } from "@/env";
+import { parseMessage } from "@/lib/parseMessage";
 
 type Props = {
 	handleInitial: (data: MessageInitial) => void;
@@ -32,11 +33,11 @@ export const useSocket = ({ handleInitial, handleUpdate }: Props, { enabled = tr
 		sse.onopen = () => setConnected(true);
 
 		sse.addEventListener("initial", (message) => {
-			handlersRef.current.handleInitial(JSON.parse(message.data));
+			handlersRef.current.handleInitial(parseMessage(message.data));
 		});
 
 		sse.addEventListener("update", (message) => {
-			handlersRef.current.handleUpdate(JSON.parse(message.data));
+			handlersRef.current.handleUpdate(parseMessage(message.data));
 		});
 
 		return () => sse.close();

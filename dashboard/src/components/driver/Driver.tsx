@@ -52,7 +52,7 @@ export default function Driver({ driver, timingDriver, position, showInterval, s
 	const sessionPart = useDataStore((state) => state.state?.TimingData?.SessionPart);
 	const timingStatsDriver = useDataStore((state) => state.state?.TimingStats?.Lines[driver.RacingNumber]);
 	const appTimingDriver = useDataStore((state) => state.state?.TimingAppData?.Lines[driver.RacingNumber]);
-	const carData = useDataStore((state) => (state?.carsData ? state.carsData[driver.RacingNumber].Channels : undefined));
+	const carData = useDataStore((state) => state.carsData?.[driver.RacingNumber]?.Channels);
 
 	const hasFastest = timingStatsDriver?.PersonalBestLapTime.Position == 1;
 	const carMetrics = useSettingsStore((state) => state.carMetrics);
