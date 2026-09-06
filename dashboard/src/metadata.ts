@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 
-const title = "f1-dash | Formula 1 live timing";
+const title = "pitwall | Formula 1 live timing";
 const description =
-	"Experience live telemetry and timing data from Formula 1 races. Get insights into leaderboards, tire choices, gaps, lap times, sector times, team radios, and more.";
+	"Real-time Formula 1 timing and telemetry — leaderboard, tyres, gaps, lap times, mini sectors, team radios and more, in a terminal-style dashboard.";
 
-const url = "https://f1-dash.com";
+const url = "https://f1.ignaciohaffner.com";
 
 export const metadata: Metadata = {
 	generator: "Next.js",
@@ -14,53 +14,35 @@ export const metadata: Metadata = {
 	title,
 	description,
 
-	icons: "https://f1-dash.com/favicon.png",
+	icons: "/favicon.png",
 
 	openGraph: {
 		title,
 		description,
 		url,
 		type: "website",
-		siteName: "F1 Realtime Dashboard",
-		images: [
-			{
-				alt: "Realtime Formula 1 Dashboard",
-				url: `${url}/og-image.png`,
-				width: 1200,
-				height: 630,
-			},
-		],
+		siteName: "pitwall",
+		// og image comes from src/app/opengraph-image.png (Next file convention)
 	},
 
 	twitter: {
-		site: "@Slowlydev",
 		title,
 		description,
-		creator: "@Slowlydev",
 		card: "summary_large_image",
-		images: [
-			{
-				url: `${url}/twitter-image.png`,
-				alt: "Realtime Formula 1 Dashboard",
-				width: 1200,
-				height: 630,
-			},
-		],
+		// twitter image comes from src/app/twitter-image.png
 	},
 
 	category: "Sports & Recreation",
 
 	referrer: "strict-origin-when-cross-origin",
 
-	keywords: ["Formula 1", "f1 dashboard", "realtime telemetry", "f1 timing", "live updates"],
+	keywords: ["pitwall", "Formula 1", "f1 dashboard", "realtime telemetry", "f1 timing", "live timing"],
 
-	creator: "Slowlydev",
-	publisher: "Slowlydev",
-	authors: [{ name: "Slowlydev", url: "https://slowly.dev" }],
+	authors: [{ name: "Ignacio Haffner", url }],
 
 	appleWebApp: {
 		capable: true,
-		title: "f1-dash",
+		title: "pitwall",
 		statusBarStyle: "black-translucent",
 	},
 
@@ -74,10 +56,6 @@ export const metadata: Metadata = {
 
 	alternates: {
 		canonical: url,
-	},
-
-	verification: {
-		google: "hKv0h7XtWgQ-pVNVKpwwb2wcCC2f0tBQ1X1IcDX50hg",
 	},
 
 	manifest: "/manifest.json",

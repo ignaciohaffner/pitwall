@@ -1,10 +1,10 @@
 {
-	"name": "f1-dash",
-	"short_name": "f1-dash",
+	"name": "pitwall",
+	"short_name": "pitwall",
 	"start_url": "/",
 	"display": "standalone",
 	"background_color": "#09090b",
 	"theme_color": "#09090b",
-	"description": "Realtime Formula 1 Dashboard",
+	"description": "Real-time Formula 1 timing and telemetry",
 	"icons": []
 }
