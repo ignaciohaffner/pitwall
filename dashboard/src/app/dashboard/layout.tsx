@@ -1,18 +1,22 @@
 'use client';
 
-import { type ReactNode } from 'react';
+import { type ReactNode, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 
 import { useDataEngine } from '@/hooks/useDataEngine';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { useStores } from '@/hooks/useStores';
 import { useSocket } from '@/hooks/useSocket';
+import { useReplaySocket } from '@/hooks/useReplaySocket';
 import { useHistoryEngine } from '@/hooks/useHistoryEngine';
 
 import { useSettingsStore } from '@/stores/useSettingsStore';
 import { useSidebarStore } from '@/stores/useSidebarStore';
 import { useDataStore } from '@/stores/useDataStore';
+import { useHistoryStore } from '@/stores/useHistoryStore';
+import { useReplayStore } from '@/stores/useReplayStore';
 
+import ReplayOverlay from '@/components/dev/ReplayOverlay';
 import Sidebar from '@/components/Sidebar';
 import SidenavButton from '@/components/SidenavButton';
 import SessionInfo from '@/components/SessionInfo';
@@ -29,8 +33,44 @@ type Props = {
 export default function DashboardLayout({ children }: Props) {
 	const stores = useStores();
 	const { handleInitial, handleUpdate, maxDelay } = useDataEngine(stores);
-	const { connected } = useSocket({ handleInitial, handleUpdate });
+
+	// Dev replay: when a recorded session is selected, swap the live SSE for the
+	// /api/dev/replay stream. Only one of the two is ever connected.
+	const replayMode = useReplayStore((state) => state.mode);
+	const replaySessionId = useReplayStore((state) => state.sessionId);
+	const replayEpoch = useReplayStore((state) => state.epoch);
+	const replayActive = replayMode === 'replay' && !!replaySessionId;
+
+	const live = useSocket({ handleInitial, handleUpdate }, { enabled: !replayActive });
+	const dev = useReplaySocket({ handleInitial, handleUpdate }, { enabled: replayActive });
+	const connected = replayActive ? dev.connected : live.connected;
+
 	useHistoryEngine();
+
+	// Clear accumulated state whenever the data source changes (live <-> replay,
+	// session switch, restart) so nothing leaks between sessions.
+	useEffect(() => {
+		useDataStore.getState().setState(null);
+		useDataStore.getState().setCarsData(null);
+		useDataStore.getState().setPositions(null);
+		useHistoryStore.getState().reset();
+	}, [replayActive, replaySessionId, replayEpoch]);
+
+	// The delay buffer shows a "Syncing..." wall while it fills; force it off during
+	// replay and restore the user's value afterwards.
+	const prevDelayRef = useRef<number | null>(null);
+	useEffect(() => {
+		const settings = useSettingsStore.getState();
+		if (replayActive) {
+			if (prevDelayRef.current === null && settings.delay > 0) {
+				prevDelayRef.current = settings.delay;
+				settings.setDelay(0);
+			}
+		} else if (prevDelayRef.current !== null) {
+			settings.setDelay(prevDelayRef.current);
+			prevDelayRef.current = null;
+		}
+	}, [replayActive]);
 
 	const delay = useSettingsStore((state) => state.delay);
 	const syncing = delay > maxDelay;
@@ -41,6 +81,7 @@ export default function DashboardLayout({ children }: Props) {
 
 	return (
 		<div className="flex h-screen w-full">
+			<ReplayOverlay />
 			<Sidebar key="sidebar" connected={connected} />
 
 			<motion.div layout="size" className="flex h-full w-full flex-1 flex-col gap-0">
