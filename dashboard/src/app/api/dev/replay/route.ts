@@ -349,6 +349,12 @@ async function streamSse(file: string, ctx: StreamCtx & { patch: Record<string, 
 	let prevT = 0;
 	let lastClockSec = -1;
 	let counter = 0;
+
+	// Fast-forward for `startMs > 0`: fold pre-offset updates into the initial state
+	// and emit that, instead of dropping them (which would leave gaps on resume).
+	let folded: Record<string, unknown> | null = null;
+	let initialEmitted = false;
+
 	const rl = await lineReader(file);
 
 	for await (const line of rl) {
@@ -371,9 +377,25 @@ async function streamSse(file: string, ctx: StreamCtx & { patch: Record<string, 
 			data = merge(data, patch);
 		}
 
-		if (t < startMs && record.event === "update") {
+		if (record.event === "initial") {
+			folded = (data as Record<string, unknown>) ?? {};
+			if (startMs <= 0) {
+				send("initial", folded);
+				initialEmitted = true;
+			}
 			prevT = t;
 			continue;
+		}
+
+		// still seeking: accumulate and skip
+		if (!initialEmitted && t < startMs) {
+			folded = merge(folded ?? {}, { [record.event]: data }) as Record<string, unknown>;
+			prevT = t;
+			continue;
+		}
+		if (!initialEmitted) {
+			send("initial", folded ?? {});
+			initialEmitted = true;
 		}
 
 		if (Number.isFinite(speed)) {
@@ -395,5 +417,6 @@ async function streamSse(file: string, ctx: StreamCtx & { patch: Record<string, 
 	}
 
 	rl.close();
+	if (!initialEmitted && !isCancelled()) send("initial", folded ?? {});
 	if (!isCancelled()) send("end", {});
 }
