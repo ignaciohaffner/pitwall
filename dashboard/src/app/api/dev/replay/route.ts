@@ -12,11 +12,8 @@ import { merge } from "@/lib/merge";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// Topics the dashboard actually consumes (see useDataEngine.ts). Everything else in
-// the raw F1 feed is dropped to keep the stream small. This includes CarData.z /
-// Position.z: the current backend delivers those under keys the dashboard doesn't
-// read (a gap from the SignalR Core migration), so live sessions have no car
-// telemetry / moving track map either — replay mirrors that rather than diverging.
+// Topics the dashboard folds into `state` (see useDataEngine.ts). Everything else in
+// the raw F1 feed is dropped to keep the stream small.
 const STATE_TOPICS = new Set([
 	"Heartbeat",
 	"ExtrapolatedClock",
@@ -35,6 +32,10 @@ const STATE_TOPICS = new Set([
 	"TeamRadio",
 	"ChampionshipPrediction",
 ]);
+
+// Compressed telemetry — forwarded as-is (not folded into state). The client's
+// parseMessage() normalises `CarData.z` -> `CarDataZ` / `Position.z` -> `PositionZ`.
+const PASSTHROUGH_TOPICS = new Set(["CarData.z", "Position.z"]);
 
 const MAX_GAP_MS = 5_000;
 
@@ -104,7 +105,7 @@ function parseSignalrLine(line: string): { initial?: unknown; messages: ParsedMe
 
 // Keep only the topics the dashboard renders.
 function projectMessage(topic: string, data: unknown): { key: string; data: unknown } | null {
-	if (STATE_TOPICS.has(topic)) return { key: topic, data };
+	if (STATE_TOPICS.has(topic) || PASSTHROUGH_TOPICS.has(topic)) return { key: topic, data };
 	return null;
 }
 
@@ -301,10 +302,13 @@ async function streamSignalr(
 
 			const elapsed = Number.isNaN(msg.ts) || Number.isNaN(firstTs) ? 0 : msg.ts - firstTs;
 
-			// Fast-forward: fold updates into `state` until we reach the start offset.
+			// Fast-forward: fold state updates into `state` until we reach the start
+			// offset. Telemetry blobs aren't state — skip them while seeking.
 			if (seeking) {
 				if (elapsed < startMs) {
-					state = merge(state, { [projected.key]: projected.data }) as Record<string, unknown>;
+					if (STATE_TOPICS.has(projected.key)) {
+						state = merge(state, { [projected.key]: projected.data }) as Record<string, unknown>;
+					}
 					continue;
 				}
 				seeking = false;

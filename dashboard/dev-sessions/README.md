@@ -32,11 +32,8 @@ layout picks one or the other based on `useReplayStore`.
 updates into the initial state, so a replay opens near the action. An explicit
 `?t=<seconds>` overrides it (used internally to resume after a pause).
 
-Car telemetry and the moving track map are **not** replayed: the current backend
-delivers `CarData.z` / `Position.z` under keys the dashboard doesn't read (a gap
-from the SignalR Core migration), so live sessions have none either — replay
-mirrors that. Wire `CarDataZ` / `PositionZ` through `useDataEngine` first if you
-want them.
+Car telemetry and the moving track map replay too — `CarData.z` / `Position.z` are
+forwarded and `parseMessage()` normalises the topic names (`*.z` -> `*Z`).
 
 ## manifest.json
 
