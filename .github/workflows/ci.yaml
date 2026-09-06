@@ -55,8 +55,5 @@ jobs:
           SKIP_ENV_VALIDATION: "1"
           NEXT_TELEMETRY_DISABLED: "1"
 
-      # develop arranca con 3 errores pre-existentes (react-hooks v6 en DelayInput.tsx /
-      # useDataEngine.ts). Hasta arreglarlos, lint es informativo y no tumba el check.
       - name: Lint
         run: yarn lint
-        continue-on-error: true
