@@ -55,13 +55,32 @@ export default function TyreStrategy() {
 		.sort((a, b) => a.Line - b.Line);
 
 	const tickInterval = Math.ceil(totalLaps / X_TICKS);
-	const ticks = Array.from({ length: Math.floor(totalLaps / tickInterval) + 1 }, (_, i) => i * tickInterval);
+	// Drop the last regular tick when it would crowd the "total laps" label at the end.
+	const ticks = Array.from({ length: Math.floor(totalLaps / tickInterval) + 1 }, (_, i) => i * tickInterval).filter(
+		(lap) => lap > 0 && lap < totalLaps - tickInterval / 2,
+	);
+
+	const usedCompounds = Array.from(
+		new Set(drivers.flatMap((d) => (d.Stints ?? []).map((s) => s.Compound ?? "UNKNOWN")).filter((c) => c in COMPOUND_LETTER)),
+	);
 
 	return (
 		<div className="flex w-full flex-col px-2 py-1 font-mono">
-			<div className="mb-1 text-[11px] tracking-widest text-zinc-500 uppercase">tyre strategy</div>
+			<div className="mb-1 flex flex-wrap items-center justify-between gap-x-6 gap-y-1">
+				<span className="text-[11px] tracking-widest text-zinc-500 uppercase">tyre strategy</span>
+				{usedCompounds.length > 0 && (
+					<span className="flex items-center gap-3 text-[10px] text-zinc-500">
+						{usedCompounds.map((c) => (
+							<span key={c} className="flex items-center gap-1">
+								<span className="inline-block h-2 w-2" style={{ backgroundColor: COMPOUND_COLORS[c] }} />
+								{COMPOUND_LETTER[c]}
+							</span>
+						))}
+					</span>
+				)}
+			</div>
 
-			<div className="flex min-w-0 flex-1 flex-col gap-px overflow-auto">
+			<div className="flex min-w-0 flex-1 flex-col gap-px overflow-auto pr-[1.5ch]">
 				{drivers.map((d) => {
 					const driver = driverList[d.RacingNumber];
 					if (!driver) return null;
@@ -114,20 +133,17 @@ export default function TyreStrategy() {
 					<div className="w-8 shrink-0" />
 					<div className="relative h-4 flex-1">
 						{/* Regular tick numbers */}
-						{ticks.map((lap) => {
-							if (lap === 0) return null;
-							return (
-								<span
-									key={lap}
-									className="absolute -translate-x-1/2 text-[10px] text-zinc-700 tabular-nums"
-									style={{ left: `${(lap / totalLaps) * 100}%` }}
-								>
-									{lap}
-								</span>
-							);
-						})}
-						{/* Total laps at the end */}
-						<span className="absolute right-0 translate-x-1/2 text-[10px] text-zinc-600 tabular-nums">{totalLaps}</span>
+						{ticks.map((lap) => (
+							<span
+								key={lap}
+								className="absolute -translate-x-1/2 text-[10px] text-zinc-700 tabular-nums"
+								style={{ left: `${(lap / totalLaps) * 100}%` }}
+							>
+								{lap}
+							</span>
+						))}
+						{/* Total laps — flush with the right edge so it can't clip */}
+						<span className="absolute right-0 text-[10px] text-zinc-600 tabular-nums">{totalLaps}</span>
 						{/* Current lap — white, bold */}
 						{currentLap > 0 && (
 							<span
