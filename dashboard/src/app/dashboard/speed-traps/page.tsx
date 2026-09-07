@@ -45,7 +45,7 @@ export default function SpeedTraps() {
 		.sort(sortPos);
 
 	return (
-		<div className="mx-auto w-full max-w-2xl font-mono">
+		<div className="w-full max-w-3xl font-mono">
 			<div className="overflow-auto">
 				<table className="w-full text-sm">
 					<thead className="sticky top-0 bg-black">

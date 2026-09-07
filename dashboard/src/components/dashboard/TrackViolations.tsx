@@ -42,7 +42,7 @@ export default function TrackViolations() {
 	const max = Math.max(1, ...Object.values(trackLimits));
 
 	return (
-		<div className="mx-auto max-w-md font-mono">
+		<div className="max-w-lg font-mono">
 			<div className="flex items-center justify-between border-b-2 border-zinc-700 px-2 py-0.5">
 				<span className="text-[11px] tracking-widest text-zinc-500 uppercase">track violations</span>
 				{total > 0 && <span className="text-[11px] text-zinc-600 tabular-nums">{total} total</span>}
