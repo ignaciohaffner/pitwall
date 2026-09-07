@@ -7,13 +7,11 @@ import Link from "next/link";
 import clsx from "clsx";
 
 import { useSidebarStore } from "@/stores/useSidebarStore";
-import { useSettingsStore } from "@/stores/useSettingsStore";
 
 import ConnectionStatus from "@/components/ConnectionStatus";
 import DelayInput from "@/components/DelayInput";
 import SidenavButton from "@/components/SidenavButton";
 import DelayTimer from "@/components/DelayTimer";
-
 
 type Props = {
 	connected: boolean;
@@ -36,8 +34,6 @@ export default function Sidebar({ connected }: Props) {
 
 	const pin = useSidebarStore((state) => state.pin);
 	const unpin = useSidebarStore((state) => state.unpin);
-
-	const oledMode = useSettingsStore((state) => state.oledMode);
 
 	useEffect(() => {
 		const handleResize = () => {
@@ -79,7 +75,7 @@ export default function Sidebar({ connected }: Props) {
 			>
 				<nav
 					className={clsx("flex w-52 flex-col border-zinc-800 bg-black px-2 py-2", {
-						"border": !pinned,
+						border: !pinned,
 						"border-r": pinned,
 					})}
 				>
@@ -94,11 +90,14 @@ export default function Sidebar({ connected }: Props) {
 						<SidenavButton className="md:hidden" onClick={() => close()} />
 					</div>
 
-					<Link href="/dashboard" className="mt-3 border border-zinc-700 px-3 py-1.5 text-center font-mono text-[11px] uppercase tracking-widest text-zinc-300 transition-colors hover:border-zinc-500 hover:text-white">
+					<Link
+						href="/dashboard"
+						className="mt-3 border border-zinc-700 px-3 py-1.5 text-center font-mono text-[11px] tracking-widest text-zinc-300 uppercase transition-colors hover:border-zinc-500 hover:text-white"
+					>
 						→ back to race
 					</Link>
 
-					<p className="mt-4 mb-1 px-2 text-[11px] uppercase tracking-widest text-zinc-600">general</p>
+					<p className="mt-4 mb-1 px-2 text-[11px] tracking-widest text-zinc-600 uppercase">general</p>
 
 					<div className="flex flex-col">
 						<Item item={{ href: "/dashboard/settings", name: "settings" }} />
@@ -107,7 +106,7 @@ export default function Sidebar({ connected }: Props) {
 						<Item target="_blank" item={{ href: "/", name: "home" }} />
 					</div>
 
-					<p className="mt-4 mb-1 px-2 text-[11px] uppercase tracking-widest text-zinc-600">links</p>
+					<p className="mt-4 mb-1 px-2 text-[11px] tracking-widest text-zinc-600 uppercase">links</p>
 
 					<div className="flex flex-col">
 						<Item target="_blank" item={{ href: "https://github.com/slowlydev/f1-dash", name: "github" }} />

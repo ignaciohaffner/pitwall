@@ -15,3 +15,12 @@ export const inflate = <T>(data: string): T => {
 
 	return JSON.parse(inflatedData);
 };
+
+/** inflate() that returns null instead of throwing on a bad payload */
+export const inflateSafe = <T>(data: string): T | null => {
+	try {
+		return inflate<T>(data);
+	} catch {
+		return null;
+	}
+};

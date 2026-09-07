@@ -29,7 +29,7 @@ export default async function NextRound() {
 	if (!next) {
 		return (
 			<div className="flex h-32 flex-col items-center justify-center font-mono">
-				<p className="text-[11px] uppercase tracking-widest text-zinc-600">no upcoming weekend found</p>
+				<p className="text-[11px] tracking-widest text-zinc-600 uppercase">no upcoming weekend found</p>
 			</div>
 		);
 	}
@@ -46,7 +46,7 @@ export default async function NextRound() {
 				</div>
 			) : (
 				<div className="flex flex-col items-center justify-center font-mono">
-					<p className="text-[11px] uppercase tracking-widest text-zinc-600">no upcoming sessions found</p>
+					<p className="text-[11px] tracking-widest text-zinc-600 uppercase">no upcoming sessions found</p>
 				</div>
 			)}
 

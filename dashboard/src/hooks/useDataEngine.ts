@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import type { CarData, CarsData, Position, Positions, State } from "@/types/state.type";
 import type { MessageInitial, MessageUpdate } from "@/types/message.type";
 
-import { inflate } from "@/lib/inflate";
+import { inflateSafe } from "@/lib/inflate";
 import { utcToLocalMs } from "@/lib/utcToLocalMs";
 
 import { useSettingsStore } from "@/stores/useSettingsStore";
@@ -47,11 +47,13 @@ export const useDataEngine = ({ updateState, updatePosition, updateCarData }: Pr
 
 	const delayRef = useRef<number>(0);
 
-	useSettingsStore.subscribe(
-		(state) => state.delay,
-		(delay) => (delayRef.current = delay),
-		{ fireImmediately: true },
-	);
+	useEffect(() => {
+		delayRef.current = useSettingsStore.getState().delay;
+		return useSettingsStore.subscribe(
+			(state) => state.delay,
+			(delay) => (delayRef.current = delay),
+		);
+	}, []);
 
 	const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -64,22 +66,16 @@ export const useDataEngine = ({ updateState, updatePosition, updateCarData }: Pr
 			if (data) buffer.push(data);
 		});
 
-		if (carZ) {
-			const carData = inflate<CarData>(carZ);
+		const carData = carZ ? inflateSafe<CarData>(carZ) : null;
+		if (carData?.Entries?.length) {
 			updateCarData(carData.Entries[0].Cars);
-
-			for (const entry of carData.Entries) {
-				carBuffer.pushTimed(entry.Cars, utcToLocalMs(entry.Utc));
-			}
+			for (const entry of carData.Entries) carBuffer.pushTimed(entry.Cars, utcToLocalMs(entry.Utc));
 		}
 
-		if (posZ) {
-			const position = inflate<Position>(posZ);
+		const position = posZ ? inflateSafe<Position>(posZ) : null;
+		if (position?.Position?.length) {
 			updatePosition(position.Position[0].Entries);
-
-			for (const entry of position.Position) {
-				posBuffer.pushTimed(entry.Entries, utcToLocalMs(entry.Timestamp));
-			}
+			for (const entry of position.Position) posBuffer.pushTimed(entry.Entries, utcToLocalMs(entry.Timestamp));
 		}
 	};
 
@@ -90,18 +86,14 @@ export const useDataEngine = ({ updateState, updatePosition, updateCarData }: Pr
 			if (data) buffer.push(data);
 		});
 
-		if (carZ) {
-			const carData = inflate<CarData>(carZ);
-			for (const entry of carData.Entries) {
-				carBuffer.pushTimed(entry.Cars, utcToLocalMs(entry.Utc));
-			}
+		const carData = carZ ? inflateSafe<CarData>(carZ) : null;
+		if (carData?.Entries?.length) {
+			for (const entry of carData.Entries) carBuffer.pushTimed(entry.Cars, utcToLocalMs(entry.Utc));
 		}
 
-		if (posZ) {
-			const position = inflate<Position>(posZ);
-			for (const entry of position.Position) {
-				posBuffer.pushTimed(entry.Entries, utcToLocalMs(entry.Timestamp));
-			}
+		const position = posZ ? inflateSafe<Position>(posZ) : null;
+		if (position?.Position?.length) {
+			for (const entry of position.Position) posBuffer.pushTimed(entry.Entries, utcToLocalMs(entry.Timestamp));
 		}
 	};
 

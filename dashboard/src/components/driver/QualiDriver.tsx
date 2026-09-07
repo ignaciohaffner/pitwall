@@ -34,7 +34,7 @@ export default function QualiDriver({ position, driver, timingDriver, timingStat
 		<motion.div
 			layout="position"
 			className={clsx(
-				"group flex w-full items-center border-b border-zinc-900 py-0.5 pl-2 pr-1 font-mono text-base leading-none select-none",
+				"group flex w-full items-center border-b border-zinc-900 py-0.5 pr-1 pl-2 font-mono text-base leading-none select-none",
 				{
 					"opacity-25": isOut,
 					"bg-violet-950/60": hasFastestLap,
@@ -56,7 +56,9 @@ export default function QualiDriver({ position, driver, timingDriver, timingStat
 					})}
 				>
 					{timingDriver.GapToLeader
-						? timingDriver.GapToLeader === "0.000" ? "LEADER" : `+${timingDriver.GapToLeader}`
+						? timingDriver.GapToLeader === "0.000"
+							? "LEADER"
+							: `+${timingDriver.GapToLeader}`
 						: "---"}
 				</span>
 
@@ -86,10 +88,20 @@ export default function QualiDriver({ position, driver, timingDriver, timingStat
 
 			<Link
 				href={`/dashboard/driver/${driver.RacingNumber}`}
-				className="ml-2 hidden h-4 w-4 shrink-0 items-center justify-center text-zinc-800 hover:text-zinc-500 group-hover:flex"
+				className="ml-2 hidden h-4 w-4 shrink-0 items-center justify-center text-zinc-800 group-hover:flex hover:text-zinc-500"
 				aria-label={`View ${driver.FullName}`}
 			>
-				<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="10"
+					height="10"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					strokeWidth="2"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				>
 					<path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
 				</svg>
 			</Link>
@@ -117,9 +129,9 @@ function QualiSectorCell({ sector, bestSector, showMiniSectors }: SectorCellProp
 	if (!sector) return <span className="text-zinc-800">---</span>;
 
 	const bestTime = bestSector?.Value ?? "";
-	const curTime  = sector.Value ?? "";
+	const curTime = sector.Value ?? "";
 	const prevTime = sector.PreviousValue ?? "";
-	const hasSegs  = showMiniSectors && sector.Segments.length > 0;
+	const hasSegs = showMiniSectors && sector.Segments.length > 0;
 
 	const isSessionFastest = bestSector?.Position === 1;
 
@@ -132,17 +144,17 @@ function QualiSectorCell({ sector, bestSector, showMiniSectors }: SectorCellProp
 		<span className="flex flex-col gap-[3px]">
 			{/* ── Line 1: personal best — always the standing reference ── */}
 			<span
-				className={clsx("tabular-nums whitespace-nowrap", {
+				className={clsx("whitespace-nowrap tabular-nums", {
 					"text-violet-400": isSessionFastest,
-					"text-zinc-300":   !isSessionFastest && !!bestTime,
-					"text-zinc-700":   !bestTime,
+					"text-zinc-300": !isSessionFastest && !!bestTime,
+					"text-zinc-700": !bestTime,
 				})}
 			>
 				{bestTime || "---"}
 			</span>
 
 			{/* ── Line 2: mini-bars (always) + current/prev time + Δ ── */}
-			<span className="flex items-center gap-[0.5ch] whitespace-nowrap text-[11px] leading-none">
+			<span className="flex items-center gap-[0.5ch] text-[11px] leading-none whitespace-nowrap">
 				{hasSegs && (
 					<span className="flex items-center gap-px">
 						{sector.Segments.map((seg, j) => (
@@ -153,10 +165,10 @@ function QualiSectorCell({ sector, bestSector, showMiniSectors }: SectorCellProp
 				{displayTime && (
 					<span
 						className={clsx("tabular-nums", {
-							"text-violet-400":  sector.OverallFastest,
+							"text-violet-400": sector.OverallFastest,
 							"text-emerald-400": !sector.OverallFastest && sector.PersonalFastest,
-							"text-zinc-400":    !sector.OverallFastest && !sector.PersonalFastest && !!curTime,
-							"text-zinc-700":    !curTime,
+							"text-zinc-400": !sector.OverallFastest && !sector.PersonalFastest && !!curTime,
+							"text-zinc-700": !curTime,
 						})}
 					>
 						{displayTime}
@@ -164,9 +176,9 @@ function QualiSectorCell({ sector, bestSector, showMiniSectors }: SectorCellProp
 				)}
 				{deltaMs !== null && (
 					<span
-						className={clsx("tabular-nums font-bold", {
+						className={clsx("font-bold tabular-nums", {
 							"text-emerald-400": deltaMs < 0,
-							"text-red-500":     deltaMs > 0,
+							"text-red-500": deltaMs > 0,
 						})}
 					>
 						{formatDelta(deltaMs)}
@@ -181,11 +193,11 @@ function MiniBlock({ status }: { status: number }) {
 	return (
 		<span
 			className={clsx("leading-none", {
-				"text-amber-400":   status === 2048 || status === 2052,
+				"text-amber-400": status === 2048 || status === 2052,
 				"text-emerald-400": status === 2049,
-				"text-violet-400":  status === 2051,
-				"text-blue-400":    status === 2064,
-				"text-zinc-800":    status === 0,
+				"text-violet-400": status === 2051,
+				"text-blue-400": status === 2064,
+				"text-zinc-800": status === 0,
 			})}
 		>
 			{status === 0 ? "▒" : "█"}

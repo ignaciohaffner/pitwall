@@ -49,15 +49,14 @@ export default function Round({ round, nextName }: Props) {
 			<div className="flex items-center justify-between border-b border-zinc-800 pb-2">
 				<div className="flex items-center gap-[2ch]">
 					<span className="text-sm text-zinc-500">[{countryCode}]</span>
-					<span className="text-sm uppercase tracking-wide text-zinc-300">{round.countryName}</span>
-					{round.name === nextName && (
-						utc().isBetween(utc(round.start), utc(round.end)) ? (
-							<span className="text-[11px] uppercase tracking-widest text-emerald-500">● current</span>
+					<span className="text-sm tracking-wide text-zinc-300 uppercase">{round.countryName}</span>
+					{round.name === nextName &&
+						(utc().isBetween(utc(round.start), utc(round.end)) ? (
+							<span className="text-[11px] tracking-widest text-emerald-500 uppercase">● current</span>
 						) : (
-							<span className="text-[11px] uppercase tracking-widest text-indigo-400">→ up next</span>
-						)
-					)}
-					{round.over && <span className="text-[11px] uppercase tracking-widest text-zinc-600">✗ over</span>}
+							<span className="text-[11px] tracking-widest text-indigo-400 uppercase">→ up next</span>
+						))}
+					{round.over && <span className="text-[11px] tracking-widest text-zinc-600 uppercase">✗ over</span>}
 				</div>
 
 				<div className="flex items-center gap-[1ch] text-sm tabular-nums">
@@ -69,7 +68,7 @@ export default function Round({ round, nextName }: Props) {
 			<div className="grid grid-cols-3 gap-4 pt-2">
 				{groupSessionByDay(round.sessions).map((day, i) => (
 					<div className="flex flex-col" key={`round.day.${i}`}>
-						<p className="my-2 text-[11px] uppercase tracking-widest text-zinc-500">
+						<p className="my-2 text-[11px] tracking-widest text-zinc-500 uppercase">
 							{utc(day.date).local().format("ddd")}
 						</p>
 
@@ -79,10 +78,10 @@ export default function Round({ round, nextName }: Props) {
 									key={`round.day.${i}.session.${j}`}
 									className={clsx("flex flex-col", !round.over && utc(session.end).isBefore(now()) && "opacity-50")}
 								>
-									<p className="w-28 overflow-hidden text-ellipsis whitespace-nowrap text-xs text-zinc-300 sm:w-auto">
+									<p className="w-28 overflow-hidden text-xs text-ellipsis whitespace-nowrap text-zinc-300 sm:w-auto">
 										{session.kind}
 									</p>
-									<p className="text-[11px] tabular-nums text-zinc-600">
+									<p className="text-[11px] text-zinc-600 tabular-nums">
 										{utc(session.start).local().format("HH:mm")}
 										{" - "}
 										{utc(session.end).local().format("HH:mm")}

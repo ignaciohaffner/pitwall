@@ -1,5 +1,3 @@
-import clsx from "clsx";
-
 type Props = {
 	on: boolean;
 	possible: boolean;

@@ -4,9 +4,8 @@ import { useState } from "react";
 import clsx from "clsx";
 
 import { useDataStore } from "@/stores/useDataStore";
-import { useHistoryStore, type LapTimeEntry } from "@/stores/useHistoryStore";
+import { useHistoryStore } from "@/stores/useHistoryStore";
 import { useHeadToHeadStore } from "@/stores/useHeadToHeadStore";
-import type { Stint } from "@/types/state.type";
 import { getStintBoundaries, classifyLap, type StintBoundary } from "@/lib/stints";
 
 // ── Component ────────────────────────────────────────────────────────────────
@@ -42,7 +41,8 @@ export default function LapTimes() {
 	const toggleDriver = (nr: string) => {
 		setSelectedDrivers((prev) => {
 			const next = new Set(prev);
-			next.has(nr) ? next.delete(nr) : next.add(nr);
+			if (next.has(nr)) next.delete(nr);
+			else next.add(nr);
 			return next;
 		});
 	};
@@ -65,11 +65,11 @@ export default function LapTimes() {
 		<div className="flex w-full flex-col font-mono">
 			{/* Header */}
 			<div className="flex items-center justify-between border-b border-zinc-800 px-2 py-0.5">
-				<span className="text-[11px] uppercase tracking-widest text-zinc-500">lap times</span>
+				<span className="text-[11px] tracking-widest text-zinc-500 uppercase">lap times</span>
 				<div className="flex items-center gap-3">
 					<button
 						onClick={() => setCompareMode((v) => !v)}
-						className={clsx("text-[11px] uppercase tracking-widest transition-colors", {
+						className={clsx("text-[11px] tracking-widest uppercase transition-colors", {
 							"text-zinc-400": compareMode,
 							"text-zinc-700 hover:text-zinc-400": !compareMode,
 						})}
@@ -79,7 +79,7 @@ export default function LapTimes() {
 					<span className="text-zinc-800">│</span>
 					<button
 						onClick={() => setShowPicker((v) => !v)}
-						className="text-[11px] uppercase tracking-widest text-zinc-700 hover:text-zinc-400 transition-colors"
+						className="text-[11px] tracking-widest text-zinc-700 uppercase transition-colors hover:text-zinc-400"
 					>
 						drivers ({visibleDrivers.length})
 					</button>
@@ -90,21 +90,31 @@ export default function LapTimes() {
 			{showPicker && (
 				<div className="border-b border-zinc-800 px-2 py-1">
 					<div className="mb-1 flex gap-2">
-						<button onClick={selectAll} className="text-[11px] uppercase tracking-widest text-zinc-500 hover:text-zinc-300">
+						<button
+							onClick={selectAll}
+							className="text-[11px] tracking-widest text-zinc-500 uppercase hover:text-zinc-300"
+						>
 							all
 						</button>
 						<span className="text-zinc-700">│</span>
-						<button onClick={selectNone} className="text-[11px] uppercase tracking-widest text-zinc-500 hover:text-zinc-300">
+						<button
+							onClick={selectNone}
+							className="text-[11px] tracking-widest text-zinc-500 uppercase hover:text-zinc-300"
+						>
 							none
 						</button>
 						<span className="text-zinc-700">│</span>
-						<button onClick={() => setShowPicker(false)} className="text-[11px] uppercase tracking-widest text-zinc-500 hover:text-zinc-300">
+						<button
+							onClick={() => setShowPicker(false)}
+							className="text-[11px] tracking-widest text-zinc-500 uppercase hover:text-zinc-300"
+						>
 							done
 						</button>
 					</div>
 					<div className="flex flex-wrap gap-1">
 						{allDrivers.map((d) => {
-							const selected = selectedDrivers.size === 0 ? visibleDrivers.includes(d) : selectedDrivers.has(d.RacingNumber);
+							const selected =
+								selectedDrivers.size === 0 ? visibleDrivers.includes(d) : selectedDrivers.has(d.RacingNumber);
 							return (
 								<button
 									key={d.RacingNumber}
@@ -127,7 +137,7 @@ export default function LapTimes() {
 						<select
 							value={first ?? ""}
 							onChange={(e) => setFirst(e.target.value || null)}
-							className="bg-black text-[11px] uppercase tracking-widest text-zinc-400 border border-zinc-800 px-1 py-0.5 focus:outline-none"
+							className="border border-zinc-800 bg-black px-1 py-0.5 text-[11px] tracking-widest text-zinc-400 uppercase focus:outline-none"
 						>
 							<option value="">driver A</option>
 							{allDrivers.map((d) => (
@@ -136,11 +146,11 @@ export default function LapTimes() {
 								</option>
 							))}
 						</select>
-						<span className="text-zinc-700 text-[11px]">vs</span>
+						<span className="text-[11px] text-zinc-700">vs</span>
 						<select
 							value={second ?? ""}
 							onChange={(e) => setSecond(e.target.value || null)}
-							className="bg-black text-[11px] uppercase tracking-widest text-zinc-400 border border-zinc-800 px-1 py-0.5 focus:outline-none"
+							className="border border-zinc-800 bg-black px-1 py-0.5 text-[11px] tracking-widest text-zinc-400 uppercase focus:outline-none"
 						>
 							<option value="">driver B</option>
 							{allDrivers.map((d) => (
@@ -158,11 +168,11 @@ export default function LapTimes() {
 							<table className="w-full text-sm">
 								<thead className="sticky top-0 bg-black">
 									<tr className="border-b-2 border-zinc-600">
-										<th className="px-2 py-0.5 text-left text-[11px] uppercase tracking-widest text-zinc-500">LAP</th>
+										<th className="px-2 py-0.5 text-left text-[11px] tracking-widest text-zinc-500 uppercase">LAP</th>
 										<th className="px-2 py-0.5 text-right text-[11px] font-bold" style={{ color: `#${d1.TeamColour}` }}>
 											{d1.Tla}
 										</th>
-										<th className="px-2 py-0.5 text-center text-[11px] uppercase tracking-widest text-zinc-500">Δ</th>
+										<th className="px-2 py-0.5 text-center text-[11px] tracking-widest text-zinc-500 uppercase">Δ</th>
 										<th className="px-2 py-0.5 text-left text-[11px] font-bold" style={{ color: `#${d2.TeamColour}` }}>
 											{d2.Tla}
 										</th>
@@ -177,20 +187,35 @@ export default function LapTimes() {
 										const d2Faster = delta !== null && delta > 0;
 										return (
 											<tr key={lap} className="border-b border-zinc-900">
-												<td className="px-2 py-0.5 text-[11px] tabular-nums text-zinc-600">{lap}</td>
-												<td className={clsx("px-2 py-0.5 text-right tabular-nums text-sm", d1Faster ? "text-emerald-400" : "text-zinc-300")}>
+												<td className="px-2 py-0.5 text-[11px] text-zinc-600 tabular-nums">{lap}</td>
+												<td
+													className={clsx(
+														"px-2 py-0.5 text-right text-sm tabular-nums",
+														d1Faster ? "text-emerald-400" : "text-zinc-300",
+													)}
+												>
 													{e1 ? e1.time : <span className="text-zinc-800">—</span>}
 												</td>
-												<td className="px-2 py-0.5 text-center tabular-nums text-[11px]">
+												<td className="px-2 py-0.5 text-center text-[11px] tabular-nums">
 													{delta !== null ? (
-														<span className={clsx(delta < 0 ? "text-emerald-400" : delta > 0 ? "text-red-400" : "text-zinc-600")}>
-															{delta > 0 ? "+" : ""}{(delta / 1000).toFixed(3)}
+														<span
+															className={clsx(
+																delta < 0 ? "text-emerald-400" : delta > 0 ? "text-red-400" : "text-zinc-600",
+															)}
+														>
+															{delta > 0 ? "+" : ""}
+															{(delta / 1000).toFixed(3)}
 														</span>
 													) : (
 														<span className="text-zinc-800">—</span>
 													)}
 												</td>
-												<td className={clsx("px-2 py-0.5 text-left tabular-nums text-sm", d2Faster ? "text-emerald-400" : "text-zinc-300")}>
+												<td
+													className={clsx(
+														"px-2 py-0.5 text-left text-sm tabular-nums",
+														d2Faster ? "text-emerald-400" : "text-zinc-300",
+													)}
+												>
 													{e2 ? e2.time : <span className="text-zinc-800">—</span>}
 												</td>
 											</tr>
@@ -201,62 +226,60 @@ export default function LapTimes() {
 						</div>
 					)}
 				</div>
+			) : currentLap === 0 ? (
+				<div className="px-2 py-3 text-sm text-zinc-700">no laps completed yet</div>
 			) : (
-				currentLap === 0 ? (
-					<div className="px-2 py-3 text-sm text-zinc-700">no laps completed yet</div>
-				) : (
-					<div className="overflow-auto">
-						<table className="w-full text-sm">
-							<thead className="sticky top-0 bg-black">
-								<tr className="border-b-2 border-zinc-600">
-									<th className="px-2 py-0.5 text-left text-[11px] uppercase tracking-widest text-zinc-500">LAP</th>
-									{visibleDrivers.map((d) => (
-										<th
-											key={d.RacingNumber}
-											className="px-2 py-0.5 text-right text-[11px] font-bold"
-											style={{ color: `#${d.TeamColour}` }}
-										>
-											{d.Tla}
-										</th>
-									))}
-								</tr>
-							</thead>
-							<tbody>
-								{laps.map((lap) => (
-									<tr key={lap} className="border-b border-zinc-900">
-										<td className="px-2 py-0.5 text-[11px] tabular-nums text-zinc-600">{lap}</td>
-										{visibleDrivers.map((d) => {
-											const entry = lapTimes[d.RacingNumber]?.find((e) => e.lap === lap);
-											const boundaries = stintBoundariesByDriver[d.RacingNumber];
-											const lapType = boundaries.length > 0 ? classifyLap(lap, boundaries) : "push";
-											return (
-												<td key={d.RacingNumber} className="px-2 py-0.5 text-right tabular-nums">
-													{entry ? (
-														<span className="inline-flex items-baseline gap-0.5">
-															<span
-																className={clsx("text-sm", {
-																	"text-violet-400": entry.overallFastest,
-																	"text-emerald-400": !entry.overallFastest && entry.personalFastest,
-																	"text-zinc-300": !entry.overallFastest && !entry.personalFastest,
-																})}
-															>
-																{entry.time}
-															</span>
-															{lapType === "out" && <span className="text-[9px] text-zinc-600">O</span>}
-															{lapType === "in" && <span className="text-[9px] text-zinc-600">I</span>}
-														</span>
-													) : (
-														<span className="text-zinc-800">—</span>
-													)}
-												</td>
-											);
-										})}
-									</tr>
+				<div className="overflow-auto">
+					<table className="w-full text-sm">
+						<thead className="sticky top-0 bg-black">
+							<tr className="border-b-2 border-zinc-600">
+								<th className="px-2 py-0.5 text-left text-[11px] tracking-widest text-zinc-500 uppercase">LAP</th>
+								{visibleDrivers.map((d) => (
+									<th
+										key={d.RacingNumber}
+										className="px-2 py-0.5 text-right text-[11px] font-bold"
+										style={{ color: `#${d.TeamColour}` }}
+									>
+										{d.Tla}
+									</th>
 								))}
-							</tbody>
-						</table>
-					</div>
-				)
+							</tr>
+						</thead>
+						<tbody>
+							{laps.map((lap) => (
+								<tr key={lap} className="border-b border-zinc-900">
+									<td className="px-2 py-0.5 text-[11px] text-zinc-600 tabular-nums">{lap}</td>
+									{visibleDrivers.map((d) => {
+										const entry = lapTimes[d.RacingNumber]?.find((e) => e.lap === lap);
+										const boundaries = stintBoundariesByDriver[d.RacingNumber];
+										const lapType = boundaries.length > 0 ? classifyLap(lap, boundaries) : "push";
+										return (
+											<td key={d.RacingNumber} className="px-2 py-0.5 text-right tabular-nums">
+												{entry ? (
+													<span className="inline-flex items-baseline gap-0.5">
+														<span
+															className={clsx("text-sm", {
+																"text-violet-400": entry.overallFastest,
+																"text-emerald-400": !entry.overallFastest && entry.personalFastest,
+																"text-zinc-300": !entry.overallFastest && !entry.personalFastest,
+															})}
+														>
+															{entry.time}
+														</span>
+														{lapType === "out" && <span className="text-[9px] text-zinc-600">O</span>}
+														{lapType === "in" && <span className="text-[9px] text-zinc-600">I</span>}
+													</span>
+												) : (
+													<span className="text-zinc-800">—</span>
+												)}
+											</td>
+										);
+									})}
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
 			)}
 		</div>
 	);

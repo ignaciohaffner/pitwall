@@ -37,9 +37,7 @@ export default function SpeedTraps() {
 	const unit = speedUnit === "metric" ? "km/h" : "mp/h";
 
 	if (!timingStats || !driverList || !timingData) {
-		return (
-			<div className="px-2 py-1 font-mono text-sm text-zinc-700">waiting for session data...</div>
-		);
+		return <div className="px-2 py-1 font-mono text-sm text-zinc-700">waiting for session data...</div>;
 	}
 
 	const drivers = Object.values(timingData)
@@ -52,18 +50,18 @@ export default function SpeedTraps() {
 				<table className="w-full text-sm">
 					<thead className="sticky top-0 bg-black">
 						<tr className="border-b-2 border-zinc-600">
-							<th className="px-2 py-0.5 text-left text-[11px] uppercase tracking-widest text-zinc-500">P</th>
-							<th className="px-2 py-0.5 text-left text-[11px] uppercase tracking-widest text-zinc-500">DRV</th>
-							<th className="px-2 py-0.5 text-right text-[11px] uppercase tracking-widest text-zinc-500">
+							<th className="px-2 py-0.5 text-left text-[11px] tracking-widest text-zinc-500 uppercase">P</th>
+							<th className="px-2 py-0.5 text-left text-[11px] tracking-widest text-zinc-500 uppercase">DRV</th>
+							<th className="px-2 py-0.5 text-right text-[11px] tracking-widest text-zinc-500 uppercase">
 								I1 <span className="text-zinc-700">{unit}</span>
 							</th>
-							<th className="px-2 py-0.5 text-right text-[11px] uppercase tracking-widest text-zinc-500">
+							<th className="px-2 py-0.5 text-right text-[11px] tracking-widest text-zinc-500 uppercase">
 								I2 <span className="text-zinc-700">{unit}</span>
 							</th>
-							<th className="px-2 py-0.5 text-right text-[11px] uppercase tracking-widest text-zinc-500">
+							<th className="px-2 py-0.5 text-right text-[11px] tracking-widest text-zinc-500 uppercase">
 								FL <span className="text-zinc-700">{unit}</span>
 							</th>
-							<th className="px-2 py-0.5 text-right text-[11px] uppercase tracking-widest text-zinc-500">
+							<th className="px-2 py-0.5 text-right text-[11px] tracking-widest text-zinc-500 uppercase">
 								ST <span className="text-zinc-700">{unit}</span>
 							</th>
 						</tr>
@@ -74,7 +72,7 @@ export default function SpeedTraps() {
 							const stats = timingStats[td.RacingNumber];
 							return (
 								<tr key={td.RacingNumber} className="border-b border-zinc-900">
-									<td className="px-2 py-0.5 tabular-nums text-zinc-600">{i + 1}</td>
+									<td className="px-2 py-0.5 text-zinc-600 tabular-nums">{i + 1}</td>
 									<td className="px-2 py-0.5">
 										<span className="font-bold" style={{ color: `#${driver.TeamColour}` }}>
 											{driver.Tla}

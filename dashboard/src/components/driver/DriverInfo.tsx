@@ -41,9 +41,7 @@ export default function DriverInfo({ timingDriver, gridPos, hasFastest }: Props)
 	}
 
 	if (hasFastest) {
-		return (
-			<span className="block w-full text-right font-bold text-violet-400">FL</span>
-		);
+		return <span className="block w-full text-right font-bold text-violet-400">FL</span>;
 	}
 
 	if (positionChange !== 0) {
@@ -59,9 +57,5 @@ export default function DriverInfo({ timingDriver, gridPos, hasFastest }: Props)
 		);
 	}
 
-	return (
-		<span className="block w-full text-right tabular-nums text-zinc-700">
-			{timingDriver.NumberOfLaps ?? 0}L
-		</span>
-	);
+	return <span className="block w-full text-right text-zinc-700 tabular-nums">{timingDriver.NumberOfLaps ?? 0}L</span>;
 }

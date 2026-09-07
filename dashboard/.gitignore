@@ -2,6 +2,8 @@
 
 # dependencies
 /node_modules
+# this is a Yarn 4 project — yarn.lock is the lockfile
+package-lock.json
 
 # testing
 /coverage

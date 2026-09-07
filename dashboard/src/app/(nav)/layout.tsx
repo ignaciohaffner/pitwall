@@ -16,13 +16,22 @@ export default function Layout({ children }: Props) {
 						<span className="text-zinc-600">{">"}</span> pitwall
 					</Link>
 					<span className="text-zinc-800">│</span>
-					<Link className="text-[11px] uppercase tracking-widest text-zinc-500 transition-colors hover:text-zinc-300" href="/dashboard">
+					<Link
+						className="text-[11px] tracking-widest text-zinc-500 uppercase transition-colors hover:text-zinc-300"
+						href="/dashboard"
+					>
 						dashboard
 					</Link>
-					<Link className="text-[11px] uppercase tracking-widest text-zinc-500 transition-colors hover:text-zinc-300" href="/schedule">
+					<Link
+						className="text-[11px] tracking-widest text-zinc-500 uppercase transition-colors hover:text-zinc-300"
+						href="/schedule"
+					>
 						schedule
 					</Link>
-					<Link className="text-[11px] uppercase tracking-widest text-zinc-500 transition-colors hover:text-zinc-300" href="/help">
+					<Link
+						className="text-[11px] tracking-widest text-zinc-500 uppercase transition-colors hover:text-zinc-300"
+						href="/help"
+					>
 						help
 					</Link>
 				</div>
@@ -30,18 +39,18 @@ export default function Layout({ children }: Props) {
 				<div className="hidden items-center gap-[2ch] sm:flex">
 					<span className="text-zinc-800">│</span>
 					<Link
-						className="text-[11px] uppercase tracking-widest text-zinc-600 transition-colors hover:text-zinc-400"
-						href="https://www.buymeacoffee.com/slowlydev"
-						target="_blank"
-					>
-						[coffee]
-					</Link>
-					<Link
-						className="text-[11px] uppercase tracking-widest text-zinc-600 transition-colors hover:text-zinc-400"
-						href="https://github.com/slowlydev/f1-dash"
+						className="text-[11px] tracking-widest text-zinc-600 uppercase transition-colors hover:text-zinc-400"
+						href="https://github.com/ignaciohaffner/pitwall"
 						target="_blank"
 					>
 						[github]
+					</Link>
+					<Link
+						className="text-[11px] tracking-widest text-zinc-600 uppercase transition-colors hover:text-zinc-400"
+						href="https://github.com/slowlydev/f1-dash"
+						target="_blank"
+					>
+						[fork of f1-dash]
 					</Link>
 				</div>
 			</nav>

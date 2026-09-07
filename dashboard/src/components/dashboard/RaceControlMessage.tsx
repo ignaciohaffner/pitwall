@@ -6,11 +6,9 @@ import clsx from "clsx";
 
 import type { Message } from "@/types/state.type";
 import { useSettingsStore } from "@/stores/useSettingsStore";
-import { toTrackTime } from "@/lib/toTrackTime";
 
 type Props = {
 	msg: Message;
-	gmtOffset: string;
 };
 
 const FLAG_ABBR: Record<string, string> = {
@@ -38,14 +36,12 @@ const getDriverNumber = (msg: Message) => {
 	return match?.[1];
 };
 
-export function RaceControlMessage({ msg, gmtOffset }: Props) {
-	const favoriteDriver = useSettingsStore((state) =>
-		state.favoriteDrivers.includes(getDriverNumber(msg) ?? ""),
-	);
+export function RaceControlMessage({ msg }: Props) {
+	const favoriteDriver = useSettingsStore((state) => state.favoriteDrivers.includes(getDriverNumber(msg) ?? ""));
 
 	const localTime = utc(msg.Utc).local().format("HH:mm:ss");
-	const flagLabel = msg.Flag && msg.Flag !== "CLEAR" ? FLAG_ABBR[msg.Flag] ?? msg.Flag : null;
-	const flagColor = msg.Flag ? FLAG_COLOR[msg.Flag] ?? "text-zinc-400" : "text-zinc-400";
+	const flagLabel = msg.Flag && msg.Flag !== "CLEAR" ? (FLAG_ABBR[msg.Flag] ?? msg.Flag) : null;
+	const flagColor = msg.Flag ? (FLAG_COLOR[msg.Flag] ?? "text-zinc-400") : "text-zinc-400";
 
 	return (
 		<motion.li
@@ -57,14 +53,10 @@ export function RaceControlMessage({ msg, gmtOffset }: Props) {
 				{ "bg-sky-950/40": favoriteDriver },
 			)}
 		>
-			<time className="shrink-0 text-[11px] tabular-nums text-zinc-600">{localTime}</time>
-			{msg.Lap && (
-				<span className="shrink-0 text-[11px] tabular-nums text-zinc-700">L{msg.Lap}</span>
-			)}
+			<time className="shrink-0 text-[11px] text-zinc-600 tabular-nums">{localTime}</time>
+			{msg.Lap && <span className="shrink-0 text-[11px] text-zinc-700 tabular-nums">L{msg.Lap}</span>}
 			{flagLabel && (
-				<span className={clsx("shrink-0 text-[11px] font-bold tracking-wide", flagColor)}>
-					[{flagLabel}]
-				</span>
+				<span className={clsx("shrink-0 text-[11px] font-bold tracking-wide", flagColor)}>[{flagLabel}]</span>
 			)}
 			<span className="text-zinc-300">{msg.Message}</span>
 		</motion.li>

@@ -28,18 +28,16 @@ export default function TrackInfo() {
 			{lapCount && (
 				<span>
 					<span className="text-zinc-600">LAP</span>{" "}
-					<span className="font-bold tabular-nums text-white">{lapCount.CurrentLap}</span>
+					<span className="font-bold text-white tabular-nums">{lapCount.CurrentLap}</span>
 					<span className="text-zinc-700">/</span>
-					<span className="tabular-nums text-zinc-400">{lapCount.TotalLaps}</span>
+					<span className="text-zinc-400 tabular-nums">{lapCount.TotalLaps}</span>
 				</span>
 			)}
 
 			<span className="text-zinc-700">│</span>
 
 			{status ? (
-				<span className={clsx("font-bold uppercase tracking-wide", statusColor)}>
-					■ {status.message}
-				</span>
+				<span className={clsx("font-bold tracking-wide uppercase", statusColor)}>■ {status.message}</span>
 			) : (
 				<span className="text-zinc-700">■ ---</span>
 			)}

@@ -39,9 +39,12 @@ const possibleDRS = (drs: number) => drs === 8;
 
 const inDangerZone = (position: number, sessionPart: number) => {
 	switch (sessionPart) {
-		case 1: return position > 15;
-		case 2: return position > 10;
-		default: return false;
+		case 1:
+			return position > 15;
+		case 2:
+			return position > 10;
+		default:
+			return false;
 	}
 };
 
@@ -49,7 +52,7 @@ export default function Driver({ driver, timingDriver, position, showInterval, s
 	const sessionPart = useDataStore((state) => state.state?.TimingData?.SessionPart);
 	const timingStatsDriver = useDataStore((state) => state.state?.TimingStats?.Lines[driver.RacingNumber]);
 	const appTimingDriver = useDataStore((state) => state.state?.TimingAppData?.Lines[driver.RacingNumber]);
-	const carData = useDataStore((state) => (state?.carsData ? state.carsData[driver.RacingNumber].Channels : undefined));
+	const carData = useDataStore((state) => state.carsData?.[driver.RacingNumber]?.Channels);
 
 	const hasFastest = timingStatsDriver?.PersonalBestLapTime.Position == 1;
 	const carMetrics = useSettingsStore((state) => state.carMetrics);
@@ -59,7 +62,7 @@ export default function Driver({ driver, timingDriver, position, showInterval, s
 		<motion.div
 			layout="position"
 			className={clsx(
-				"group flex w-full items-center border-b border-zinc-900 py-0.5 pl-2 pr-1 font-mono text-base leading-none select-none",
+				"group flex w-full items-center border-b border-zinc-900 py-0.5 pr-1 pl-2 font-mono text-base leading-none select-none",
 				{
 					"opacity-30": timingDriver.KnockedOut || timingDriver.Retired || timingDriver.Stopped,
 					"bg-sky-950/60": favoriteDriver,
@@ -83,7 +86,11 @@ export default function Driver({ driver, timingDriver, position, showInterval, s
 
 				<DriverTire stints={appTimingDriver?.Stints} />
 
-				<DriverInfo timingDriver={timingDriver} gridPos={appTimingDriver ? parseInt(appTimingDriver.GridPos) : 0} hasFastest={hasFastest} />
+				<DriverInfo
+					timingDriver={timingDriver}
+					gridPos={appTimingDriver ? parseInt(appTimingDriver.GridPos) : 0}
+					hasFastest={hasFastest}
+				/>
 
 				<DriverProximity timingDriver={timingDriver} />
 
@@ -91,7 +98,7 @@ export default function Driver({ driver, timingDriver, position, showInterval, s
 
 				<DriverLapTime last={timingDriver.LastLapTime} best={timingDriver.BestLapTime} hasFastest={hasFastest} />
 
-				<DriverMiniSectors sectors={timingDriver.Sectors} bestSectors={timingStatsDriver?.BestSectors} />
+				<DriverMiniSectors sectors={timingDriver.Sectors} />
 
 				{showPace && <DriverPace stints={appTimingDriver?.Stints} racingNumber={driver.RacingNumber} />}
 
@@ -100,10 +107,20 @@ export default function Driver({ driver, timingDriver, position, showInterval, s
 
 			<Link
 				href={`/dashboard/driver/${driver.RacingNumber}`}
-				className="ml-2 hidden h-4 w-4 shrink-0 items-center justify-center text-zinc-800 hover:text-zinc-500 group-hover:flex"
+				className="ml-2 hidden h-4 w-4 shrink-0 items-center justify-center text-zinc-800 group-hover:flex hover:text-zinc-500"
 				aria-label={`View ${driver.FullName}`}
 			>
-				<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="10"
+					height="10"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					strokeWidth="2"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				>
 					<path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
 				</svg>
 			</Link>

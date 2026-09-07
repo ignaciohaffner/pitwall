@@ -34,9 +34,7 @@ export default function SelectMultiple<T>({ placeholder, options, selected, setS
 					displayValue={(option: Option<T> | null) => option?.label ?? ""}
 					onChange={(event) => setQuery(event.target.value)}
 				/>
-				<ComboboxButton className="absolute inset-y-0 right-0 px-2.5 font-mono text-xs text-zinc-600">
-					▾
-				</ComboboxButton>
+				<ComboboxButton className="absolute inset-y-0 right-0 px-2.5 font-mono text-xs text-zinc-600">▾</ComboboxButton>
 			</div>
 
 			<ComboboxOptions
