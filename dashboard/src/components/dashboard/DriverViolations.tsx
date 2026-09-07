@@ -27,8 +27,8 @@ export default function DriverViolations({ driver, driverViolations, driversTimi
 				/>
 			</span>
 
-			<span className="shrink-0 tabular-nums text-amber-400">{driverViolations}v</span>
-			{hasPenalty && <span className="shrink-0 tabular-nums text-red-500">+{penaltySeconds}s</span>}
+			<span className="shrink-0 text-amber-400 tabular-nums">{driverViolations}v</span>
+			{hasPenalty && <span className="shrink-0 text-red-500 tabular-nums">+{penaltySeconds}s</span>}
 			{hasPenalty && driversTiming && (
 				<span className="shrink-0 text-zinc-600">
 					→ P{calculatePosition(penaltySeconds, driver.RacingNumber, driversTiming)}

@@ -61,7 +61,9 @@ export default function TyreStrategy() {
 	);
 
 	const usedCompounds = Array.from(
-		new Set(drivers.flatMap((d) => (d.Stints ?? []).map((s) => s.Compound ?? "UNKNOWN")).filter((c) => c in COMPOUND_LETTER)),
+		new Set(
+			drivers.flatMap((d) => (d.Stints ?? []).map((s) => s.Compound ?? "UNKNOWN")).filter((c) => c in COMPOUND_LETTER),
+		),
 	);
 
 	return (
