@@ -1,6 +1,7 @@
 "use client";
 
 import { useDataStore } from "@/stores/useDataStore";
+import { stintLaps, tyreLapScale } from "@/lib/tyreStrategy";
 import type { Stint } from "@/types/state.type";
 
 const COMPOUND_COLORS: Record<string, string> = {
@@ -43,16 +44,21 @@ function isLight(hex: string): boolean {
 export default function TyreStrategy() {
 	const timingApp = useDataStore((s) => s.state?.TimingAppData?.Lines);
 	const driverList = useDataStore((s) => s.state?.DriverList);
-	const totalLaps = useDataStore((s) => s.state?.LapCount?.TotalLaps ?? 0);
+	const scheduledLaps = useDataStore((s) => s.state?.LapCount?.TotalLaps ?? 0);
 	const currentLap = useDataStore((s) => s.state?.LapCount?.CurrentLap ?? 0);
 
-	if (!timingApp || !driverList || totalLaps === 0) {
+	if (!timingApp || !driverList) {
 		return <div className="px-2 py-1 font-mono text-sm text-zinc-700">waiting for session data...</div>;
 	}
 
 	const drivers = Object.values(timingApp)
 		.filter((d) => driverList[d.RacingNumber])
 		.sort((a, b) => a.Line - b.Line);
+
+	const totalLaps = tyreLapScale(
+		scheduledLaps,
+		drivers.map((d) => d.Stints ?? []),
+	);
 
 	const tickInterval = Math.ceil(totalLaps / X_TICKS);
 	// Drop the last regular tick when it would crowd the "total laps" label at the end.
@@ -81,6 +87,10 @@ export default function TyreStrategy() {
 					</span>
 				)}
 			</div>
+
+			{scheduledLaps === 0 && (
+				<p className="mb-2 text-[11px] text-zinc-500">Laps completed per driver — scale grows with the session.</p>
+			)}
 
 			<div className="flex min-w-0 flex-1 flex-col gap-px overflow-auto pr-[1.5ch]">
 				{drivers.map((d) => {
@@ -166,12 +176,9 @@ function getPitLaps(stints: Stint[]): number[] {
 	const laps: number[] = [];
 	let offset = 0;
 	for (let i = 0; i < stints.length - 1; i++) {
-		const lapsInStint = stints[i].TotalLaps ?? 0;
-		const compound = stints[i].Compound ?? "UNKNOWN";
-		const isArtifact =
-			lapsInStint <= 1 && (compound === "INTERMEDIATE" || compound === "WET" || compound === "UNKNOWN");
+		const lapsInStint = stintLaps(stints[i]);
 		offset += lapsInStint;
-		if (offset > 0 && !isArtifact) laps.push(offset);
+		if (lapsInStint > 0) laps.push(offset);
 	}
 	return laps;
 }
@@ -180,14 +187,10 @@ function renderStints(stints: Stint[], totalLaps: number) {
 	let offset = 0;
 
 	return stints.map((stint, i) => {
-		const laps = stint.TotalLaps ?? 0;
-		// Skip 0-lap stints and 1-lap formation-lap artifacts on non-dry compounds
+		const laps = stintLaps(stint);
+		// A one-lap wet or intermediate run is still a valid stint.
 		if (laps === 0) return null;
 		const compound = stint.Compound ?? "UNKNOWN";
-		if (laps <= 1 && (compound === "INTERMEDIATE" || compound === "WET" || compound === "UNKNOWN")) {
-			offset += laps;
-			return null;
-		}
 
 		const startLap = offset + 1;
 		const endLap = offset + laps;
@@ -196,7 +199,7 @@ function renderStints(stints: Stint[], totalLaps: number) {
 		const bg = COMPOUND_COLORS[compound] ?? COMPOUND_COLORS.UNKNOWN;
 		const fg = COMPOUND_TEXT[compound] ?? "#fff";
 		const letter = COMPOUND_LETTER[compound] ?? "?";
-		const isNew = stint.New === "TRUE";
+		const isNew = stint.New?.toUpperCase() === "TRUE";
 		const isCurrent = i === stints.length - 1;
 
 		offset += laps;
