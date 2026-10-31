@@ -45,8 +45,12 @@ describe("fetchMap", () => {
 	});
 	it("keeps the pit side for every year of a circuit", async () => {
 		const map = { x: [0, 1, 2, 0], y: [0, 1, 0, 0], rotation: 0, corners: [], marshalSectors: [] };
-		vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json(map)));
+		vi.stubGlobal(
+			"fetch",
+			vi.fn().mockImplementation(async () => Response.json(map)),
+		);
 		expect((await fetchMap(9, 2027))?.pitSide).toBe("left");
+		expect((await fetchMap(65, 2026))?.pitSide).toBe("right");
 	});
 	it("handles a timeout or network error", async () => {
 		vi.spyOn(console, "error").mockImplementation(() => {});

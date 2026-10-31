@@ -56,6 +56,8 @@ default the row goes on whichever side of the track has more room there;
 `PIT_SIDES` in `src/lib/fetchMap.ts` overrides that per circuit (all years),
 as left/right of the driving direction in feed coordinates (y up). Austin (9)
 is `left` and Singapore (61) `right`: both were reported on the wrong side on
-2026-10-24. The F1 timing archive answered 401 that day, so these are not
+2026-10-24. Mexico City (65) is `right`, reported 2026-10-31: the outline runs
+clockwise, so right is the infield where the pits are; at the line both sides
+are equally clear and the guess fell to the outside. The F1 timing archive answered 401 that day, so these are not
 measured; they could be checked against `Position.z` samples with
 `InPit: true` once the archive is reachable again.
