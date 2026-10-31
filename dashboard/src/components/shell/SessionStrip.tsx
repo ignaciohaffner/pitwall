@@ -34,6 +34,7 @@ const useNow = () => {
 // ~56px band under the top bar (SPEC §2.2): meeting, lap or clock, weather, track status.
 export default function SessionStrip() {
 	const session = useDataStore((s) => s.state?.SessionInfo);
+	const syntheticTiming = useDataStore((s) => !!s.state?.TimingData?.Synthetic);
 	const statusCode = useDataStore((s) => s.state?.TrackStatus?.Status);
 	const sessionStatus = useDataStore((s) =>
 		latestSessionStatus(s.state?.SessionData?.StatusSeries, s.state?.SessionStatus?.Status),
@@ -61,6 +62,11 @@ export default function SessionStrip() {
 						<span className="truncate text-xs text-fg-2">
 							{session.Name} · {session.Meeting.Circuit.ShortName}
 							<LocalTime gmtOffset={session.GmtOffset} />
+						</span>
+					)}
+					{syntheticTiming && (
+						<span role="note" className="truncate text-xs text-flag-yellow">
+							F1 isn&apos;t sending live timing · order from best laps, no gaps or live sectors
 						</span>
 					)}
 				</div>

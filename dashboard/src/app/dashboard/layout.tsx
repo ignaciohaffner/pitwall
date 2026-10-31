@@ -16,6 +16,8 @@ import { useHistoryStore } from "@/stores/useHistoryStore";
 import { useReplayStore } from "@/stores/useReplayStore";
 
 import { latestSessionStatus } from "@/lib/trackStatus";
+import { firstUpcoming, loadSchedule } from "@/lib/schedule";
+import { env } from "@/env";
 
 import ReplayOverlay from "@/components/dev/ReplayOverlay";
 import TopBar from "@/components/shell/TopBar";
@@ -76,6 +78,27 @@ export default function DashboardLayout({ children }: Props) {
 		// resetEngine only touches refs; it doesn't need to be a dependency.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [replayActive, replaySessionId, replayEpoch]);
+
+	// Live only: the schedule's current meeting, so a SessionInfo naming the wrong session gets
+	// corrected (lib/timingFallback). Refreshed every 15 min to follow the weekend.
+	useEffect(() => {
+		const store = useDataStore.getState();
+		if (replayActive) {
+			store.setLiveRound(null);
+			return;
+		}
+		let cancelled = false;
+		const load = () =>
+			loadSchedule(env.NEXT_PUBLIC_API_URL ?? "").then((rounds) => {
+				if (!cancelled && rounds) useDataStore.getState().setLiveRound(firstUpcoming(rounds));
+			});
+		load();
+		const id = setInterval(load, 15 * 60_000);
+		return () => {
+			cancelled = true;
+			clearInterval(id);
+		};
+	}, [replayActive]);
 
 	// The delay buffer shows a "Syncing..." wall while it fills; force it off during
 	// replay and restore the user's value afterwards.

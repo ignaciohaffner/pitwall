@@ -195,6 +195,8 @@ export type TimingData = {
 		[key: string]: TimingDataDriver;
 	};
 	Withheld: boolean;
+	/** Set when the feed sent no lines and they were rebuilt from other topics (lib/timingFallback). */
+	Synthetic?: boolean;
 };
 
 export type TimingDataDriver = {
