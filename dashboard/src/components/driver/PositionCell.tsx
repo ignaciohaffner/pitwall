@@ -9,7 +9,7 @@ type Props = {
 	className?: string;
 };
 
-// The P column: a green ▲ / red ▼ for 2 s after a position change (an overtake, or in practice
+// The P column: a green ▲ / red ▼ for 3 s after a position change (an overtake, or in practice
 // and qualifying a better lap), then the number again.
 export default function PositionCell({ position, out, className }: Props) {
 	const move = usePositionFlash(position);

@@ -6,7 +6,7 @@ export type PositionMove = "up" | "down";
  * Which way the position just moved, held for `ms` after each change, then null.
  * Nothing on mount: only changes seen while the row is on screen count.
  */
-export const usePositionFlash = (position: number, ms = 2_000): PositionMove | null => {
+export const usePositionFlash = (position: number, ms = 3_000): PositionMove | null => {
 	const [prev, setPrev] = useState(position);
 	const [move, setMove] = useState<PositionMove | null>(null);
 

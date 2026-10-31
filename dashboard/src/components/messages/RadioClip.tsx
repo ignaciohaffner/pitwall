@@ -9,6 +9,7 @@ import type { TranscriptState } from "@/hooks/useRadioTranscript";
 import { waveformBars } from "@/lib/waveform";
 
 import DriverChip from "@/components/driver/DriverChip";
+import TypingText from "@/components/ui/TypingText";
 
 type Props = {
 	capture: RadioCapture;
@@ -23,6 +24,8 @@ type Props = {
 	onShowTranscript?: () => void;
 	/** Shown in place of the transcript, e.g. "Transcript unavailable". */
 	note?: string;
+	/** Type the transcript out when it arrives (a clip that came in while on screen). */
+	typing?: boolean;
 };
 
 const clock = (iso: string) => utc(iso).local().format("HH:mm:ss");
@@ -39,6 +42,7 @@ export default function RadioClip({
 	variant = "panel",
 	onShowTranscript,
 	note,
+	typing = false,
 }: Props) {
 	const audioRef = useRef<HTMLAudioElement | null>(null);
 	const rafRef = useRef<number | null>(null);
@@ -141,7 +145,7 @@ export default function RadioClip({
 				{note ? (
 					<p className="text-xs text-fg-3">{note}</p>
 				) : (
-					<Transcript transcript={transcript} feed={feed} onShow={onShowTranscript} />
+					<Transcript transcript={transcript} feed={feed} onShow={onShowTranscript} typing={typing} />
 				)}
 			</div>
 
@@ -181,7 +185,9 @@ function Waveform({ bars, played }: { bars: number[]; played: number }) {
 	);
 }
 
-function Transcript({ transcript, feed, onShow }: { transcript: TranscriptState; feed: boolean; onShow?: () => void }) {
+type TranscriptProps = { transcript: TranscriptState; feed: boolean; onShow?: () => void; typing: boolean };
+
+function Transcript({ transcript, feed, onShow, typing }: TranscriptProps) {
 	if (transcript.status === "idle") {
 		return (
 			<button
@@ -198,7 +204,7 @@ function Transcript({ transcript, feed, onShow }: { transcript: TranscriptState;
 
 	return (
 		<>
-			<p className="text-[13px] leading-normal text-fg-body">{transcript.text}</p>
+			<TypingText text={transcript.text} animate={typing} className="text-[13px] leading-normal text-fg-body" />
 			{feed && <span className="text-[11px] text-fg-3">Auto-transcribed — may contain mistakes</span>}
 		</>
 	);

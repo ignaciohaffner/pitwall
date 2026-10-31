@@ -9,12 +9,14 @@ import type { Driver, Message, RadioCapture } from "@/types/state.type";
 import { useDataStore } from "@/stores/useDataStore";
 import { useRadioTranscript } from "@/hooks/useRadioTranscript";
 import { useRaceControlChime } from "@/hooks/useRaceControlChime";
+import { useNewKeys } from "@/hooks/useNewKeys";
 import { hasWords, radioClipHidden } from "@/lib/radioTranscript";
 import { useTranscriptStore } from "@/stores/useTranscriptStore";
 import { utcMs } from "@/lib/utcMs";
 
 import Panel from "@/components/ui/Panel";
 import RadioClip from "@/components/messages/RadioClip";
+import TypingText from "@/components/ui/TypingText";
 
 type Filter = "all" | "radio" | "rc";
 
@@ -45,6 +47,10 @@ export default function MessagesPanel({ className }: { className?: string }) {
 		.sort((a, b) => utcMs(b.Utc) - utcMs(a.Utc))
 		.slice(0, MAX_CLIPS)
 		.map((capture) => ({ kind: "radio", utc: capture.Utc, capture }));
+
+	// Messages that arrived while the panel was open type themselves out; the ones there on load don't.
+	// Keyed over every item, not the filtered list, so switching filters doesn't count as new.
+	const fresh = useNewKeys([...rc, ...radio].map(itemKey));
 
 	const items = (filter === "rc" ? rc : filter === "radio" ? radio : [...rc, ...radio]).sort(
 		(a, b) => utcMs(b.utc) - utcMs(a.utc),
@@ -84,11 +90,12 @@ export default function MessagesPanel({ className }: { className?: string }) {
 				{items.length === 0 && <EmptyMessages />}
 				{items.map((item) =>
 					item.kind === "rc" ? (
-						<RaceControlItem key={`rc.${item.utc}.${item.msg.Message}`} msg={item.msg} />
+						<RaceControlItem key={itemKey(item)} msg={item.msg} typing={fresh.has(itemKey(item))} />
 					) : (
 						<RadioItem
-							key={`radio.${item.capture.Path}`}
+							key={itemKey(item)}
 							capture={item.capture}
+							typing={fresh.has(itemKey(item))}
 							driver={drivers?.[item.capture.RacingNumber]}
 							sessionPath={sessionPath}
 						/>
@@ -98,6 +105,9 @@ export default function MessagesPanel({ className }: { className?: string }) {
 		</Panel>
 	);
 }
+
+const itemKey = (item: Item) =>
+	item.kind === "rc" ? `rc.${item.utc}.${item.msg.Message}` : `radio.${item.capture.Path}`;
 
 const clock = (iso: string) => utc(iso).local().format("HH:mm:ss");
 
@@ -112,7 +122,7 @@ function EmptyMessages() {
 	);
 }
 
-function RaceControlItem({ msg }: { msg: Message }) {
+function RaceControlItem({ msg, typing }: { msg: Message; typing: boolean }) {
 	return (
 		<article className="flex gap-3 border-b border-border p-3">
 			<div className="flex size-9 flex-none items-center justify-center rounded-control bg-slower/12 text-slower">
@@ -140,7 +150,7 @@ function RaceControlItem({ msg }: { msg: Message }) {
 						</span>
 					)}
 				</div>
-				<p className="text-[13px] leading-normal text-fg-body">{msg.Message}</p>
+				<TypingText text={msg.Message} animate={typing} className="text-[13px] leading-normal text-fg-body" />
 			</div>
 		</article>
 	);
@@ -150,9 +160,10 @@ type RadioItemProps = {
 	capture: RadioCapture;
 	driver: Driver | undefined;
 	sessionPath: string | undefined;
+	typing: boolean;
 };
 
-function RadioItem({ capture, driver, sessionPath }: RadioItemProps) {
+function RadioItem({ capture, driver, sessionPath, typing }: RadioItemProps) {
 	const transcript = useRadioTranscript(sessionPath, capture.Path);
 
 	// Hide clips that turned out to have no words, as the old transcript list did.
@@ -165,6 +176,7 @@ function RadioItem({ capture, driver, sessionPath }: RadioItemProps) {
 			driver={driver}
 			src={`https://livetiming.formula1.com/static/${sessionPath}${capture.Path}`}
 			transcript={transcript}
+			typing={typing}
 		/>
 	);
 }
