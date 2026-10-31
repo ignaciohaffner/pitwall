@@ -157,11 +157,11 @@ function MobileTable({ kind, lines, drivers, showInterval, onOpen }: TableProps)
 							)}
 							style={{ gridTemplateColumns: GRID[kind] }}
 						>
-							{kind === "race" ? (
-								<PositionCell position={position} out={!!(line.Retired || line.Stopped)} className="text-fg-2" />
-							) : (
-								<span className={clsx("text-right", knockout ? "text-loss" : "text-fg-2")}>{position}</span>
-							)}
+							<PositionCell
+								position={position}
+								out={kind === "race" && !!(line.Retired || line.Stopped)}
+								className={knockout ? "text-loss" : "text-fg-2"}
+							/>
 							<DriverChip short={driver.Tla} teamColor={driver.TeamColour} size="sm" />
 							<MobileCells kind={kind} line={line} showInterval={showInterval} fastest={fastest} />
 						</button>

@@ -18,6 +18,7 @@ import { practiceGridCols, QUALI_SECTOR_GAP, RACE_GRID_GAP, SECTOR_GRID } from "
 import StatusDot from "@/components/ui/StatusDot";
 
 import DriverChip from "./DriverChip";
+import PositionCell from "./PositionCell";
 import DriverTireStack from "./DriverTireStack";
 import { QualiSectorCell } from "./QualiDriver";
 
@@ -78,7 +79,7 @@ export default function PracticeDriver({ position, driver, timingDriver, timingS
 				className="grid min-w-0 flex-1 items-center px-2.5"
 				style={{ columnGap: RACE_GRID_GAP, gridTemplateColumns: practiceGridCols(showPace) }}
 			>
-				<span className="text-right text-fg-2">{position}</span>
+				<PositionCell position={position} className="text-fg-2" />
 
 				<DriverChip short={driver.Tla} teamColor={driver.TeamColour} />
 
