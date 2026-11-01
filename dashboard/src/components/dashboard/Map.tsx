@@ -5,6 +5,7 @@ import type { PositionCar, TimingDataDriver } from "@/types/state.type";
 import type { TrackPosition } from "@/types/map.type";
 
 import { fetchMap } from "@/lib/fetchMap";
+import { estimateLapFraction, pointAtFraction } from "@/lib/estimatedPosition";
 import { getSmoothedPositions } from "@/lib/positionTrack";
 
 import { useDataStore } from "@/stores/useDataStore";
@@ -147,7 +148,12 @@ function CircuitMap({ filter, circuitKey, year }: Props & { circuitKey?: number;
 		else dotRefs.current.delete(nr);
 	}, []);
 
-	// Move the dots every frame along the interpolated timeline (see lib/positionTrack).
+	// Track outline in the same coordinates as the GPS positions, for the no-GPS estimate.
+	const trackPointsRef = useRef(originalTrackPoints);
+	trackPointsRef.current = originalTrackPoints;
+
+	// Move the dots every frame: interpolated GPS (lib/positionTrack) when F1 sends it,
+	// otherwise dead reckoning on the minisector progress (lib/estimatedPosition).
 	useEffect(() => {
 		if (centerX === null || centerY === null) return;
 
@@ -160,14 +166,30 @@ function CircuitMap({ filter, circuitKey, year }: Props & { circuitKey?: number;
 			const delayMs = useSettingsStore.getState().delay * 1000;
 
 			const smooth = getSmoothedPositions(now, delayMs, speed);
-			if (smooth) {
-				dotRefs.current.forEach((el, nr) => {
-					const p = smooth[nr];
-					if (!p) return;
-					const r = rotate(p.X, p.Y, rotation, centerX, centerY);
-					el.style.transform = `translate(${r.x}px, ${r.y}px)`;
-				});
-			}
+			const timing = useDataStore.getState().state?.TimingData?.Lines;
+			const trackPoints = trackPointsRef.current;
+
+			dotRefs.current.forEach((el, nr) => {
+				let x: number;
+				let y: number;
+
+				const p = smooth?.[nr];
+				if (p) {
+					x = p.X;
+					y = p.Y;
+				} else {
+					const driver = timing?.[nr];
+					if (!driver || !trackPoints || trackPoints.length === 0) return;
+					const fraction = estimateLapFraction(nr, driver, now);
+					if (fraction === null) return;
+					const point = pointAtFraction(trackPoints, fraction);
+					x = point.x;
+					y = point.y;
+				}
+
+				const r = rotate(x, y, rotation, centerX, centerY);
+				el.style.transform = `translate(${r.x}px, ${r.y}px)`;
+			});
 
 			raf = requestAnimationFrame(tick);
 		};
@@ -388,7 +410,7 @@ function CircuitMap({ filter, circuitKey, year }: Props & { circuitKey?: number;
 										pit={pit}
 										hidden={hidden}
 										pos={driverPosition}
-										smooth={!!realPos}
+										smooth
 										registerDot={registerDot}
 										nr={driver.RacingNumber}
 										rotation={rotation}
@@ -427,8 +449,8 @@ type CarDotProps = {
 	hidden: boolean;
 
 	pos: PositionCar;
-	// true: the dot is moved by the map's animation loop (real, interpolated positions)
-	// false: estimated from timing data, moved by a CSS transition
+	// true: the dot is moved by the map's animation loop (GPS or minisector estimate)
+	// false: placed by React from `pos`, with a CSS transition
 	smooth: boolean;
 	registerDot: (nr: string, el: SVGGElement | null) => void;
 	nr: string;
