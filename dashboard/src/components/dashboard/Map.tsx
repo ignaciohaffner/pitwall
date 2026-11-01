@@ -1,13 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import clsx from "clsx";
 
 import type { PositionCar, TimingDataDriver } from "@/types/state.type";
 import type { TrackPosition } from "@/types/map.type";
 
 import { fetchMap } from "@/lib/fetchMap";
+import { getSmoothedPositions } from "@/lib/positionTrack";
 
 import { useDataStore } from "@/stores/useDataStore";
 import { useSettingsStore } from "@/stores/useSettingsStore";
+import { useReplayStore } from "@/stores/useReplayStore";
 import { getTrackStatusMessage } from "@/lib/getTrackStatusMessage";
 import {
 	createSectors,
@@ -137,6 +139,40 @@ function CircuitMap({ filter, circuitKey, year }: Props & { circuitKey?: number;
 	const [rotation, setRotation] = useState<number>(0);
 	const [finishLine, setFinishLine] = useState<null | { x: number; y: number; startAngle: number }>(null);
 	const [originalTrackPoints, setOriginalTrackPoints] = useState<null | { x: number; y: number }[]>(null);
+
+	// Car dots that are driven by the animation loop below instead of by React.
+	const dotRefs = useRef(new globalThis.Map<string, SVGGElement>());
+	const registerDot = useCallback((nr: string, el: SVGGElement | null) => {
+		if (el) dotRefs.current.set(nr, el);
+		else dotRefs.current.delete(nr);
+	}, []);
+
+	// Move the dots every frame along the interpolated timeline (see lib/positionTrack).
+	useEffect(() => {
+		if (centerX === null || centerY === null) return;
+
+		let raf = 0;
+		const tick = (now: number) => {
+			const replay = useReplayStore.getState();
+			const speed = replay.mode === "replay" && replay.sessionId ? replay.speed : 1;
+			const delayMs = useSettingsStore.getState().delay * 1000;
+
+			const smooth = getSmoothedPositions(now, delayMs, speed);
+			if (smooth) {
+				dotRefs.current.forEach((el, nr) => {
+					const p = smooth[nr];
+					if (!p) return;
+					const r = rotate(p.X, p.Y, rotation, centerX, centerY);
+					el.style.transform = `translate(${r.x}px, ${r.y}px)`;
+				});
+			}
+
+			raf = requestAnimationFrame(tick);
+		};
+
+		raf = requestAnimationFrame(tick);
+		return () => cancelAnimationFrame(raf);
+	}, [rotation, centerX, centerY]);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -350,6 +386,9 @@ function CircuitMap({ filter, circuitKey, year }: Props & { circuitKey?: number;
 										pit={pit}
 										hidden={hidden}
 										pos={driverPosition}
+										smooth={!!realPos}
+										registerDot={registerDot}
+										nr={driver.RacingNumber}
 										rotation={rotation}
 										centerX={centerX}
 										centerY={centerY}
@@ -386,22 +425,56 @@ type CarDotProps = {
 	hidden: boolean;
 
 	pos: PositionCar;
+	// true: the dot is moved by the map's animation loop (real, interpolated positions)
+	// false: estimated from timing data, moved by a CSS transition
+	smooth: boolean;
+	registerDot: (nr: string, el: SVGGElement | null) => void;
+	nr: string;
 	rotation: number;
 
 	centerX: number;
 	centerY: number;
 };
 
-const CarDot = ({ pos, name, color, favoriteDriver, pit, hidden, rotation, centerX, centerY }: CarDotProps) => {
+const CarDot = ({
+	pos,
+	name,
+	color,
+	favoriteDriver,
+	pit,
+	hidden,
+	smooth,
+	registerDot,
+	nr,
+	rotation,
+	centerX,
+	centerY,
+}: CarDotProps) => {
 	const rotatedPos = rotate(pos.X, pos.Y, rotation, centerX, centerY);
 	const transform = [`translateX(${rotatedPos.x}px)`, `translateY(${rotatedPos.y}px)`].join(" ");
 
+	const ref = useRef<SVGGElement>(null);
+	const latestTransform = useRef(transform);
+	latestTransform.current = transform;
+
+	useLayoutEffect(() => {
+		const el = ref.current;
+		if (!smooth || !el) return;
+
+		// start where the stepped position is, so there is no frame at (0,0)
+		el.style.transform = latestTransform.current;
+		registerDot(nr, el);
+		return () => registerDot(nr, null);
+	}, [smooth, nr, registerDot]);
+
 	return (
 		<g
+			ref={ref}
 			className={clsx("fill-zinc-700", { "opacity-30": pit }, { "opacity-0!": hidden })}
 			style={{
-				transition: "all 1s linear",
-				transform,
+				transition: smooth ? "opacity 1s linear, fill 1s linear" : "all 1s linear",
+				// in smooth mode the transform belongs to the animation loop, not React
+				...(!smooth && { transform }),
 				...(color && { fill: `#${color}` }),
 			}}
 		>

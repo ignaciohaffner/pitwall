@@ -6,6 +6,7 @@ import type { CarData, CarsData, Position, Positions, State } from "@/types/stat
 import type { MessageInitial, MessageUpdate } from "@/types/message.type";
 
 import { inflateSafe } from "@/lib/inflate";
+import { pushPositionSample } from "@/lib/positionTrack";
 import { utcToLocalMs } from "@/lib/utcToLocalMs";
 
 import { useSettingsStore } from "@/stores/useSettingsStore";
@@ -75,7 +76,11 @@ export const useDataEngine = ({ updateState, updatePosition, updateCarData }: Pr
 		const position = posZ ? inflateSafe<Position>(posZ) : null;
 		if (position?.Position?.length) {
 			updatePosition(position.Position[0].Entries);
-			for (const entry of position.Position) posBuffer.pushTimed(entry.Entries, utcToLocalMs(entry.Timestamp));
+			for (const entry of position.Position) {
+				const ts = utcToLocalMs(entry.Timestamp);
+				posBuffer.pushTimed(entry.Entries, ts);
+				pushPositionSample(ts, entry.Entries);
+			}
 		}
 	};
 
@@ -93,7 +98,11 @@ export const useDataEngine = ({ updateState, updatePosition, updateCarData }: Pr
 
 		const position = posZ ? inflateSafe<Position>(posZ) : null;
 		if (position?.Position?.length) {
-			for (const entry of position.Position) posBuffer.pushTimed(entry.Entries, utcToLocalMs(entry.Timestamp));
+			for (const entry of position.Position) {
+				const ts = utcToLocalMs(entry.Timestamp);
+				posBuffer.pushTimed(entry.Entries, ts);
+				pushPositionSample(ts, entry.Entries);
+			}
 		}
 	};
 

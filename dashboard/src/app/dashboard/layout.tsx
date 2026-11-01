@@ -3,6 +3,8 @@
 import { type ReactNode, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "motion/react";
 
+import { resetPositionTrack } from "@/lib/positionTrack";
+
 import { useDataEngine } from "@/hooks/useDataEngine";
 import { useWakeLock } from "@/hooks/useWakeLock";
 import { useStores } from "@/hooks/useStores";
@@ -54,6 +56,7 @@ export default function DashboardLayout({ children }: Props) {
 		useDataStore.getState().setCarsData(null);
 		useDataStore.getState().setPositions(null);
 		useHistoryStore.getState().reset();
+		resetPositionTrack();
 	}, [replayActive, replaySessionId, replayEpoch]);
 
 	// The delay buffer shows a "Syncing..." wall while it fills; force it off during
