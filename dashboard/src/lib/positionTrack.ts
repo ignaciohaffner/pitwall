@@ -2,16 +2,24 @@ import type { PositionCar, Positions } from "@/types/state.type";
 
 // Smooth car positions for the track map.
 //
-// F1 sends position samples in irregular batches. Drawing the "latest" sample makes the
-// dots jump/stall, so every timed sample is kept here and the map reads an interpolated
-// position at a playhead that trails the newest sample by SMOOTH_MS. Having a "next"
-// sample ahead of the playhead is what lets us interpolate instead of guessing.
+// F1 sends position samples in ~1s batches (~4 samples each) and a batch is sometimes
+// late. Drawing the "latest" sample makes the dots jump/stall, so every timed sample is
+// kept here and the map reads an interpolated position at a playhead that trails the
+// newest sample. The playhead runs freely at the source speed; a slow controller only
+// nudges its rate so the gap to the newest sample ("lead") stays around `bufferMs`.
+// If a batch is so late that the playhead runs out of data, the buffer grows.
 
-// How far behind the newest sample we draw. Bigger = smoother when batches are uneven.
-const SMOOTH_MS = 1500;
-// Playhead catch-up gain (1/s). Low on purpose: a high gain makes the dots speed up and
-// slow down every time a batch lands.
-const CATCH_UP = 0.5;
+// Starting / minimum lead. Bigger = smoother when batches are uneven, but more lag.
+const MIN_BUFFER_MS = 1500;
+const MAX_BUFFER_MS = 4500;
+// On an underrun, how much the buffer grows; it shrinks back at SHRINK_PER_SEC.
+const GROW_MS = 400;
+const SHRINK_PER_SEC = 5;
+// Rate nudge per second of lead error, capped so speed changes stay invisible.
+const RATE_GAIN = 0.15;
+const RATE_CAP = 0.15;
+// The worst lead of the last few seconds is what decides stalls: relax over this window.
+const LEAD_WINDOW_MS = 8000;
 // Gap between playhead and target above which we just jump (replay seek, tab sleeping).
 const SNAP_MS = 10_000;
 // Never advance the playhead by more than this per frame (background tab resumes).
@@ -24,6 +32,8 @@ type Sample = { t: number; cars: Positions };
 let samples: Sample[] = [];
 let playhead: number | null = null;
 let lastFrame: number | null = null;
+let bufferMs = MIN_BUFFER_MS;
+let minLead = MIN_BUFFER_MS;
 let keepMs = KEEP_MS;
 
 export const pushPositionSample = (t: number, cars: Positions) => {
@@ -49,6 +59,8 @@ export const resetPositionTrack = () => {
 	samples = [];
 	playhead = null;
 	lastFrame = null;
+	bufferMs = MIN_BUFFER_MS;
+	minLead = MIN_BUFFER_MS;
 };
 
 const lerp = (a: number, b: number, k: number) => a + (b - a) * k;
@@ -72,19 +84,35 @@ export const getSmoothedPositions = (now: number, delayMs: number, speed: number
 	if (samples.length < 2) return null;
 
 	const newest = samples[samples.length - 1].t;
-	const target = newest - delayMs - SMOOTH_MS;
+	// newest sample the user is allowed to see (their broadcast delay setting)
+	const limit = newest - delayMs;
 
-	if (playhead === null || lastFrame === null || Math.abs(target - playhead) > SNAP_MS) {
-		playhead = target;
-	} else {
-		const dt = Math.min(now - lastFrame, MAX_FRAME_MS);
-		const lagSecs = (target - playhead) / 1000;
-		playhead += dt * Math.max(0, speed + CATCH_UP * lagSecs);
+	if (playhead === null || lastFrame === null || Math.abs(limit - playhead - bufferMs) > SNAP_MS) {
+		playhead = limit - bufferMs - 500;
+		minLead = bufferMs + 500;
+		lastFrame = now;
 	}
+
+	const dt = Math.min(now - lastFrame, MAX_FRAME_MS);
 	lastFrame = now;
 
-	// never run past the data we have (replay paused, feed stalled): hold still
-	playhead = Math.min(playhead, newest);
+	// controller: keep the worst recent lead near bufferMs by speeding up / slowing down a bit
+	const errSecs = (minLead - bufferMs) / 1000;
+	const nudge = Math.max(-RATE_CAP, Math.min(RATE_CAP, RATE_GAIN * errSecs));
+	playhead += dt * speed * (1 + nudge);
+
+	const lead = limit - playhead;
+	if (lead < minLead) minLead = lead;
+	else minLead += ((lead - minLead) * dt) / LEAD_WINDOW_MS;
+
+	if (lead < 0) {
+		// ran out of data: hold at the edge and keep a bigger cushion from now on
+		playhead = limit;
+		minLead = 0;
+		bufferMs = Math.min(MAX_BUFFER_MS, bufferMs + GROW_MS);
+	} else {
+		bufferMs = Math.max(MIN_BUFFER_MS, bufferMs - (SHRINK_PER_SEC * dt) / 1000);
+	}
 
 	const first = samples[0];
 	if (playhead <= first.t) return first.cars;
