@@ -154,7 +154,9 @@ function CircuitMap({ filter, circuitKey, year }: Props & { circuitKey?: number;
 		let raf = 0;
 		const tick = (now: number) => {
 			const replay = useReplayStore.getState();
-			const speed = replay.mode === "replay" && replay.sessionId ? replay.speed : 1;
+			// "max" has no fixed rate; a high one keeps the playhead from lagging behind
+			const speed =
+				replay.mode === "replay" && replay.sessionId ? (replay.speed === "max" ? 30 : replay.speed) : 1;
 			const delayMs = useSettingsStore.getState().delay * 1000;
 
 			const smooth = getSmoothedPositions(now, delayMs, speed);
