@@ -28,9 +28,17 @@ export type BaseStandings = {
 	drivers: BaseDriver[];
 	teams: BaseTeam[];
 	after?: { round: number; raceName: string };
+	// The round this session belongs to, once known.
+	currentRound?: number;
 };
 
 type TimingLine = Pick<TimingDataDriver, "RacingNumber" | "Position" | "Retired" | "Stopped">;
+
+// The feed mixes flags like `_kf: true` into DriverList.
+const rosterOf = <T extends Pick<Driver, "Tla">>(rawDriverList: Record<string, T>): Record<string, T> =>
+	Object.fromEntries(
+		Object.entries(rawDriverList).filter(([, info]) => typeof info === "object" && info !== null && "Tla" in info),
+	);
 
 export function predictStandings(
 	base: BaseStandings,
@@ -38,10 +46,7 @@ export function predictStandings(
 	rawDriverList: Record<string, Pick<Driver, "Tla" | "TeamName">>,
 	pointsTable: number[],
 ): ChampionshipPrediction & { Drivers: Record<string, PredictedDriver> } {
-	// The feed mixes flags like `_kf: true` into DriverList.
-	const driverList = Object.fromEntries(
-		Object.entries(rawDriverList).filter(([, info]) => typeof info === "object" && info !== null && "Tla" in info),
-	);
+	const driverList = rosterOf(rawDriverList);
 
 	const earned = (nr: string): number => {
 		const line = lines[nr];
@@ -106,6 +111,78 @@ export function predictStandings(
 
 	rank(drivers);
 	rank(teams);
+
+	return {
+		Drivers: Object.fromEntries(drivers.map((d) => [d.RacingNumber, d])),
+		Teams: Object.fromEntries(teams.map((t) => [t.TeamName, t])),
+	};
+}
+
+/**
+ * The table once the round's standings are published: "Current" is before this session,
+ * "Predicted" is what was published, so penalties and countback are already in it.
+ */
+export function officialStandings(
+	before: BaseStandings,
+	after: BaseStandings,
+	rawDriverList: Record<string, Pick<Driver, "Tla" | "TeamName">>,
+): ChampionshipPrediction & { Drivers: Record<string, PredictedDriver> } {
+	const driverList = rosterOf(rawDriverList);
+
+	// By code first: a race number can differ from the permanent number jolpica has.
+	const find = (drivers: BaseDriver[], number: string, code: string | undefined) =>
+		drivers.find((d) => d.code !== "" && d.code === code) ??
+		drivers.find((d) => d.number !== "" && d.number === number);
+	const lastPosition = (rows: { position: number }[]) => rows.reduce((max, row) => Math.max(max, row.position), 0);
+
+	const matched = new Set<BaseDriver>();
+	let unpublished = lastPosition(after.drivers);
+	const drivers: PredictedDriver[] = Object.entries(driverList).map(([nr, info]) => {
+		const was = find(before.drivers, nr, info.Tla);
+		const now = find(after.drivers, nr, info.Tla);
+		if (now) matched.add(now);
+		const current = was?.points ?? 0;
+		return {
+			RacingNumber: nr,
+			CurrentPosition: was?.position ?? lastPosition(before.drivers) + 1,
+			CurrentPoints: current,
+			PredictedPoints: now?.points ?? current,
+			PredictedPosition: now?.position ?? ++unpublished,
+		};
+	});
+
+	for (const now of after.drivers) {
+		if (matched.has(now)) continue;
+		const was = find(before.drivers, now.number, now.code);
+		drivers.push({
+			RacingNumber: now.number || now.code,
+			Tla: now.code,
+			FamilyName: now.familyName,
+			CurrentPosition: was?.position ?? lastPosition(before.drivers) + 1,
+			CurrentPoints: was?.points ?? 0,
+			PredictedPoints: now.points,
+			PredictedPosition: now.position,
+		});
+	}
+
+	const inAfter = (nr: string) => find(after.drivers, nr, driverList[nr]?.Tla);
+	const teamIdByName = matchTeams(driverList, inAfter, after.teams);
+	const teamDisplay = new Map<string, string>();
+	for (const [nr, info] of Object.entries(driverList)) {
+		const id = teamIdByName.get(info.TeamName) ?? inAfter(nr)?.constructorId;
+		if (id && info.TeamName && !teamDisplay.has(id)) teamDisplay.set(id, info.TeamName);
+	}
+
+	const teams = after.teams.map((now) => {
+		const was = before.teams.find((t) => t.constructorId === now.constructorId);
+		return {
+			TeamName: teamDisplay.get(now.constructorId) ?? now.name,
+			CurrentPosition: was?.position ?? lastPosition(before.teams) + 1,
+			CurrentPoints: was?.points ?? 0,
+			PredictedPoints: now.points,
+			PredictedPosition: now.position,
+		};
+	});
 
 	return {
 		Drivers: Object.fromEntries(drivers.map((d) => [d.RacingNumber, d])),
@@ -225,7 +302,7 @@ export async function fetchBaseStandings(
 	if (!race) return null;
 
 	const round = parseInt(race.round);
-	const base: BaseStandings = { drivers: [], teams: [] };
+	const base: BaseStandings = { drivers: [], teams: [], currentRound: round };
 
 	if (round > 1) {
 		const standings = await fetchStandings(`${year}/${round - 1}`);
@@ -241,6 +318,31 @@ export async function fetchBaseStandings(
 	}
 
 	return base;
+}
+
+/**
+ * The standings this session's result produced, or null until jolpica publishes them.
+ * A sprint has no standings of its own, so its published results go on top of `base`.
+ */
+export async function fetchOfficialStandings(
+	year: number,
+	base: BaseStandings,
+	isSprint: boolean,
+): Promise<BaseStandings | null> {
+	const round = base.currentRound;
+	if (!round) return null;
+
+	if (isSprint) {
+		const sprint = await get<SprintResponse>(`${year}/${round}/sprint.json?limit=100`);
+		const results = sprint?.RaceTable.Races[0]?.SprintResults ?? [];
+		if (results.length === 0) return null;
+		const after = structuredClone(base);
+		applySprint(after, results);
+		return after;
+	}
+
+	const standings = await fetchStandings(`${year}/${round}`);
+	return standings?.round === round && standings.drivers.length > 0 ? standings : null;
 }
 
 /** Latest published standings for the season (used outside a race weekend). */

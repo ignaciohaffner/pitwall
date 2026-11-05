@@ -29,6 +29,9 @@ const BY_CODE: Record<number, TrackStatusView> = {
 	7: { kind: "vsc", label: "VSC ending", banner: "Virtual safety car ending — racing resumes shortly" },
 };
 
+export const isSessionOver = (sessionStatus: string | undefined): boolean =>
+	sessionStatus === "Finished" || sessionStatus === "Finalised" || sessionStatus === "Ends";
+
 const CHEQUERED: TrackStatusView = { kind: "chequered", label: "Chequered flag", banner: null };
 
 /**
@@ -39,7 +42,7 @@ export const trackStatusView = (
 	statusCode: string | number | undefined,
 	sessionStatus: string | undefined,
 ): TrackStatusView | null => {
-	if (sessionStatus === "Finished" || sessionStatus === "Finalised" || sessionStatus === "Ends") return CHEQUERED;
+	if (isSessionOver(sessionStatus)) return CHEQUERED;
 
 	const code = typeof statusCode === "string" ? parseInt(statusCode) : statusCode;
 	if (code == null || Number.isNaN(code)) return null;

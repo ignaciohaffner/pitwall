@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { latestSessionStatus, trackStatusView } from "./trackStatus";
+import { isSessionOver, latestSessionStatus, trackStatusView } from "./trackStatus";
 
 describe("trackStatusView", () => {
 	it("maps the TrackStatus codes", () => {
@@ -47,5 +47,15 @@ describe("latestSessionStatus", () => {
 	it("falls back to SessionStatus.Status without a series", () => {
 		expect(latestSessionStatus(undefined, "Started")).toBe("Started");
 		expect(latestSessionStatus([], "Ends")).toBe("Ends");
+	});
+});
+
+describe("isSessionOver", () => {
+	it.each(["Finished", "Finalised", "Ends"])("treats %s as over", (status) => {
+		expect(isSessionOver(status)).toBe(true);
+	});
+
+	it.each(["Started", "Inactive", "Aborted", undefined])("treats %s as still running", (status) => {
+		expect(isSessionOver(status)).toBe(false);
 	});
 });

@@ -1,6 +1,14 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { applySprint, findRound, predictStandings, RACE_POINTS, type BaseStandings } from "./standings";
+import {
+	applySprint,
+	fetchOfficialStandings,
+	findRound,
+	officialStandings,
+	predictStandings,
+	RACE_POINTS,
+	type BaseStandings,
+} from "./standings";
 
 const base = (): BaseStandings => ({
 	drivers: [
@@ -154,5 +162,137 @@ describe("predictStandings constructors", () => {
 		);
 		expect(result.Teams["Red Bull Racing"]?.PredictedPoints).toBe(263 + 25 + 6);
 		expect(result.Teams["Racing Bulls"]?.PredictedPoints).toBe(83 + 4 + 1);
+	});
+});
+
+describe("officialStandings", () => {
+	const after = (): BaseStandings => ({
+		drivers: [
+			{ number: "44", code: "HAM", familyName: "Hamilton", points: 105, position: 1, constructorId: "ferrari" },
+			{ number: "12", code: "ANT", familyName: "Antonelli", points: 105, position: 2, constructorId: "mercedes" },
+			{ number: "63", code: "RUS", familyName: "Russell", points: 90, position: 3, constructorId: "mercedes" },
+		],
+		teams: [
+			{ constructorId: "ferrari", name: "Ferrari", points: 105, position: 1 },
+			{ constructorId: "mercedes", name: "Mercedes", points: 195, position: 2 },
+		],
+	});
+
+	it("takes points and positions from the published standings, ties included", () => {
+		const o = officialStandings(base(), after(), driverList);
+
+		expect(o.Drivers["44"]).toMatchObject({
+			CurrentPoints: 80,
+			CurrentPosition: 3,
+			PredictedPoints: 105,
+			PredictedPosition: 1,
+		});
+		expect(o.Drivers["12"]).toMatchObject({ CurrentPoints: 100, PredictedPoints: 105, PredictedPosition: 2 });
+		expect(o.Teams["Ferrari"]).toMatchObject({ CurrentPoints: 80, PredictedPoints: 105, PredictedPosition: 1 });
+	});
+
+	it("finds a driver by code when the race number isn't their permanent one", () => {
+		const list = { "1": { Tla: "HAM", TeamName: "Ferrari" } };
+		const o = officialStandings(base(), after(), list);
+
+		expect(o.Drivers["1"]).toMatchObject({ CurrentPoints: 80, PredictedPoints: 105 });
+		expect(o.Drivers["44"]).toBeUndefined();
+	});
+
+	it("labels published drivers who aren't in this session's DriverList", () => {
+		const list = { "44": { Tla: "HAM", TeamName: "Ferrari" } };
+		const o = officialStandings(base(), after(), list);
+
+		expect(o.Drivers["63"]).toMatchObject({ Tla: "RUS", FamilyName: "Russell", PredictedPosition: 3 });
+	});
+
+	it("keeps a driver with no published standing on their earlier points, below the published ones", () => {
+		const o = officialStandings(base(), after(), driverList);
+
+		expect(o.Drivers["7"]).toMatchObject({ CurrentPoints: 0, PredictedPoints: 0, PredictedPosition: 4 });
+	});
+
+	it("uses the live team name for a constructor", () => {
+		const list = { "44": { Tla: "HAM", TeamName: "Scuderia Ferrari" } };
+		const o = officialStandings(base(), after(), list);
+
+		expect(o.Teams["Scuderia Ferrari"]).toMatchObject({ CurrentPoints: 80, PredictedPoints: 105 });
+	});
+});
+
+describe("fetchOfficialStandings", () => {
+	const standingsBody = (round: string, drivers: unknown[]) => ({
+		MRData: {
+			StandingsTable: {
+				StandingsLists: drivers.length ? [{ round, DriverStandings: drivers, ConstructorStandings: [] }] : [],
+			},
+		},
+	});
+	const jolpicaDriver = {
+		position: "1",
+		points: "105",
+		Driver: { permanentNumber: "44", code: "HAM", familyName: "Hamilton" },
+		Constructors: [{ constructorId: "ferrari" }],
+	};
+	const respondWith = (body: unknown) =>
+		vi.stubGlobal(
+			"fetch",
+			vi.fn(async () => new Response(JSON.stringify(body))),
+		);
+	const withRound = (): BaseStandings => ({ ...base(), currentRound: 19 });
+
+	afterEach(() => vi.unstubAllGlobals());
+
+	it("returns this round's standings once they're published", async () => {
+		respondWith(standingsBody("19", [jolpicaDriver]));
+
+		const result = await fetchOfficialStandings(2026, withRound(), false);
+
+		expect(result?.drivers[0]).toMatchObject({ code: "HAM", points: 105 });
+	});
+
+	it("returns null while this round isn't published", async () => {
+		respondWith(standingsBody("19", []));
+
+		expect(await fetchOfficialStandings(2026, withRound(), false)).toBeNull();
+	});
+
+	it("returns null if an earlier round comes back", async () => {
+		respondWith(standingsBody("18", [jolpicaDriver]));
+
+		expect(await fetchOfficialStandings(2026, withRound(), false)).toBeNull();
+	});
+
+	it("adds a sprint's published results to the standings before it, leaving those untouched", async () => {
+		respondWith({
+			MRData: {
+				RaceTable: {
+					Races: [
+						{
+							SprintResults: [
+								{
+									number: "44",
+									points: "8",
+									Driver: { permanentNumber: "44", code: "HAM" },
+									Constructor: { constructorId: "ferrari", name: "Ferrari" },
+								},
+							],
+						},
+					],
+				},
+			},
+		});
+		const before = withRound();
+
+		const result = await fetchOfficialStandings(2026, before, true);
+
+		expect(result?.drivers.find((d) => d.code === "HAM")?.points).toBe(88);
+		expect(before.drivers.find((d) => d.code === "HAM")?.points).toBe(80);
+	});
+
+	it("returns null while the sprint isn't published", async () => {
+		respondWith({ MRData: { RaceTable: { Races: [] } } });
+
+		expect(await fetchOfficialStandings(2026, withRound(), true)).toBeNull();
 	});
 });

@@ -9,6 +9,8 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import {
 	fetchBaseStandings,
 	fetchLatestStandings,
+	fetchOfficialStandings,
+	officialStandings,
 	predictStandings,
 	RACE_POINTS,
 	SPRINT_POINTS,
@@ -17,9 +19,14 @@ import {
 } from "@/lib/standings";
 import { fillBackground, standingsRows, type StandingsMode, type StandingsRow } from "@/lib/standingsRows";
 
+import { isSessionOver, latestSessionStatus } from "@/lib/trackStatus";
+
 import Panel from "@/components/ui/Panel";
 import SegmentedControls from "@/components/ui/SegmentedControls";
 import DriverChip from "@/components/driver/DriverChip";
+
+// Jolpica allows 500 requests an hour; each check costs at most two.
+const OFFICIAL_POLL_MS = 2 * 60_000;
 
 export default function Standings() {
 	const feedPrediction = useDataStore((state) => state.state?.ChampionshipPrediction);
@@ -29,6 +36,11 @@ export default function Standings() {
 	const isSprint = useDataStore((state) => state.state?.SessionInfo?.Name === "Sprint");
 	const startDate = useDataStore((state) => state.state?.SessionInfo?.StartDate);
 
+	const sessionStatus = useDataStore((state) =>
+		latestSessionStatus(state.state?.SessionData?.StatusSeries, state.state?.SessionStatus?.Status),
+	);
+	const isOver = isRace && isSessionOver(sessionStatus);
+
 	const hasFeed = !!feedPrediction?.Drivers;
 	const [mode, setMode] = useState<StandingsMode>("live");
 	const isMobile = useIsMobile();
@@ -36,7 +48,7 @@ export default function Standings() {
 
 	// Outside a race: plain standings after the previous round, no live points.
 	// Keyed by session so a stale result is never shown for another race.
-	const baseKey = hasFeed && isRace ? null : `${startDate ?? "none"}|${isRace}|${isSprint}`;
+	const baseKey = hasFeed && isRace && !isOver ? null : `${startDate ?? "none"}|${isRace}|${isSprint}`;
 	const [fetched, setFetched] = useState<{ key: string; base: BaseStandings | null } | null>(null);
 	// undefined = loading, null = unavailable
 	const base = fetched && fetched.key === baseKey ? fetched.base : undefined;
@@ -58,6 +70,36 @@ export default function Standings() {
 		};
 	}, [baseKey, startDate, isRace, isSprint]);
 
+	// Once the session is over, swap the projection for what's published. Keep checking after
+	// that: penalties can land after the first publication, and this feed has no signal for them.
+	const [published, setPublished] = useState<{ base: BaseStandings; after: BaseStandings } | null>(null);
+	const pollBase = isOver ? base : null;
+
+	useEffect(() => {
+		if (!pollBase) return;
+		let cancelled = false;
+		const year = startDate ? new Date(startDate).getFullYear() : new Date().getFullYear();
+		const check = () =>
+			fetchOfficialStandings(year, pollBase, isSprint).then((after) => {
+				// A failed check keeps what we already have.
+				if (!cancelled && after) setPublished({ base: pollBase, after });
+			});
+		check();
+		const timer = setInterval(check, OFFICIAL_POLL_MS);
+		return () => {
+			cancelled = true;
+			clearInterval(timer);
+		};
+	}, [pollBase, startDate, isSprint]);
+
+	const official = useMemo(
+		() =>
+			published && published.base === pollBase
+				? officialStandings(published.base, published.after, drivers ?? {})
+				: null,
+		[published, pollBase, drivers],
+	);
+
 	const computed = useMemo(
 		() =>
 			!base
@@ -70,7 +112,7 @@ export default function Standings() {
 		[base, timingLines, drivers, isRace, isSprint],
 	);
 
-	const prediction = hasFeed && isRace ? feedPrediction : computed;
+	const prediction = official ?? (hasFeed && isRace ? feedPrediction : computed);
 	const driverStandings = prediction?.Drivers;
 	const teamStandings = prediction?.Teams;
 
@@ -151,9 +193,15 @@ export default function Standings() {
 		</>
 	);
 
+	const SHADING = "Row shading = points relative to the leader; brighter part = points from this race.";
+	const resultLabel = official ? "Official result" : isOver ? "Provisional" : "Live projection";
 	const caption = isRace
 		? view === "live"
-			? "If the race finished in the current order. Row shading = points relative to the leader; brighter part = points from this race."
+			? official
+				? `Official standings after this race, penalties included. ${SHADING}`
+				: isOver
+					? `Provisional: finishing order on the road, waiting for the official classification. ${SHADING}`
+					: `If the race finished in the current order. ${SHADING}`
 			: "Standings before this race."
 		: base?.after
 			? `After round ${base.after.round} · ${base.after.raceName}`
@@ -180,7 +228,7 @@ export default function Standings() {
 							onClick={() => setMode(mode === "live" ? "before" : "live")}
 							className="flex h-11 cursor-pointer items-center gap-2.5 rounded-control border border-border px-3 text-[13px] text-fg-1 focus-visible:outline-2 focus-visible:outline-fg-1"
 						>
-							Live projection
+							{resultLabel}
 							<span
 								aria-hidden
 								className={clsx(
@@ -193,7 +241,7 @@ export default function Standings() {
 						</button>
 					)}
 				</div>
-				{!isRace && <span className="px-1 text-xs text-fg-2">{caption}</span>}
+				{(!isRace || isOver) && <span className="px-1 text-xs text-fg-2">{caption}</span>}
 				<div className="flex flex-col">{table === "drivers" ? driverRows : teamRows}</div>
 			</div>
 		);
@@ -207,7 +255,7 @@ export default function Standings() {
 						selected={mode}
 						onSelect={setMode}
 						options={[
-							{ label: "Live projection", value: "live" },
+							{ label: resultLabel, value: "live" },
 							{ label: "Before this race", value: "before" },
 						]}
 					/>
