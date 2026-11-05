@@ -2,12 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import {
-	FullScheduleLoading,
-	NextRoundLoading,
-	NextRoundView,
-	ScheduleList,
-} from "@/components/schedule/ScheduleView";
+import { FullScheduleLoading, NextRoundLoading, NextRoundView, ScheduleList } from "@/components/schedule/ScheduleView";
 
 import { env } from "@/env";
 import { firstUpcoming, loadSchedule } from "@/lib/schedule";
